@@ -1,5 +1,6 @@
 package org.hildan.hashcode;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,18 +16,31 @@ public class InputParser {
     this.separator = separator;
   }
 
-  public <T> List<T> parseList(List<String> lines, Class<T> clazz, String... fieldNames) {
-    return lines.stream().map(l -> parseObject(l, clazz, fieldNames)).collect(Collectors.toList());
+  public int[] parseIntArray(String line) {
+    String[] words = line.split(separator);
+    return Arrays.stream(words).mapToInt(Integer::parseInt).toArray();
   }
 
-  public <T> List<T> parseList(List<String> lines, Class<T> clazz, String[][] fieldNamesByRow) {
-    List<T> list = new ArrayList<>(lines.size());
-    int nbLinesPerBean = fieldNamesByRow.length;
-    for (int i = 0; i < lines.size() / nbLinesPerBean; i++) {
-      int firstLine = i * nbLinesPerBean;
-      list.add(parseObject(lines.subList(firstLine, firstLine + nbLinesPerBean), clazz, fieldNamesByRow));
+  public long[] parseLongArray(String line) {
+    String[] words = line.split(separator);
+    return Arrays.stream(words).mapToLong(Long::parseLong).toArray();
+  }
+
+  public double[] parseDoubleArray(String line) {
+    String[] words = line.split(separator);
+    return Arrays.stream(words).mapToDouble(Double::parseDouble).toArray();
+  }
+
+  public String[] parseStringArray(String line) {
+    return line.split(separator);
+  }
+
+  public <T> List<T> parsePrimitiveWrapperList(String line, Class<T> clazz) {
+    String[] words = line.split(separator);
+    if (clazz.isPrimitive()) {
+      throw new IllegalArgumentException("Cannot create list of primitive type");
     }
-    return list;
+    return Arrays.stream(words).map(w -> clazz.cast(convert(clazz, w))).collect(Collectors.toList());
   }
 
   public <T> T parseObject(String line, Class<T> clazz, String... fieldNames) {
@@ -76,13 +90,17 @@ public class InputParser {
   }
 
   private static Object convert(Class<?> targetType, String value) {
-    if (targetType.isAssignableFrom(boolean.class)) {
+    if (targetType.isAssignableFrom(boolean.class)|| targetType.equals(Boolean.class)) {
       return convertToBoolean(value);
-    } else if (targetType.isAssignableFrom(int.class)) {
+    } else if (targetType.equals(long.class) || targetType.equals(Long.class)) {
+      return Long.valueOf(value);
+    } else if (targetType.equals(int.class) || targetType.equals(Integer.class)) {
       return Integer.valueOf(value);
-    } else if (targetType.isAssignableFrom(double.class)) {
+    } else if (targetType.equals(double.class) || targetType.equals(Double.class)) {
       return Double.valueOf(value);
-    } else if (targetType.isAssignableFrom(String.class)) {
+    } else if (targetType.equals(float.class) || targetType.equals(Float.class)) {
+      return Float.valueOf(value);
+    } else if (targetType.equals(String.class)) {
       return value;
     }
     throw new IllegalArgumentException(value);
@@ -96,5 +114,25 @@ public class InputParser {
       return true;
     }
     throw new IllegalArgumentException(value);
+  }
+
+  public <T> Object[] parseObjectArray(List<String> lines, Class<T> clazz, String... fieldNames) {
+    List<T> list = parseObjectList(lines, clazz, fieldNames);
+    //noinspection unchecked
+    return list.toArray((T[])Array.newInstance(clazz, list.size()));
+  }
+
+  public <T> List<T> parseObjectList(List<String> lines, Class<T> clazz, String... fieldNames) {
+    return lines.stream().map(l -> parseObject(l, clazz, fieldNames)).collect(Collectors.toList());
+  }
+
+  public <T> List<T> parseObjectList(List<String> lines, Class<T> clazz, String[][] fieldNamesByRow) {
+    List<T> list = new ArrayList<>(lines.size());
+    int nbLinesPerBean = fieldNamesByRow.length;
+    for (int i = 0; i < lines.size() / nbLinesPerBean; i++) {
+      int firstLine = i * nbLinesPerBean;
+      list.add(parseObject(lines.subList(firstLine, firstLine + nbLinesPerBean), clazz, fieldNamesByRow));
+    }
+    return list;
   }
 }
