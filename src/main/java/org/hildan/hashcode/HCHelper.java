@@ -6,41 +6,50 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class InputParser {
+import org.hildan.hashcode.config.Config;
+import org.intellij.lang.annotations.RegExp;
 
-  private final String separator;
+public class HCHelper {
 
-  public InputParser(String separator) {
-    this.separator = separator;
+  @RegExp
+  private final Config config;
+
+  public HCHelper(Config config) {
+    this.config = config;
   }
 
-  public int[] parseIntArray(String line) {
-    String[] words = line.split(separator);
+  public int[] parseIntArrayLine(String line) {
+    String[] words = split(line);
     return Arrays.stream(words).mapToInt(Integer::parseInt).toArray();
   }
 
-  public long[] parseLongArray(String line) {
-    String[] words = line.split(separator);
+  public long[] parseLongArrayLine(String line) {
+    String[] words = split(line);
     return Arrays.stream(words).mapToLong(Long::parseLong).toArray();
   }
 
-  public double[] parseDoubleArray(String line) {
-    String[] words = line.split(separator);
+  public double[] parseDoubleArrayLine(String line) {
+    String[] words = split(line);
     return Arrays.stream(words).mapToDouble(Double::parseDouble).toArray();
   }
 
-  public String[] parseStringArray(String line) {
-    return line.split(separator);
+  public String[] parseStringArrayLine(String line) {
+    return split(line);
   }
 
-  public <T> List<T> parsePrimitiveWrapperList(String line, Class<T> clazz) {
-    String[] words = line.split(separator);
-    if (clazz.isPrimitive()) {
-      throw new IllegalArgumentException("Cannot create list of primitive type");
-    }
-    return Arrays.stream(words).map(w -> clazz.cast(convert(clazz, w))).collect(Collectors.toList());
+  public <T> T[] parseArrayLine(String line, Class<T> primitiveWrapperClass) {
+    List<T> list = parsePrimitiveWrapperListLine(line, primitiveWrapperClass);
+    //noinspection unchecked
+    return list.toArray((T[])Array.newInstance(primitiveWrapperClass, list.size()));
+  }
+
+  public <T> List<T> parsePrimitiveWrapperListLine(String line, Class<T> wrapperClass) {
+    String[] words = split(line);
+    Function<String, T> convert = w -> TypeConverter.convertToPrimitiveWrapper(wrapperClass, w);
+    return Arrays.stream(words).map(convert).collect(Collectors.toList());
   }
 
   public <T> T parseObject(String line, Class<T> clazz, String... fieldNames) {
@@ -60,7 +69,7 @@ public class InputParser {
   }
 
   private <T> void setFields(T obj, int lineNum, String line, String... fieldNames) {
-    String[] words = line.split(separator);
+    String[] words = split(line);
     if (words.length != fieldNames.length) {
       throw new InputParsingException(lineNum, line,
               "The number of words doesn't match the expected fields: " + Arrays.toString(fieldNames));
@@ -79,7 +88,7 @@ public class InputParser {
   private static <T> void setField(T obj, String value, Field field, int lineNum, String line) {
     try {
       field.setAccessible(true);
-      field.set(obj, convert(field.getType(), value));
+      field.set(obj, TypeConverter.convert(field.getType(), value));
     } catch (IllegalArgumentException e) {
       throw new InputParsingException(lineNum, line,
               "Type mismatch, cannot assign value '" + value + "' to field '" + field.getName() + "' of type " +
@@ -87,33 +96,6 @@ public class InputParser {
     } catch (IllegalAccessException e) {
       throw new InputParsingException(lineNum, line, e);
     }
-  }
-
-  private static Object convert(Class<?> targetType, String value) {
-    if (targetType.isAssignableFrom(boolean.class)|| targetType.equals(Boolean.class)) {
-      return convertToBoolean(value);
-    } else if (targetType.equals(long.class) || targetType.equals(Long.class)) {
-      return Long.valueOf(value);
-    } else if (targetType.equals(int.class) || targetType.equals(Integer.class)) {
-      return Integer.valueOf(value);
-    } else if (targetType.equals(double.class) || targetType.equals(Double.class)) {
-      return Double.valueOf(value);
-    } else if (targetType.equals(float.class) || targetType.equals(Float.class)) {
-      return Float.valueOf(value);
-    } else if (targetType.equals(String.class)) {
-      return value;
-    }
-    throw new IllegalArgumentException(value);
-  }
-
-  private static boolean convertToBoolean(String value) {
-    if (value.equalsIgnoreCase("false") || "0".equals(value)) {
-      return false;
-    }
-    if (value.equalsIgnoreCase("true") || "1".equals(value)) {
-      return true;
-    }
-    throw new IllegalArgumentException(value);
   }
 
   public <T> Object[] parseObjectArray(List<String> lines, Class<T> clazz, String... fieldNames) {
@@ -134,5 +116,9 @@ public class InputParser {
       list.add(parseObject(lines.subList(firstLine, firstLine + nbLinesPerBean), clazz, fieldNamesByRow));
     }
     return list;
+  }
+
+  private String[] split(String line) {
+    return line.split(config.separator);
   }
 }
