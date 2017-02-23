@@ -1,4 +1,4 @@
-package org.hildan.hashcode;
+package org.hildan.hashcode.input.helper;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.hildan.hashcode.config.Config;
+import org.hildan.hashcode.input.InputParsingException;
+import org.hildan.hashcode.input.config.Config;
+import org.hildan.hashcode.input.parser.conversion.TypeConverter;
 import org.intellij.lang.annotations.RegExp;
 
 public class HCHelper {
@@ -64,7 +66,7 @@ public class HCHelper {
       }
       return obj;
     } catch (IllegalAccessException | InstantiationException e) {
-      throw new InputParsingException(e);
+      throw new InputParsingException("Could not create object of class " + clazz.getSimpleName(), e);
     }
   }
 
@@ -118,7 +120,7 @@ public class HCHelper {
     return list;
   }
 
-  private String[] split(String line) {
-    return line.split(config.separator);
+  public String[] split(String line) {
+    return line.split(config.getSeparator());
   }
 }

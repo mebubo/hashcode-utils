@@ -1,4 +1,4 @@
-package org.hildan.hashcode.config;
+package org.hildan.hashcode.input.config;
 
 import org.intellij.lang.annotations.RegExp;
 
@@ -8,7 +8,7 @@ public class Config {
   private static final String DEFAULT_SEPARATOR = "\\s";
 
   @RegExp
-  public final String separator;
+  private final String separator;
 
   public Config() {
     this.separator = DEFAULT_SEPARATOR;
@@ -16,5 +16,9 @@ public class Config {
 
   public Config(@RegExp String separator) {
     this.separator = separator;
+  }
+
+  public String getSeparator() {
+    return separator;
   }
 }

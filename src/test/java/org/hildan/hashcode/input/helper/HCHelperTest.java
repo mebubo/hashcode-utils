@@ -1,11 +1,11 @@
-package org.hildan.hashcode;
+package org.hildan.hashcode.input.helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.hildan.hashcode.config.Config;
+import org.hildan.hashcode.input.config.Config;
 import org.junit.Before;
 import org.junit.Test;
 
