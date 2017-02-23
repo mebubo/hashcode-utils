@@ -10,8 +10,8 @@ public class ObjectSectionReader<T, P> extends BaseSectionReader<T, P> {
 
     private final ObjectReader<T> childReader;
 
-    public ObjectSectionReader(ObjectReader<T> childReader, BiConsumer<P, T> parentUpdater) {
-        super(parentUpdater);
+    public ObjectSectionReader(ObjectReader<T> childReader, BiConsumer<P, T> parentSetter) {
+        super(parentSetter);
         this.childReader = childReader;
     }
 

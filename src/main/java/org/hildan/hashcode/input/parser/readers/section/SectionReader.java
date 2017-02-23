@@ -6,5 +6,5 @@ import org.hildan.hashcode.input.parser.Context;
 
 public interface SectionReader<P> {
 
-  void readSection(P objectToFill, Context context, Config config) throws InputParsingException;
+  void readSection(P parent, Context context, Config config) throws InputParsingException;
 }

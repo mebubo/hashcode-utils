@@ -3,10 +3,11 @@ package org.hildan.hashcode.input.parser;
 import java.util.Arrays;
 import java.util.List;
 
+import org.hildan.hashcode.input.parser.readers.ObjectReader;
 import org.hildan.hashcode.input.parser.readers.TreeObjectReader;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class HCParserTest {
 
@@ -23,6 +24,7 @@ public class HCParserTest {
     }
 
     public static class Outer {
+
         public String name;
 
         private int nInner;
@@ -52,14 +54,12 @@ public class HCParserTest {
         TreeObjectReader<Inner> innerReader = TreeObjectReader.of(Inner::new).addFieldsLine("x", "y");
 
         TreeObjectReader<Outer> outerReader = TreeObjectReader.of(Outer::new)
-                                                              .addFieldsLine("name", "nInner")
-                                                              .addList(innerReader, o -> o.nInner,
-                                                                      (o, l) -> o.mySubList = l);
+                .addFieldsLine("name", "nInner")
+                .addList((o, l) -> o.mySubList = l, o -> o.nInner, innerReader);
 
-        TreeObjectReader<Global> globalReader = TreeObjectReader.of(Global::new)
-                                                                .addFieldsLine("param1", "param2", "nOuter")
-                                                                .addArray(Outer[]::new, outerReader,
-                                                                        g -> g.nOuter, (g, l) -> g.myArray = l);
+        ObjectReader<Global> globalReader = TreeObjectReader.of(Global::new)
+                .addFieldsLine("param1", "param2", "nOuter@myArraySize")
+                .addArray((g, l) -> g.myArray = l, Outer[]::new, "myArraySize", outerReader);
 
         List<String> lines = Arrays.asList(CONTENT.split("\\n"));
         HCParser<Global> hcParser = new HCParser<>(globalReader);

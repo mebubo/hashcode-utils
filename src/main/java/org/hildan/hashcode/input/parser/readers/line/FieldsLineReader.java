@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import org.hildan.hashcode.input.InputParsingException;
 import org.hildan.hashcode.input.config.Config;
+import org.hildan.hashcode.input.parser.Context;
 import org.hildan.hashcode.input.parser.conversion.TypeConversionException;
 import org.hildan.hashcode.input.parser.conversion.TypeConverter;
 
@@ -17,28 +18,50 @@ public class FieldsLineReader<P> extends SingleLineSectionReader<P> {
     }
 
     @Override
-    public void setValues(P objectToFill, String[] values, Config config) {
-        setFields(objectToFill, values);
-    }
-
-    private void setFields(P obj, String[] values) {
+    public void setValues(P objectToFill, String[] values, Context context, Config config) {
         if (values.length != fieldNames.length) {
             throw new InputParsingException(
                     "The number of values doesn't match the expected fields: " + Arrays.toString(fieldNames));
         }
-        Class<?> clazz = obj.getClass();
         for (int f = 0; f < fieldNames.length; f++) {
-            try {
-                Field field = clazz.getDeclaredField(fieldNames[f]);
-                setField(obj, values[f], field);
-            } catch (NoSuchFieldException e) {
-                throw new InputParsingException(
-                        "The provided field name was not found in class " + clazz.getSimpleName(), e);
+            String name = fieldNames[f];
+            String fieldName = extractFieldName(name);
+            String variableName = extractVariableName(name);
+            if (variableName != null) {
+                context.setVariable(variableName, values[f]);
+            }
+            if (fieldName != null) {
+                setField(objectToFill, fieldName, values[f]);
             }
         }
     }
 
-    private static <P> void setField(P obj, String value, Field field) {
+    private static String extractFieldName(String name) {
+        if (!name.contains("@")) {
+            return name;
+        }
+        return name.split("@")[0];
+    }
+
+    private static String extractVariableName(String name) {
+        if (!name.contains("@")) {
+            return null;
+        }
+        return name.split("@")[1];
+    }
+
+    private static void setField(Object obj, String fieldName, String value) {
+        Class<?> clazz = obj.getClass();
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            setField(obj, field, value);
+        } catch (NoSuchFieldException e) {
+            throw new InputParsingException(
+                    "The provided field name was not found in class " + clazz.getSimpleName(), e);
+        }
+    }
+
+    private static void setField(Object obj, Field field, String value) {
         try {
             field.setAccessible(true);
             field.set(obj, TypeConverter.convert(field.getType(), value));

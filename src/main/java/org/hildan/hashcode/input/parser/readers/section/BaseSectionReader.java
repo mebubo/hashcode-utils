@@ -8,16 +8,16 @@ import org.hildan.hashcode.input.parser.Context;
 
 public abstract class BaseSectionReader<T, P> implements SectionReader<P> {
 
-    private final BiConsumer<P, T> parentUpdater;
+    private final BiConsumer<P, T> parentSetter;
 
-    public BaseSectionReader(BiConsumer<P, T> parentUpdater) {
-        this.parentUpdater = parentUpdater;
+    public BaseSectionReader(BiConsumer<P, T> parentSetter) {
+        this.parentSetter = parentSetter;
     }
 
     @Override
     public void readSection(P objectToFill, Context context, Config config) throws InputParsingException {
         T value = readSectionValue(objectToFill, context, config);
-        parentUpdater.accept(objectToFill, value);
+        parentSetter.accept(objectToFill, value);
     }
 
     protected abstract T readSectionValue(P objectToFill, Context context, Config config) throws InputParsingException;
