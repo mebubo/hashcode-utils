@@ -40,7 +40,8 @@ public class FieldsLineReader<P> extends SingleLineSectionReader<P> {
         if (!name.contains("@")) {
             return name;
         }
-        return name.split("@")[0];
+        String fieldName = name.split("@")[0];
+        return fieldName.isEmpty() ? null : fieldName;
     }
 
     private static String extractVariableName(String name) {
