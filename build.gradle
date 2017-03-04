@@ -16,6 +16,7 @@ sourceCompatibility = 1.8
 repositories { mavenCentral() }
 
 dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.24'
     compile 'org.jetbrains:annotations:15.0'
     testCompile 'junit:junit:4.+'
 }
