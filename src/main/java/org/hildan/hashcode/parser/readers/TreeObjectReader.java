@@ -64,6 +64,10 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
         return addSectionReader(new DoubleArrayLineReader<>(setter));
     }
 
+    public TreeObjectReader<T> addStringArrayLine(BiConsumer<T, String[]> setter) {
+        return addSectionReader(new ArrayLineReader<>(String[]::new, s -> s, setter));
+    }
+
     public <E> TreeObjectReader<T> addArrayLine(BiConsumer<T, E[]> setter, IntFunction<E[]> arrayCreator,
             Function<String, E> itemConverter) {
         return addSectionReader(new ArrayLineReader<>(arrayCreator, itemConverter, setter));
