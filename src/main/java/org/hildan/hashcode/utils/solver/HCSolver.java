@@ -11,7 +11,7 @@ public class HCSolver<P> extends AbstractFileSolver {
 
     private final Function<P, ? extends Iterable<? extends CharSequence>> solver;
 
-    protected HCSolver(HCParser<P> problemParser, Function<P, ? extends Iterable<? extends CharSequence>> solver) {
+    public HCSolver(HCParser<P> problemParser, Function<P, ? extends Iterable<? extends CharSequence>> solver) {
         this.problemParser = problemParser;
         this.solver = solver;
     }
