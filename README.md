@@ -4,7 +4,7 @@
 
 This library provides useful tools to make your life easier when competing in the Google Hash Code:
 - **HCParser**: an easily configured input parser which maps the input file to your classes representing the problem
-- **HCSolver**: an abstract class that takes care of boilerplate file I/O code, and provides a skeleton for you to fill
+- **HCSolver**: a class that takes care of all the boilerplate file I/O code, and just needs a function that actually solves the problem
 - **HCRunner**: a tiny framework that takes care of solving each input file in a separate thread with proper exception logging
 
 ## HCParser
@@ -24,16 +24,17 @@ Input file:
 
 Here's how you would write the parser with `HCParser`:
 ```java
-public class Main {
-    public class Problem {
-        public int nPoints;
-        public List<Point> points;
-    }
+public class Problem {
+    public int nPoints;
+    public List<Point> points;
+}
+
+public class Point {
+    public float x;
+    public float y;
+}
     
-    public class Point {
-        public float x;
-        public float y;
-    }
+public class Main {
     
     public static void main(String[] args){
         ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new)
@@ -44,6 +45,8 @@ public class Main {
                                                            .addList((p, l) -> p.points = l, "N", pointReader);
         HCParser<Problem> parser = new HCParser<>(rootReader);
         Problem problem = parser.parse(args[0]);
+        
+        // do something with the problem
     }    
 }
 ```
@@ -78,27 +81,27 @@ HCSolver takes care of the file I/O for you, so that you just have to write the 
 
 Using the same example problem, here is how we use HCSolver:
 ```java
-public class Main {
+public class Problem {
+    public int nPoints;
+    public List<Point> points;
     
-    public class Problem {
-        public int nPoints;
-        public List<Point> points;
+    public List<String> solve() {
+        // solve the problem
         
-        public List<String> solve() {
-            // ...solve the problem
-            
-            // write solution into lines (this is problem-specific)
-            List<String> lines = new ArrayList<>();
-            lines.add(solutionLine0);
-            lines.add(solutionLine1);
-            return lines;
-        }
+        // write solution into lines (this is problem-specific)
+        List<String> lines = new ArrayList<>();
+        lines.add(outputLine0);
+        lines.add(outputLine1);
+        return lines;
     }
+}
+
+public class Point {
+    public float x;
+    public float y;
+}
     
-    public class Point {
-        public float x;
-        public float y;
-    }
+public class Main {
     
     public static void main(String[] args){
         ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new)
@@ -108,10 +111,10 @@ public class Main {
                                                            .addFieldsLine("nPoints@N") // stores the nb of points in var N
                                                            .addList((p, l) -> p.points = l, "N", pointReader);
         HCParser<Problem> parser = new HCParser<>(rootReader);
-        HCSolver<Problem> solver = HCSolver.from(parser, Problem::solve);
+        HCSolver<Problem> solver = new HCSolver<>(parser, Problem::solve);
         
-        // reads the given input file and
-        // writes lines to an output file whose name is calculated from the input
+        // reads the given input file and writes lines to an output file
+        // the name of the output file is calculated from the input file
         solver.accept(args[0]);
     }    
 }
@@ -131,7 +134,49 @@ public class Main {
     
     public static void main(String[] args) {
         Consumer<String> solver = s -> System.out.println("I solved input " + s + "!");
-        HCRunner<String> runner = new HCRunner<String>(solver, UncaughtExceptionsPolicy.LOG_ON_SLF4J);
+        HCRunner<String> runner = new HCRunner<>(solver, UncaughtExceptionsPolicy.LOG_ON_SLF4J);
+        runner.run(args);
+    }    
+}
+```
+
+## All the pieces together
+
+As you can see, the combination of all 3 components allows you to focus on problem-specific code only:
+
+```java
+public class Problem {
+    public int nPoints;
+    public List<Point> points;
+    
+    public List<String> solve() {
+        // solve the problem
+        
+        // write solution into lines (this is problem-specific)
+        List<String> lines = new ArrayList<>();
+        lines.add(outputLine0);
+        lines.add(outputLine1);
+        return lines;
+    }
+}
+    
+public class Point {
+    public float x;
+    public float y;
+}
+    
+public class Main {
+    
+    public static void main(String[] args){
+        ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new)
+                                                          .addFieldsLine("x", "y");
+        
+        ObjectReader<Problem> rootReader = TreeObjectReader.of(Problem::new)
+                                                           .addFieldsLine("nPoints@N") // stores the nb of points in var N
+                                                           .addList((p, l) -> p.points = l, "N", pointReader);
+        HCParser<Problem> parser = new HCParser<>(rootReader);
+        HCSolver<Problem> solver = new HCSolver<>(parser, Problem::solve);
+        HCRunner<String> runner = new HCRunner<>(solver, UncaughtExceptionsPolicy.LOG_ON_SLF4J);
         runner.run(args);
     }    
 }
