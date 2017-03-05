@@ -13,26 +13,27 @@ public class HCParserTest {
 
     private static final double DELTA = 0.0001;
 
-    public static class Global {
+    public static class Problem {
+
         private int param1;
 
         private int param2;
 
-        private int nOuter;
+        private int nShapes;
 
-        public Outer[] myArray;
+        public Shape[] shapes;
     }
 
-    public static class Outer {
+    public static class Shape {
 
         public String name;
 
-        private int nInner;
+        private int nPoints;
 
-        public List<Inner> mySubList;
+        public List<Point> points;
     }
 
-    public static class Inner {
+    public static class Point {
         private double x;
 
         private double y;
@@ -51,51 +52,53 @@ public class HCParserTest {
     @Test
     public void test() {
 
-        TreeObjectReader<Inner> innerReader = TreeObjectReader.of(Inner::new).addFieldsLine("x", "y");
+        ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new)
+                                                          .addFieldsLine("x", "y");
 
-        TreeObjectReader<Outer> outerReader = TreeObjectReader.of(Outer::new)
-                .addFieldsLine("name", "nInner")
-                .addList((o, l) -> o.mySubList = l, o -> o.nInner, innerReader);
+        ObjectReader<Shape> shapeReader = TreeObjectReader.of(Shape::new)
+                                                          .addFieldsLine("name", "nPoints")
+                                                          .addList((o, l) -> o.points = l, o -> o.nPoints, pointReader);
 
-        ObjectReader<Global> globalReader = TreeObjectReader.of(Global::new)
-                .addFieldsLine("param1", "param2", "nOuter@myArraySize")
-                .addArray((g, l) -> g.myArray = l, Outer[]::new, "myArraySize", outerReader);
+        ObjectReader<Problem> problemReader = TreeObjectReader.of(Problem::new)
+                                                              .addFieldsLine("param1", "param2", "nShapes@myArraySize")
+                                                              .addArray((p, l) -> p.shapes = l, Shape[]::new,
+                                                                      "myArraySize", shapeReader);
 
         List<String> lines = Arrays.asList(CONTENT.split("\\n"));
-        HCParser<Global> hcParser = new HCParser<>(globalReader);
-        Global global = hcParser.parse(lines);
+        HCParser<Problem> hcParser = new HCParser<>(problemReader);
+        Problem problem = hcParser.parse(lines);
 
-        assertEquals(42, global.param1);
-        assertEquals(24, global.param2);
-        assertEquals(2, global.nOuter);
-        assertEquals(2, global.myArray.length);
+        assertEquals(42, problem.param1);
+        assertEquals(24, problem.param2);
+        assertEquals(2, problem.nShapes);
+        assertEquals(2, problem.shapes.length);
 
-        Outer outer0 = global.myArray[0];
-        assertEquals("first", outer0.name);
-        assertEquals(3, outer0.nInner);
+        Shape shape0 = problem.shapes[0];
+        assertEquals("first", shape0.name);
+        assertEquals(3, shape0.nPoints);
 
-        Outer outer1 = global.myArray[1];
-        assertEquals("second", outer1.name);
-        assertEquals(2, outer1.nInner);
+        Shape shape1 = problem.shapes[1];
+        assertEquals("second", shape1.name);
+        assertEquals(2, shape1.nPoints);
 
-        Inner inner00 = outer0.mySubList.get(0);
-        assertEquals(1.11, inner00.x, DELTA);
-        assertEquals(1.12, inner00.y, DELTA);
+        Point point00 = shape0.points.get(0);
+        assertEquals(1.11, point00.x, DELTA);
+        assertEquals(1.12, point00.y, DELTA);
 
-        Inner inner01 = outer0.mySubList.get(1);
-        assertEquals(1.21, inner01.x, DELTA);
-        assertEquals(1.22, inner01.y, DELTA);
+        Point point01 = shape0.points.get(1);
+        assertEquals(1.21, point01.x, DELTA);
+        assertEquals(1.22, point01.y, DELTA);
 
-        Inner inner02 = outer0.mySubList.get(2);
-        assertEquals(1.31, inner02.x, DELTA);
-        assertEquals(1.32, inner02.y, DELTA);
+        Point point02 = shape0.points.get(2);
+        assertEquals(1.31, point02.x, DELTA);
+        assertEquals(1.32, point02.y, DELTA);
 
-        Inner inner10 = outer1.mySubList.get(0);
-        assertEquals(2.11, inner10.x, DELTA);
-        assertEquals(2.12, inner10.y, DELTA);
+        Point point10 = shape1.points.get(0);
+        assertEquals(2.11, point10.x, DELTA);
+        assertEquals(2.12, point10.y, DELTA);
 
-        Inner inner11 = outer1.mySubList.get(1);
-        assertEquals(2.21, inner11.x, DELTA);
-        assertEquals(2.22, inner11.y, DELTA);
+        Point point11 = shape1.points.get(1);
+        assertEquals(2.21, point11.x, DELTA);
+        assertEquals(2.22, point11.y, DELTA);
     }
 }
