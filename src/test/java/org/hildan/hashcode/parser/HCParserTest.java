@@ -1,14 +1,13 @@
-package org.hildan.hashcode.parser.parser;
+package org.hildan.hashcode.parser;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.hildan.hashcode.parser.HCParser;
 import org.hildan.hashcode.parser.readers.ObjectReader;
 import org.hildan.hashcode.parser.readers.TreeObjectReader;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class HCParserTest {
 

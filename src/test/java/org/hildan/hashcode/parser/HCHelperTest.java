@@ -1,11 +1,10 @@
-package org.hildan.hashcode.parser.helper;
+package org.hildan.hashcode.parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.hildan.hashcode.parser.HCHelper;
 import org.hildan.hashcode.parser.config.Config;
 import org.junit.Before;
 import org.junit.Test;
