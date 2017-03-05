@@ -4,10 +4,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
+import org.hildan.hashcode.utils.parser.Context;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
-import org.hildan.hashcode.utils.parser.Context;
-import org.hildan.hashcode.utils.parser.readers.TreeObjectReader;
+import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.hildan.hashcode.utils.parser.readers.section.BaseSectionReader;
 
 /**
@@ -22,13 +22,13 @@ public abstract class ContainerSectionReader<E, C, P> extends BaseSectionReader<
 
     private final IntFunction<C> constructor;
 
-    private final TreeObjectReader<E> itemReader;
+    private final ObjectReader<E> itemReader;
 
     private final Function<P, Integer> getSizeFromParent;
 
     private final String sizeVariable;
 
-    public ContainerSectionReader(IntFunction<C> constructor, TreeObjectReader<E> itemReader,
+    public ContainerSectionReader(IntFunction<C> constructor, ObjectReader<E> itemReader,
             Function<P, Integer> getSizeFromParent, BiConsumer<P, C> parentSetter) {
         super(parentSetter);
         this.constructor = constructor;
@@ -37,7 +37,7 @@ public abstract class ContainerSectionReader<E, C, P> extends BaseSectionReader<
         this.sizeVariable = null;
     }
 
-    public ContainerSectionReader(IntFunction<C> constructor, TreeObjectReader<E> itemReader, String sizeVariable,
+    public ContainerSectionReader(IntFunction<C> constructor, ObjectReader<E> itemReader, String sizeVariable,
             BiConsumer<P, C> parentSetter) {
         super(parentSetter);
         this.constructor = constructor;
