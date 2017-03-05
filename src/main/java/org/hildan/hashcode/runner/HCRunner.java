@@ -12,9 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Executes a given solver on multiple inputs in separate parallel tasks. This runner uses the SLF4J API to print errors
- * and uncaught exceptions' stack traces, you need to provide an SLF4J implementation on your classpath to be able to
- * see these logs.
+ * {@code HCRunner} provides a simple way to execute a given solver on multiple inputs in separate parallel tasks.
+ * Simply use {@link #run(I...)} or {@link #run(int, I...)} and you're good to go.
+ * <p>
+ * Note: Depending on your choice of {@link UncaughtExceptionsPolicy}, you may need to provide an SLF4J implementation
+ * on your classpath to be able to see error logs.
  *
  * @param <I>
  *         the type of input that the solver handles
@@ -123,7 +125,7 @@ public class HCRunner<I> {
     }
 
     private void logExceptions(I[] inputs) {
-        logger.error("{} exceptions occurred while running tasks", exceptions.size());
+        logger.error("{} tasks terminated abruptly by throwing exceptions", exceptions.size());
         for (int i = 0; i < exceptions.size(); i++) {
             Throwable e = exceptions.get(i);
             logger.error("Reminder: this exception was thrown while running on input " + inputs[i] + ":", e);
@@ -131,29 +133,11 @@ public class HCRunner<I> {
     }
 
     private void printExceptionsOnStdErr(I[] inputs) {
-        System.err.println(exceptions.size() + " exceptions occurred while running tasks");
+        System.err.println(exceptions.size() + " tasks terminated abruptly by throwing exceptions");
         for (int i = 0; i < exceptions.size(); i++) {
             Throwable e = exceptions.get(i);
             System.err.println("Reminder: this exception was thrown while running on input " + inputs[i] + ":");
             e.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) {
-        HCRunner<String> runner = new HCRunner<>(input -> {
-            int time = Integer.parseInt(input.substring(0, 1));
-            try {
-                TimeUnit.SECONDS.sleep(time);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            boolean shouldThrow = input.endsWith("E");
-            if (shouldThrow) {
-                throw new RuntimeException("test");
-            }
-            System.out.println("done");
-        }, UncaughtExceptionsPolicy.LOG_ON_SLF4J);
-        runner.run("4E", "2E", "3");
     }
 }

@@ -1,8 +1,8 @@
 package org.hildan.hashcode.runner;
 
 /**
- * An {@code UncaughtExceptionsPolicy} defines what to do with the stack traces of exceptions that are thrown during a
- * parallel task execution.
+ * An {@code UncaughtExceptionsPolicy} defines what to do with the stack traces of exceptions that are thrown during
+ * parallel tasks execution.
  */
 public enum UncaughtExceptionsPolicy {
 
@@ -10,8 +10,8 @@ public enum UncaughtExceptionsPolicy {
      * Does nothing with the stack traces.
      * <p>
      * Warning: when using this policy, the caller of the {@link HCRunner} will not be aware of uncaught exceptions
-     * thrown within the solver. This policy should only be used when the solver itself contains a big try/catch block
-     * around all the code.
+     * thrown within the solver. This policy should only be used when the solver is guaranteed not to throw any
+     * exception (for instance if it wraps everything in a try/catch block)
      */
     HIDE(false, false),
 
