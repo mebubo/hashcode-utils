@@ -40,6 +40,7 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
         return this;
     }
 
+    @Override
     public T read(Context context, Config config) {
         T obj = constructor.get();
         for (SectionReader<T> sectionReader : sectionReaders) {
