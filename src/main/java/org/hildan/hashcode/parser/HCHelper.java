@@ -11,11 +11,9 @@ import java.util.stream.Collectors;
 
 import org.hildan.hashcode.parser.config.Config;
 import org.hildan.hashcode.parser.conversion.TypeConverter;
-import org.intellij.lang.annotations.RegExp;
 
 public class HCHelper {
 
-  @RegExp
   private final Config config;
 
   public HCHelper(Config config) {
