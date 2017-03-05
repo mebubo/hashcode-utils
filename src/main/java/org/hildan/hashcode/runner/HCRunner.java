@@ -11,75 +11,69 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Executes a given solver on multiple inputs in separate parallel tasks. This runner uses the SLF4J API to print errors
+ * and uncaught exceptions' stack traces, you need to provide an SLF4J implementation on your classpath to be able to
+ * see these logs.
+ *
+ * @param <I>
+ *         the type of input that the solver handles
+ */
 public class HCRunner<I> {
 
     private static final Logger logger = LoggerFactory.getLogger(HCRunner.class);
 
-    private static final int DEFAULT_TIMEOUT = 30;
-
-    private static final TimeUnit DEFAULT_TIMEOUT_UNIT = TimeUnit.HOURS;
-
     private final Consumer<I> solver;
-
-    private final int timeout;
-
-    private final TimeUnit timeoutUnit;
 
     private final List<Throwable> exceptions;
 
-    public HCRunner(Consumer<I> solver) {
-        this(solver, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNIT);
-    }
+    private final UncaughtExceptionsPolicy exceptionsPolicy;
 
-    public HCRunner(Consumer<I> solver, int timeout, TimeUnit timeoutUnit) {
+    /**
+     * Creates a new {@code HCRunner}.
+     *
+     * @param solver
+     *         the solver to run on the inputs given to {@link #run(I...)} or {@link #run(int, I...)}
+     * @param exceptionsPolicy
+     *         defines what to do with uncaught exceptions thrown by the solver
+     */
+    public HCRunner(Consumer<I> solver, UncaughtExceptionsPolicy exceptionsPolicy) {
         this.solver = solver;
-        this.timeout = timeout;
-        this.timeoutUnit = timeoutUnit;
+        this.exceptionsPolicy = exceptionsPolicy;
         this.exceptions = new ArrayList<>();
     }
 
+    /**
+     * Executes the solver given in the constructor on the given inputs, each in its own thread. This method blocks
+     * until the execution on all inputs is complete.
+     *
+     * @param inputs
+     *         the inputs to run the solver on
+     */
     @SafeVarargs
     public final void run(I... inputs) {
         run(inputs.length, inputs);
     }
 
+    /**
+     * Executes the solver given in the constructor on the given inputs, each in its own task. The tasks are distributed
+     * among the given number of threads. This method blocks until the execution on all inputs is complete.
+     *
+     * @param nThreads
+     *         the number of threads to use in the pool
+     * @param inputs
+     *         the inputs to run the solver on
+     */
     @SafeVarargs
     public final void run(int nThreads, I... inputs) {
         if (inputs.length < 1) {
             throw new IllegalArgumentException("No input passed as argument");
         }
-//        ExecutorService threadPool = Executors.newFixedThreadPool(nThreads);
-        ExecutorService threadPool = new ExceptionAwareExecutorService(nThreads);
-        // ThreadFactory threadFactory = new SimpleThreadFactory(this::onUncaughtException);
-        // ExecutorService threadPool = Executors.newFixedThreadPool(nThreads, threadFactory);
-        // ExecutorService threadPool = new ExceptionAwareExecutorService(nThreads, threadFactory);
-        // launchSolvers(inputs, threadPool);
+        ExecutorService threadPool = new ExceptionLoggingExecutorService(nThreads, exceptionsPolicy);
         List<Future<?>> futures = submitInputs(inputs, threadPool);
         waitForTermination(futures);
-        //        awaitWorkerThreadsTermination(timeout, timeoutUnit, threadPool);
-        logExceptions();
-        threadPool.shutdown();
-    }
-
-    private synchronized void logExceptions() {
-        if (exceptions.isEmpty()) {
-            System.out.println("No exceptions to log");
-            return;
-        }
-        System.out.println(exceptions.size() + " exceptions occurred while running tasks");
-        logger.error("{} exceptions occurred while running tasks", exceptions.size());
-    }
-
-    private synchronized void onUncaughtException(Thread thread, Throwable throwable) {
-        logger.error("Exception during task execution in thread " + thread.getName(), throwable);
-        exceptions.add(throwable);
-    }
-
-    private void launchSolvers(I[] inputs, ExecutorService threadPool) {
-        for (I input : inputs) {
-            logger.info("Queueing resolution of input " + input);
-            threadPool.submit(() -> solver.accept(input));
-        }
+        shutdownAndWaitForTermination(threadPool); // also waits for logging of last exceptions
+        remindExceptions(inputs);
     }
 
     private List<Future<?>> submitInputs(I[] inputs, ExecutorService threadPool) {
@@ -96,6 +90,8 @@ public class HCRunner<I> {
             try {
                 task.get();
             } catch (ExecutionException e) {
+                // the exception was already logged in ExecutionAwareExecutorService when the task ended
+                // we track it here to also log everything at the end (to avoid having to scroll up the output)
                 exceptions.add(e.getCause());
             } catch (InterruptedException e) {
                 logger.error("Interrupted while waiting for tasks to complete", e);
@@ -104,12 +100,42 @@ public class HCRunner<I> {
         }
     }
 
-    private static void awaitWorkerThreadsTermination(int timeout, TimeUnit timeUnit, ExecutorService threadPool) {
+    private void shutdownAndWaitForTermination(ExecutorService threadPool) {
         try {
             threadPool.shutdown();
-            threadPool.awaitTermination(timeout, timeUnit);
+            threadPool.awaitTermination(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            logger.error("Interrupted while waiting for tasks to complete", e);
+            logger.error("Interrupted while waiting for thread pool to shut down", e);
+            Thread.currentThread().interrupt(); // ignore/reset
+        }
+    }
+
+    private void remindExceptions(I[] inputs) {
+        if (exceptions.isEmpty()) {
+            return;
+        }
+        if (exceptionsPolicy.shouldLogViaSlf4J()) {
+            logExceptions(inputs);
+        }
+        if (exceptionsPolicy.shouldPrintOnStdErr()) {
+            printExceptionsOnStdErr(inputs);
+        }
+    }
+
+    private void logExceptions(I[] inputs) {
+        logger.error("{} exceptions occurred while running tasks", exceptions.size());
+        for (int i = 0; i < exceptions.size(); i++) {
+            Throwable e = exceptions.get(i);
+            logger.error("Reminder: this exception was thrown while running on input " + inputs[i] + ":", e);
+        }
+    }
+
+    private void printExceptionsOnStdErr(I[] inputs) {
+        System.err.println(exceptions.size() + " exceptions occurred while running tasks");
+        for (int i = 0; i < exceptions.size(); i++) {
+            Throwable e = exceptions.get(i);
+            System.err.println("Reminder: this exception was thrown while running on input " + inputs[i] + ":");
+            e.printStackTrace();
         }
     }
 
@@ -126,7 +152,8 @@ public class HCRunner<I> {
             if (shouldThrow) {
                 throw new RuntimeException("test");
             }
-        });
-        runner.run("1E", "2E", "3");
+            System.out.println("done");
+        }, UncaughtExceptionsPolicy.LOG_ON_SLF4J);
+        runner.run("4E", "2E", "3");
     }
 }
