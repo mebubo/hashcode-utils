@@ -10,7 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.hildan.hashcode.utils.parser.config.Config;
-import org.hildan.hashcode.utils.parser.conversion.TypeConverter;
+import org.hildan.hashcode.utils.parser.conversion.StringConverter;
 
 public class HCHelper {
 
@@ -47,7 +47,7 @@ public class HCHelper {
 
   public <T> List<T> parsePrimitiveWrapperListLine(String line, Class<T> wrapperClass) {
     String[] words = split(line);
-    Function<String, T> convert = w -> TypeConverter.convertToPrimitiveWrapper(wrapperClass, w);
+    Function<String, T> convert = w -> StringConverter.convertToPrimitiveWrapper(wrapperClass, w);
     return Arrays.stream(words).map(convert).collect(Collectors.toList());
   }
 
@@ -87,7 +87,7 @@ public class HCHelper {
   private static <T> void setField(T obj, String value, Field field, int lineNum, String line) {
     try {
       field.setAccessible(true);
-      field.set(obj, TypeConverter.convert(field.getType(), value));
+      field.set(obj, StringConverter.convert(field.getType(), value));
     } catch (IllegalArgumentException e) {
       throw new InputParsingException(lineNum, line,
               "Type mismatch, cannot assign value '" + value + "' to field '" + field.getName() + "' of type " +

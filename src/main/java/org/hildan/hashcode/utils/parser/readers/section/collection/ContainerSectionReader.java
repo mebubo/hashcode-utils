@@ -8,58 +8,125 @@ import org.hildan.hashcode.utils.parser.Context;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
-import org.hildan.hashcode.utils.parser.readers.section.BaseSectionReader;
+import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 
 /**
+ * A {@link SectionReader} that creates a container, reads multiple child objects from the input, adding them to the
+ * container, and sets the created container on the parent object.
+ *
  * @param <E>
- *         element type
+ *         the type of the elements in the container
  * @param <C>
- *         collection type
+ *         the type of the container itself
  * @param <P>
- *         parent type
+ *         the type of parent on which this {@code ContainerSectionReader} sets the created container
  */
-public abstract class ContainerSectionReader<E, C, P> extends BaseSectionReader<C, P> {
+public abstract class ContainerSectionReader<E, C, P> implements SectionReader<P> {
+
+    private final BiConsumer<P, C> parentSetter;
 
     private final IntFunction<C> constructor;
 
     private final ObjectReader<E> itemReader;
 
+    private final Integer fixedSize;
+
     private final Function<P, Integer> getSizeFromParent;
 
     private final String sizeVariable;
 
-    public ContainerSectionReader(IntFunction<C> constructor, ObjectReader<E> itemReader,
-            Function<P, Integer> getSizeFromParent, BiConsumer<P, C> parentSetter) {
-        super(parentSetter);
+    /**
+     * Creates a new {@code ContainerSectionReader} with a fixed number of items to read.
+     *
+     * @param constructor
+     *         a constructor to create a new container, given the size as input
+     * @param itemReader
+     *         a child reader used to read each item
+     * @param size
+     *         the number of items to read
+     * @param parentSetter
+     *         a setter to update the parent with the created container
+     */
+    public ContainerSectionReader(IntFunction<C> constructor, ObjectReader<E> itemReader, Integer size,
+            BiConsumer<P, C> parentSetter) {
         this.constructor = constructor;
         this.itemReader = itemReader;
-        this.getSizeFromParent = getSizeFromParent;
+        this.fixedSize = size;
         this.sizeVariable = null;
+        this.getSizeFromParent = null;
+        this.parentSetter = parentSetter;
     }
 
+    /**
+     * Creates a new {@code ContainerSectionReader} reading the expected number of items from a context variable.
+     *
+     * @param constructor
+     *         a constructor to create a new container, given the size as input
+     * @param itemReader
+     *         a child reader used to read each item
+     * @param sizeVariable
+     *         a context variable containing the number of items to read
+     * @param parentSetter
+     *         a setter to update the parent with the created container
+     */
     public ContainerSectionReader(IntFunction<C> constructor, ObjectReader<E> itemReader, String sizeVariable,
             BiConsumer<P, C> parentSetter) {
-        super(parentSetter);
         this.constructor = constructor;
         this.itemReader = itemReader;
-        this.getSizeFromParent = null;
+        this.fixedSize = null;
         this.sizeVariable = sizeVariable;
+        this.getSizeFromParent = null;
+        this.parentSetter = parentSetter;
+    }
+
+    /**
+     * Creates a new {@code ContainerSectionReader} reading the expected number of items from the parent object.
+     *
+     * @param constructor
+     *         a constructor to create a new container, given the size as input
+     * @param itemReader
+     *         a child reader used to read each item
+     * @param getSizeFromParent
+     *         a function to get the number of items to read from the parent
+     * @param parentSetter
+     *         a setter to update the parent with the created container
+     */
+    public ContainerSectionReader(IntFunction<C> constructor, ObjectReader<E> itemReader,
+            Function<P, Integer> getSizeFromParent, BiConsumer<P, C> parentSetter) {
+        this.constructor = constructor;
+        this.itemReader = itemReader;
+        this.fixedSize = null;
+        this.sizeVariable = null;
+        this.getSizeFromParent = getSizeFromParent;
+        this.parentSetter = parentSetter;
     }
 
     @Override
-    public C readSectionValue(P objectToFill, Context context, Config config) throws InputParsingException {
-        int size = getSize(objectToFill, context);
+    public void readSection(P parent, Context context, Config config) throws InputParsingException {
+        int size = getSize(parent, context);
         C collection = constructor.apply(size);
         for (int i = 0; i < size; i++) {
             add(collection, i, itemReader.read(context, config));
         }
-        return collection;
+        parentSetter.accept(parent, collection);
     }
 
-    protected abstract void add(C collection, int index, E element);
+    /**
+     * Adds an element to the created container.
+     *
+     * @param container
+     *         the container to add the element to
+     * @param index
+     *         the index at which the element should be added
+     * @param element
+     *         the element to add
+     */
+    protected abstract void add(C container, int index, E element);
 
-    private int getSize(P objectToFill, Context context) {
-        if (getSizeFromParent != null) {
+    protected int getSize(P objectToFill, Context context) {
+        if (fixedSize != null) {
+            return fixedSize;
+        } else if (getSizeFromParent != null) {
             return getSizeFromParent.apply(objectToFill);
         } else {
             return getSizeFromContext(context);

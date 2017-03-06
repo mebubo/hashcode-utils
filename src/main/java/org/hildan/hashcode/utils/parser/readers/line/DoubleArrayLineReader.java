@@ -6,6 +6,12 @@ import java.util.function.BiConsumer;
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.Context;
 
+/**
+ * A {@link SingleLineSectionReader} that reads the values as a single array of doubles.
+ *
+ * @param <P>
+ *         the type of parent that this {@code ArrayLineReader} can update
+ */
 public class DoubleArrayLineReader<P> extends SingleLineSectionReader<P> {
 
     private final BiConsumer<P, double[]> parentSetter;

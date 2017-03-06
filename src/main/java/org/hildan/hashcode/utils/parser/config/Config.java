@@ -2,6 +2,9 @@ package org.hildan.hashcode.utils.parser.config;
 
 import org.intellij.lang.annotations.RegExp;
 
+/**
+ * Encapsulates the configuration that defines the readers' behaviour.
+ */
 public class Config {
 
   @RegExp
@@ -18,6 +21,13 @@ public class Config {
     this.separator = separator;
   }
 
+  /**
+   * Gets the separator between values within a single line of the input. The value is a regular expression, so that
+   * it can directly be used in {@link String#split(String)} for instance.
+   *
+   * @return the separator as a regular expression
+   */
+  @RegExp
   public String getSeparator() {
     return separator;
   }

@@ -6,8 +6,8 @@ import java.util.Arrays;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.Context;
-import org.hildan.hashcode.utils.parser.conversion.TypeConversionException;
-import org.hildan.hashcode.utils.parser.conversion.TypeConverter;
+import org.hildan.hashcode.utils.parser.conversion.StringConversionException;
+import org.hildan.hashcode.utils.parser.conversion.StringConverter;
 
 public class FieldsLineReader<P> extends SingleLineSectionReader<P> {
 
@@ -65,8 +65,8 @@ public class FieldsLineReader<P> extends SingleLineSectionReader<P> {
     private static void setField(Object obj, Field field, String value) {
         try {
             field.setAccessible(true);
-            field.set(obj, TypeConverter.convert(field.getType(), value));
-        } catch (TypeConversionException e) {
+            field.set(obj, StringConverter.convert(field.getType(), value));
+        } catch (StringConversionException e) {
             throw new InputParsingException(
                     "Type mismatch, cannot assign value '" + value + "' to field '" + field.getName() + "' of type "
                             + field.getType().getSimpleName());

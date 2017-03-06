@@ -5,9 +5,17 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.Context;
+import org.hildan.hashcode.utils.parser.config.Config;
 
+/**
+ * A {@link SingleLineSectionReader} that reads the values as a single array of objects.
+ *
+ * @param <E>
+ *         the type of elements in the created arrays
+ * @param <P>
+ *         the type of parent that this {@code ArrayLineReader} can update
+ */
 public class ArrayLineReader<E, P> extends SingleLineSectionReader<P> {
 
     private final BiConsumer<P, E[]> parentSetter;
@@ -16,8 +24,18 @@ public class ArrayLineReader<E, P> extends SingleLineSectionReader<P> {
 
     private final IntFunction<E[]> arrayCreator;
 
+    /**
+     * Creates a new {@link ArrayLineReader}.
+     *
+     * @param arrayCreator
+     *         a function to create an array of the right type, given the size as input
+     * @param converter
+     *         a function to convert each string value into an element of the array
+     * @param parentSetter
+     *         a setter to update the parent object using the created array
+     */
     public ArrayLineReader(IntFunction<E[]> arrayCreator, Function<String, E> converter,
-                           BiConsumer<P, E[]> parentSetter) {
+            BiConsumer<P, E[]> parentSetter) {
         this.parentSetter = parentSetter;
         this.converter = converter;
         this.arrayCreator = arrayCreator;
