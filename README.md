@@ -169,10 +169,10 @@ public class Main {
     
     public static void main(String[] args){
         ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new)
-                                                          .addFieldsLine("x", "y");
+                                                          .addFieldsAndVarsLine("x", "y");
         
         ObjectReader<Problem> rootReader = TreeObjectReader.of(Problem::new)
-                                                           .addFieldsLine("nPoints@N") // stores the nb of points in var N
+                                                           .addFieldsAndVarsLine("nPoints@N") // stores the nb of points in var N
                                                            .addList((p, l) -> p.points = l, "N", pointReader);
         HCParser<Problem> parser = new HCParser<>(rootReader);
         HCSolver<Problem> solver = new HCSolver<>(parser, Problem::solve);

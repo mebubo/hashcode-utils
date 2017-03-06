@@ -13,7 +13,7 @@ import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.readers.line.ArrayLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.DoubleArrayLineReader;
-import org.hildan.hashcode.utils.parser.readers.line.FieldsLineReader;
+import org.hildan.hashcode.utils.parser.readers.line.FieldsAndVarsLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.IntArrayLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.ListLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.LongArrayLineReader;
@@ -58,6 +58,15 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
         return new TreeObjectReader<>(constructor);
     }
 
+    @Override
+    public T read(Context context, Config config) throws InputParsingException {
+        T obj = constructor.get();
+        for (SectionReader<T> sectionReader : sectionReaders) {
+            sectionReader.readSection(obj, context, config);
+        }
+        return obj;
+    }
+
     /**
      * Adds the given {@link SectionReader} to the children of this reader. The order matters, because each child
      * reader will be called in the order of insertion.
@@ -75,17 +84,24 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
         return this;
     }
 
-    @Override
-    public T read(Context context, Config config) throws InputParsingException {
-        T obj = constructor.get();
-        for (SectionReader<T> sectionReader : sectionReaders) {
-            sectionReader.readSection(obj, context, config);
-        }
-        return obj;
-    }
-
-    public TreeObjectReader<T> addFieldsLine(String... fieldNames) {
-        return addSectionReader(new FieldsLineReader<>(fieldNames));
+    /**
+     * Describes a mapping between the elements of a line and the fields of the created object, or context variables, or
+     * both a field and a context variable.
+     * <p>
+     * The field/variable names are given as strings that can each be one of: <ul> <li>a field name (e.g.
+     * "myField1")</li> <li>a '@' symbol followed by a variable name (e.g. "@N", "@myVar", "@123"...)</li> <li>both a
+     * field name and a variable name separated by a '@' (e.g. "nItems@N", "size@nbOfSatellites"...)</li> </ul>
+     * <p>
+     * Note that "" and "@" describe neither a field nor a variable, and thus the corresponding entry in the line will
+     * be ignored during parsing. A null description is forbidden.
+     *
+     * @param fieldAndVarNames
+     *         an array of field/variable names, as described above
+     *
+     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     */
+    public TreeObjectReader<T> addFieldsAndVarsLine(String... fieldAndVarNames) {
+        return addSectionReader(new FieldsAndVarsLineReader<>(fieldAndVarNames));
     }
 
     public TreeObjectReader<T> addIntArrayLine(BiConsumer<T, int[]> setter) {
