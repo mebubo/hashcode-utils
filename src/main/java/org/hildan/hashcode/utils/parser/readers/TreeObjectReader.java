@@ -3,6 +3,7 @@ package org.hildan.hashcode.utils.parser.readers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -19,7 +20,7 @@ import org.hildan.hashcode.utils.parser.readers.line.LongArrayLineReader;
 import org.hildan.hashcode.utils.parser.readers.section.ObjectSectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.collection.ArraySectionReader;
-import org.hildan.hashcode.utils.parser.readers.section.collection.ListSectionReader;
+import org.hildan.hashcode.utils.parser.readers.section.collection.CollectionSectionReader;
 
 /**
  * An implementation of {@link ObjectReader} that builds an object using child {@link SectionReader}s.
@@ -104,7 +105,7 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
     }
 
     public <E> TreeObjectReader<T> addArrayLine(BiConsumer<T, E[]> setter, IntFunction<E[]> arrayCreator,
-            Function<String, E> itemConverter) {
+                                                Function<String, E> itemConverter) {
         return addSectionReader(new ArrayLineReader<>(arrayCreator, itemConverter, setter));
     }
 
@@ -113,25 +114,35 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
     }
 
     public <E> TreeObjectReader<T> addArray(BiConsumer<T, E[]> setter, IntFunction<E[]> arrayCreator,
-            String sizeVariable, ObjectReader<E> itemReader) {
-        return addSectionReader(new ArraySectionReader<>(arrayCreator, itemReader, sizeVariable, setter));
+                                            String sizeVariable, ObjectReader<E> itemReader) {
+        return addSectionReader(new ArraySectionReader<>(arrayCreator, itemReader, sizeGetter(sizeVariable), setter));
     }
 
     public <E> TreeObjectReader<T> addArray(BiConsumer<T, E[]> setter, IntFunction<E[]> arrayCreator,
-            Function<T, Integer> getCount, ObjectReader<E> itemReader) {
-        return addSectionReader(new ArraySectionReader<>(arrayCreator, itemReader, getCount, setter));
+                                            Function<T, Integer> getSize, ObjectReader<E> itemReader) {
+        return addSectionReader(new ArraySectionReader<>(arrayCreator, itemReader, sizeGetter(getSize), setter));
     }
 
-    public <E> TreeObjectReader<T> addList(BiConsumer<T, List<E>> setter, String sizeVariable, ObjectReader<E> itemReader) {
-        return addSectionReader(new ListSectionReader<>(itemReader, sizeVariable, setter));
+    public <E> TreeObjectReader<T> addList(BiConsumer<T, List<E>> setter, String sizeVariable,
+                                           ObjectReader<E> itemReader) {
+        return addSectionReader(
+                new CollectionSectionReader<>(ArrayList::new, itemReader, sizeGetter(sizeVariable), setter));
     }
 
-    public <E> TreeObjectReader<T> addList(BiConsumer<T, List<E>> setter, Function<T, Integer> getCount,
-            ObjectReader<E> itemReader) {
-        return addSectionReader(new ListSectionReader<>(itemReader, getCount, setter));
+    public <E> TreeObjectReader<T> addList(BiConsumer<T, List<E>> setter, Function<T, Integer> getSize,
+                                           ObjectReader<E> itemReader) {
+        return addSectionReader(new CollectionSectionReader<>(ArrayList::new, itemReader, sizeGetter(getSize), setter));
     }
 
     public <C> TreeObjectReader<T> addObject(BiConsumer<T, C> setter, ObjectReader<C> childReader) {
         return addSectionReader(new ObjectSectionReader<>(childReader, setter));
+    }
+
+    private static <P> BiFunction<P, Context, Integer> sizeGetter(String sizeVariable) {
+        return (p, c) -> c.getVariableAsInt(sizeVariable);
+    }
+
+    private static <P> BiFunction<P, Context, Integer> sizeGetter(Function<P, Integer> getSizeFromParent) {
+        return (p, c) -> getSizeFromParent.apply(p);
     }
 }

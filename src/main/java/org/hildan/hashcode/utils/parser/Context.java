@@ -29,12 +29,21 @@ public class Context {
         return lines.get(nextLineNumber++);
     }
 
-    public String getVariable(String key) {
+    public String getVariable(String key) throws InputParsingException {
         String value = variables.get(key);
         if (value == null) {
             throw new InputParsingException("The variable '" + key + "' has not been set in the context");
         }
         return value;
+    }
+
+    public int getVariableAsInt(String key) throws InputParsingException {
+        String size = getVariable(key);
+        try {
+            return Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            throw new InputParsingException("Variable '" + key + "' cannot be converted into an int", e);
+        }
     }
 
     public void setVariable(String key, String value) {

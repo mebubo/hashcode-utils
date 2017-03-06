@@ -39,6 +39,8 @@ public abstract class SingleLineSectionReader<P> implements SectionReader<P> {
      *         the configuration defining the expected behaviour
      *
      * @throws Exception
+     *         if anything goes wrong. The thrown exception will be wrapped into an {@link InputParsingException}
+     *         containing useful contextual information such as line number and line content
      */
     protected abstract void setValues(P objectToFill, String[] values, Context context, Config config) throws Exception;
 }
