@@ -23,10 +23,18 @@ Input file:
 ```
 
 Here's how you would write the parser with `HCParser`:
+
 ```java
 public class Problem {
-    public int nPoints;
-    public List<Point> points;
+    private List<Point> points;
+    
+    public List<Point> getPoints() {
+        return points;
+    }
+    
+    public void setPoints(List<Point> points) {
+        this.points = points;
+    }
 }
 
 public class Point {
@@ -38,11 +46,11 @@ public class Main {
     
     public static void main(String[] args){
         ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new)
-                                                          .addFieldsLine("x", "y");
+                                                          .fieldsAndVarsLine("x", "y");
         
         ObjectReader<Problem> rootReader = TreeObjectReader.of(Problem::new)
-                                                           .addFieldsLine("nPoints@N") // stores the nb of points in var N
-                                                           .addList((p, l) -> p.points = l, "N", pointReader);
+                                                           .fieldsAndVarsLine("@N") // stores the nb of points in var N
+                                                           .listSection(Problem::setPoints, "N", pointReader);
         HCParser<Problem> parser = new HCParser<>(rootReader);
         Problem problem = parser.parse(args[0]);
         
@@ -61,11 +69,12 @@ composed together to form more complex object readers.
 Here, we first create an `ObjectReader<Point>` to be able to read `Point`s from the input. Then we use it to configure 
 the root reader, because we need to read a list of points.
  
-- `addFieldsLine` tells the reader to map each element of the next line to a field of the created object. 
-It also allows to save any value to a context variable using the `@` syntax. The variable can be used later to know how many elements we should read.
+- `fieldsAndVarsLine` tells the reader to map each element of the next line to a field of the created object. 
+It also allows to save any value to a context variable using the `@` syntax. The variable can be used later to know how 
+many elements we should read.
  
 - `addList` tells the reader to read the next bunch of lines as a list of elements:
-  - `(p, l) -> p.points = l` provides a way to set the created list on the `Problem` object we're creating
+  - `Problem::setPoints` provides a way to set the created list on the `Problem` object we're creating
   - `"N"` gives the number of `Point`s we should read (in the form of a context variable that was set earlier)
   - `pointReader` provides a reader to use for each element of the list
 
