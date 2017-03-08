@@ -7,7 +7,7 @@ apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
 group = 'org.hildan.hashcode'
-version = '2.0.0'
+version = '3.0.0'
 description = 'Utilities for programs solving Google Hash Code problems'
 ext.labels = ['hashcode', 'utils', 'google', 'parser', 'solver', 'runner']
 

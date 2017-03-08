@@ -149,6 +149,9 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      *         a function to create a new array, given the desired size
      * @param itemConverter
      *         a function to convert each string element of the line into an element of the array
+     * @param <E>
+     *         the type of elements in the created array
+     *
      *
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */
@@ -165,6 +168,8 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      *         the setter to call on the object being created, with the created list
      * @param itemConverter
      *         a function to convert each string element of the line into an element of the list
+     * @param <E>
+     *         the type of elements in the created list
      *
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */
@@ -186,6 +191,8 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      *         a context variable to get
      * @param itemReader
      *         a child reader used to read each item
+     * @param <E>
+     *         the type of elements in the created array
      *
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */
@@ -207,6 +214,8 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      *         well as the current {@link Context}
      * @param itemReader
      *         a child reader used to read each item
+     * @param <E>
+     *         the type of elements in the created array
      *
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */
@@ -228,6 +237,8 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      *         as the current {@link Context}
      * @param itemReader
      *         a child reader used to read each item
+     * @param <E>
+     *         the type of elements in the created array
      *
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */
@@ -248,6 +259,8 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      *         a context variable to get
      * @param itemReader
      *         a child reader used to read each item
+     * @param <E>
+     *         the type of elements in the created list
      *
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */
@@ -266,6 +279,8 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      *         a function to get the size of the array to create. It takes the object being created as parameter.
      * @param itemReader
      *         a child reader used to read each item
+     * @param <E>
+     *         the type of elements in the created list
      *
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */
@@ -285,6 +300,8 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      *         well as the current {@link Context}
      * @param itemReader
      *         a child reader used to read each item
+     * @param <E>
+     *         the type of elements in the created list
      *
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */
@@ -301,6 +318,8 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      *         the setter to call on the parent object being created, with the created child object
      * @param childReader
      *         a reader used to read the child object
+     * @param <C>
+     *         the type of object to create
      *
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */

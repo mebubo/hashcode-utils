@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * {@code HCRunner} provides a simple way to execute a given solver on multiple inputs in separate parallel tasks.
- * Simply use {@link #run(I...)} or {@link #run(int, I...)} and you're good to go.
+ * Simply use {@link #run(Object[])} or {@link #run(int, Object[])} and you're good to go.
  * <p>
  * Note: Depending on your choice of {@link UncaughtExceptionsPolicy}, you may need to provide an SLF4J implementation
  * on your classpath to be able to see error logs.
@@ -35,7 +35,7 @@ public class HCRunner<I> {
      * Creates a new {@code HCRunner}.
      *
      * @param solver
-     *         the solver to run on the inputs given to {@link #run(I...)} or {@link #run(int, I...)}
+     *         the solver to run on the inputs given to {@link #run(Object[])} or {@link #run(int, Object[])}
      * @param exceptionsPolicy
      *         defines what to do with uncaught exceptions thrown by the solver
      */
