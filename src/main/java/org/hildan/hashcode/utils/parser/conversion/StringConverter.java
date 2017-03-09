@@ -81,6 +81,11 @@ public class StringConverter {
                 return Double.valueOf(value);
             } else if (targetType.equals(float.class) || targetType.equals(Float.class)) {
                 return Float.valueOf(value);
+            } else if (targetType.equals(char.class) || targetType.equals(Character.class)) {
+                if (value.length() != 1) {
+                    throw new StringConversionException(targetType, value);
+                }
+                return value.charAt(0);
             } else if (targetType.equals(String.class)) {
                 return value;
             }
