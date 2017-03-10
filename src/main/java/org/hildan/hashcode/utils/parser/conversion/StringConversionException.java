@@ -11,22 +11,24 @@ public class StringConversionException extends InputParsingException {
 
     private final String value;
 
-    StringConversionException(String message) {
+    StringConversionException(Class<?> targetType, String value, String message) {
         super(message);
-        this.targetType = null;
-        this.value = null;
+        this.targetType = targetType;
+        this.value = value;
     }
 
     StringConversionException(Class<?> targetType, String value) {
-        super("Cannot convert value '" + value + "' to type '" + targetType.getSimpleName() + "'");
+        this(targetType, value, defaultMessage(targetType, value));
+    }
+
+    StringConversionException(Class<?> targetType, String value, Throwable e) {
+        super(defaultMessage(targetType, value), e);
         this.targetType = targetType;
         this.value = value;
     }
 
-    StringConversionException(Class<?> targetType, String value, Throwable e) {
-        super("Cannot convert value '" + value + "' to type '" + targetType.getSimpleName() + "'", e);
-        this.targetType = targetType;
-        this.value = value;
+    private static String defaultMessage(Class<?> targetType, String value) {
+        return String.format("Cannot convert value '%s' to type '%s'", value, targetType.getSimpleName());
     }
 
     /**

@@ -102,6 +102,6 @@ public class StringConverter {
         if (value.equalsIgnoreCase("true") || "1".equals(value)) {
             return true;
         }
-        throw new StringConversionException("Cannot convert value '" + value + "' to boolean");
+        throw new StringConversionException(Boolean.class, value, "Cannot convert value '" + value + "' to boolean");
     }
 }

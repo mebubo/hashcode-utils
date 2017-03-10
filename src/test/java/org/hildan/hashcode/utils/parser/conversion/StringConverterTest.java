@@ -120,8 +120,13 @@ public class StringConverterTest {
 
     @Theory
     public void convert_failure(ConversionFailure conversion) {
-        thrown.expect(StringConversionException.class);
-        StringConverter.convert(conversion.type, conversion.input);
+        try {
+            StringConverter.convert(conversion.type, conversion.input);
+            fail();
+        } catch (StringConversionException e) {
+            assertEquals(conversion.type, e.getTargetType());
+            assertEquals(conversion.input, e.getValue());
+        }
     }
 
     @Theory
