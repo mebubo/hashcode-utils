@@ -106,6 +106,9 @@ public class StringConverterTest {
 
                 new ConversionFailure(Character.class, ""),
                 new ConversionFailure(Character.class, "too long"),
+
+                new ConversionFailure(Object.class, ""),
+                new ConversionFailure(Object.class, "not a primitive wrapper or string"),
         };
     }
 
