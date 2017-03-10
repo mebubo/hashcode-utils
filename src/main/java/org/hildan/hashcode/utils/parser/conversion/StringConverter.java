@@ -92,7 +92,8 @@ public class StringConverter {
         } catch (NumberFormatException e) {
             throw new StringConversionException(targetType, value, e);
         }
-        throw new StringConversionException(targetType, value);
+        throw new IllegalArgumentException(
+                "The provided type '" + targetType.getSimpleName() + "' is not String or a wrapper of primitive");
     }
 
     private static boolean convertToBoolean(@NotNull String value) {

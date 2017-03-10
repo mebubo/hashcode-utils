@@ -106,9 +106,6 @@ public class StringConverterTest {
 
                 new ConversionFailure(Character.class, ""),
                 new ConversionFailure(Character.class, "too long"),
-
-                new ConversionFailure(Object.class, ""),
-                new ConversionFailure(Object.class, "not a primitive wrapper or string"),
         };
     }
 
@@ -127,6 +124,12 @@ public class StringConverterTest {
             assertEquals(conversion.type, e.getTargetType());
             assertEquals(conversion.input, e.getValue());
         }
+    }
+
+    @Test
+    public void convert_failsOnNonPrimitiveTarget() {
+        thrown.expect(IllegalArgumentException.class);
+        StringConverter.convert(Object.class, "anything");
     }
 
     @Theory
@@ -153,5 +156,10 @@ public class StringConverterTest {
     public void convertToPrimitiveWrapper_failsOnNonPrimitiveTarget() {
         thrown.expect(IllegalArgumentException.class);
         StringConverter.convertToPrimitiveWrapper(Object.class, "anything");
+    }
+
+    @Test
+    public void unusedConstructorCoverage() {
+        new StringConverter();
     }
 }
