@@ -136,7 +136,7 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */
     public TreeObjectReader<T> stringArrayLine(BiConsumer<T, String[]> setter) {
-        return section(new ArrayLineReader<>(String[]::new, s -> s, setter));
+        return section(new ArrayLineReader<>(setter, s -> s, String[]::new));
     }
 
     /**
@@ -157,7 +157,7 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      */
     public <E> TreeObjectReader<T> arrayLine(BiConsumer<T, E[]> setter, IntFunction<E[]> arrayCreator,
                                              Function<String, E> itemConverter) {
-        return section(new ArrayLineReader<>(arrayCreator, itemConverter, setter));
+        return section(new ArrayLineReader<>(setter, itemConverter, arrayCreator));
     }
 
     /**

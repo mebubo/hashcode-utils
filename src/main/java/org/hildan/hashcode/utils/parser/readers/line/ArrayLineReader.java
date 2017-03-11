@@ -18,27 +18,27 @@ import org.hildan.hashcode.utils.parser.config.Config;
  */
 public class ArrayLineReader<E, P> extends SingleLineSectionReader<P> {
 
-    private final BiConsumer<P, E[]> parentSetter;
+    private final BiConsumer<P, ? super E[]> parentSetter;
 
-    private final Function<String, E> converter;
+    private final Function<String, ? extends E> converter;
 
     private final IntFunction<E[]> arrayCreator;
 
     /**
      * Creates a new {@link ArrayLineReader}.
      *
-     * @param arrayCreator
-     *         a function to create an array of the right type, given the size as input
-     * @param converter
-     *         a function to convert each string value into an element of the array
      * @param parentSetter
      *         a setter to update the parent object using the created array
+     * @param converter
+     *         a function to convert each string value into an element of the array
+     * @param arrayCreator
+     *         a function to create an array of the right type, given the size as input
      */
-    public ArrayLineReader(IntFunction<E[]> arrayCreator, Function<String, E> converter,
-            BiConsumer<P, E[]> parentSetter) {
+    public ArrayLineReader(BiConsumer<P, ? super E[]> parentSetter, Function<String, ? extends E> converter,
+            IntFunction<? extends E[]> arrayCreator) {
         this.parentSetter = parentSetter;
         this.converter = converter;
-        this.arrayCreator = arrayCreator;
+        this.arrayCreator = arrayCreator::apply;
     }
 
     @Override
