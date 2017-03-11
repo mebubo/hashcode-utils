@@ -30,6 +30,7 @@ public class AbstractFileSolverTest {
                 new Expectation("myInput.in.stuff", "myInput.in.stuff.out"),
                 new Expectation("inputs/myInput", "outputs/myInput.out"),
                 new Expectation("root/inputs/myInput", "root/outputs/myInput.out"),
+                new Expectation("root/inputsweird/myInput", "root/inputsweird/myInput.out"),
                 new Expectation("inputs/myInput.in", "outputs/myInput.out"),
                 new Expectation("weirdinputs/myInput", "weirdinputs/myInput.out"),
                 new Expectation("weirdinputs/myInput.in", "weirdinputs/myInput.out"),
