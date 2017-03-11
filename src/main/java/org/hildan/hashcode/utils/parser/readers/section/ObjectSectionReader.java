@@ -2,7 +2,7 @@ package org.hildan.hashcode.utils.parser.readers.section;
 
 import java.util.function.BiConsumer;
 
-import org.hildan.hashcode.utils.parser.Context;
+import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;

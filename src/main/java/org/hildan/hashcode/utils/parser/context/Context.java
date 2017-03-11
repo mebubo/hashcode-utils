@@ -1,9 +1,14 @@
-package org.hildan.hashcode.utils.parser;
+package org.hildan.hashcode.utils.parser.context;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hildan.hashcode.utils.parser.InputParsingException;
+
+/**
+ * Represents the current parsing context. It provides methods to access the input data and the context variables.
+ */
 public class Context {
 
     private final List<String> lines;
@@ -12,6 +17,12 @@ public class Context {
 
     private int nextLineNumber;
 
+    /**
+     * Creates a new {@link Context} with given input lines.
+     *
+     * @param lines
+     *         the input lines to parse
+     */
     public Context(List<String> lines) {
         this.lines = lines;
         this.nextLineNumber = 0;
@@ -50,5 +61,4 @@ public class Context {
         variables.put(key, value);
     }
 
-    private static class NoMoreLinesToReadException extends InputParsingException {}
 }

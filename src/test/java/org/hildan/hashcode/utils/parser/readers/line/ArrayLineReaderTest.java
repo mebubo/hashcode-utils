@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import org.hildan.hashcode.utils.parser.Context;
+import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;

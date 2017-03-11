@@ -1,8 +1,8 @@
 package org.hildan.hashcode.utils.parser.readers.section;
 
-import org.hildan.hashcode.utils.parser.Context;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
+import org.hildan.hashcode.utils.parser.context.Context;
 
 /**
  * A reader that consumes as much input as necessary (a "section" of input) to update its parent.
@@ -15,18 +15,18 @@ import org.hildan.hashcode.utils.parser.config.Config;
  */
 public interface SectionReader<P> {
 
-  /**
-   * Reads as much input as necessary to update a section of the given parent object.
-   *
-   * @param parent
-   *         the parent object to update
-   * @param context
-   *         the context to read from
-   * @param config
-   *         the configuration defining the expected behaviour
-   *
-   * @throws InputParsingException
-   *         if something went wrong while reading the input
-   */
-  void readSection(P parent, Context context, Config config) throws InputParsingException;
+    /**
+     * Reads as much input as necessary to update a section of the given parent object.
+     *
+     * @param parent
+     *         the parent object to update
+     * @param context
+     *         the context to read from
+     * @param config
+     *         the configuration defining the expected behaviour
+     *
+     * @throws InputParsingException
+     *         if something went wrong while reading the input
+     */
+    void readSection(P parent, Context context, Config config) throws InputParsingException;
 }

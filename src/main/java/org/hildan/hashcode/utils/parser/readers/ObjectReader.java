@@ -1,6 +1,6 @@
 package org.hildan.hashcode.utils.parser.readers;
 
-import org.hildan.hashcode.utils.parser.Context;
+import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.jetbrains.annotations.Nullable;

@@ -4,7 +4,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 
-import org.hildan.hashcode.utils.parser.Context;
+import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 

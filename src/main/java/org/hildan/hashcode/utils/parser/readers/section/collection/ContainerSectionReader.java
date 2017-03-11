@@ -4,9 +4,9 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 
-import org.hildan.hashcode.utils.parser.Context;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
+import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 
@@ -32,7 +32,8 @@ public abstract class ContainerSectionReader<E, C, P> implements SectionReader<P
     private final BiFunction<P, Context, Integer> getSize;
 
     /**
-     * Creates a new {@code ContainerSectionReader} that may read the expected number of items from the parent object.
+     * Creates a new {@code ContainerSectionReader} that may read the expected number of items from the parent
+     * object or a context variable.
      *
      * @param constructor
      *         a constructor to create a new container, given the size as input

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.function.BiConsumer;
 
 import org.hildan.hashcode.utils.parser.config.Config;
-import org.hildan.hashcode.utils.parser.Context;
+import org.hildan.hashcode.utils.parser.context.Context;
 
 /**
  * A {@link SingleLineSectionReader} that reads the values as a single array of ints.

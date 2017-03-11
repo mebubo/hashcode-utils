@@ -39,8 +39,7 @@ public class StringConverter {
      * @throws IllegalArgumentException
      *         if the provided targetType is not a primitive wrapper type
      */
-    @NotNull
-    public static <T> T convertToPrimitiveWrapper(@NotNull Class<T> targetType, @NotNull String value)
+    public static @NotNull <T> T convertToPrimitiveWrapper(@NotNull Class<T> targetType, @NotNull String value)
             throws IllegalArgumentException {
         if (!isWrapperType(targetType)) {
             throw new IllegalArgumentException(
@@ -68,8 +67,7 @@ public class StringConverter {
      * @throws StringConversionException
      *         if the string value cannot be converted to the given type, or if the target type is not supported
      */
-    @NotNull
-    public static Object convert(@NotNull Class<?> targetType, @NotNull String value) throws StringConversionException {
+    public static @NotNull Object convert(@NotNull Class<?> targetType, @NotNull String value) throws StringConversionException {
         try {
             if (targetType.equals(boolean.class) || targetType.equals(Boolean.class)) {
                 return convertToBoolean(value);

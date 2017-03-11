@@ -2,10 +2,6 @@ package org.hildan.hashcode.utils.parser;
 
 public class InputParsingException extends RuntimeException {
 
-  public InputParsingException() {
-    super();
-  }
-
   public InputParsingException(String message) {
     super(message);
   }
