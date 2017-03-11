@@ -18,8 +18,8 @@ public abstract class SingleLineSectionReader<P> implements SectionReader<P> {
     public void readSection(P parent, Context context, Config config) throws InputParsingException {
         int lineNum = context.getNextLineNumber();
         String line = context.readLine();
-        String[] values = line.split(config.getSeparator());
         try {
+            String[] values = line.isEmpty() ? new String[0] : line.split(config.getSeparator(), -1);
             setValues(parent, values, context, config);
         } catch (Exception e) {
             throw new InputParsingException(lineNum, line, e.getMessage(), e);
