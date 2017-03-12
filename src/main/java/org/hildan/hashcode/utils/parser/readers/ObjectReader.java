@@ -1,8 +1,9 @@
 package org.hildan.hashcode.utils.parser.readers;
 
-import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
+import org.hildan.hashcode.utils.parser.context.Context;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -22,8 +23,10 @@ public interface ObjectReader<T> {
      *         the configuration defining the expected behaviour
      *
      * @return the created object, may be null
+     *
      * @throws InputParsingException
      *         if something went wrong when reading the input
      */
-    @Nullable T read(Context context, Config config) throws InputParsingException;
+    @Nullable
+    T read(@NotNull Context context, @NotNull Config config) throws InputParsingException;
 }

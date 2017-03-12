@@ -13,7 +13,7 @@ public interface InputReader {
     int getNextLineNumber();
 
     /**
-     * Reads the next line of input.
+     * Reads and returns the next line of input.
      *
      * @return the next line of input
      * @throws NoMoreLinesToReadException

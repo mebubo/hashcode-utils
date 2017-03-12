@@ -1,9 +1,10 @@
 package org.hildan.hashcode.utils.parser.readers.line;
 
-import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
+import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A {@link SectionReader} that consumes a single line of input, and updates its parent accordingly. It may read a
@@ -15,7 +16,8 @@ import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 public abstract class SingleLineSectionReader<P> implements SectionReader<P> {
 
     @Override
-    public void readSection(P parent, Context context, Config config) throws InputParsingException {
+    public void readSection(@NotNull P parent, @NotNull Context context, @NotNull Config config) throws
+            InputParsingException {
         int lineNum = context.getNextLineNumber();
         String line = context.readLine();
         try {

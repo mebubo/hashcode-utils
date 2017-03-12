@@ -9,6 +9,7 @@ import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A {@link SectionReader} that creates a container, reads multiple child objects from the input, adding them to the
@@ -53,7 +54,8 @@ public abstract class ContainerSectionReader<E, C, P> implements SectionReader<P
     }
 
     @Override
-    public void readSection(P parent, Context context, Config config) throws InputParsingException {
+    public void readSection(@NotNull P parent, @NotNull Context context, @NotNull Config config) throws
+            InputParsingException {
         int size = getSize.apply(parent, context);
         C collection = constructor.apply(size);
         for (int i = 0; i < size; i++) {

@@ -3,6 +3,7 @@ package org.hildan.hashcode.utils.parser.readers.section;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.context.Context;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A reader that consumes as much input as necessary (a "section" of input) to update its parent.
@@ -28,5 +29,5 @@ public interface SectionReader<P> {
      * @throws InputParsingException
      *         if something went wrong while reading the input
      */
-    void readSection(P parent, Context context, Config config) throws InputParsingException;
+    void readSection(@NotNull P parent, @NotNull Context context, @NotNull Config config) throws InputParsingException;
 }

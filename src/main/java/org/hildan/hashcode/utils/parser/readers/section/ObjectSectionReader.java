@@ -2,10 +2,11 @@ package org.hildan.hashcode.utils.parser.readers.section;
 
 import java.util.function.BiConsumer;
 
-import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
+import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A {@link SectionReader} that reads a child object and sets it on the parent object, consuming as much input as
@@ -36,7 +37,8 @@ public class ObjectSectionReader<T, P> implements SectionReader<P> {
     }
 
     @Override
-    public void readSection(P objectToFill, Context context, Config config) throws InputParsingException {
+    public void readSection(@NotNull P objectToFill, @NotNull Context context, @NotNull Config config) throws
+            InputParsingException {
         T value = childReader.read(context, config);
         parentSetter.accept(objectToFill, value);
     }

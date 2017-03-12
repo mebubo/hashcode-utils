@@ -21,6 +21,7 @@ import org.hildan.hashcode.utils.parser.readers.section.ObjectSectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.collection.ArraySectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.collection.CollectionSectionReader;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An implementation of {@link ObjectReader} that builds an object using child {@link SectionReader}s.
@@ -59,7 +60,7 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
     }
 
     @Override
-    public T read(Context context, Config config) throws InputParsingException {
+    public T read(@NotNull Context context, @NotNull Config config) throws InputParsingException {
         T obj = constructor.get();
         for (SectionReader<T> sectionReader : sectionReaders) {
             sectionReader.readSection(obj, context, config);

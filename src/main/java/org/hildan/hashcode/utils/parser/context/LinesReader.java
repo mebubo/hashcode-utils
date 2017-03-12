@@ -3,7 +3,7 @@ package org.hildan.hashcode.utils.parser.context;
 import java.util.List;
 
 /**
- * Represents the current parsing context. It provides methods to access the input data and the context variables.
+ * An input reader based on a list of lines to read.
  */
 public class LinesReader implements InputReader {
 
@@ -12,7 +12,7 @@ public class LinesReader implements InputReader {
     private int nextLineNumber;
 
     /**
-     * Creates a new {@link LinesReader} with given input lines.
+     * Creates a new {@link LinesReader} with the given input lines.
      *
      * @param lines
      *         the input lines to parse
