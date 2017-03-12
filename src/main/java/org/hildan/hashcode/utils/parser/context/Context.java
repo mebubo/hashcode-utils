@@ -1,7 +1,6 @@
 package org.hildan.hashcode.utils.parser.context;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
@@ -11,33 +10,25 @@ import org.hildan.hashcode.utils.parser.InputParsingException;
  */
 public class Context {
 
-    private final List<String> lines;
-
     private final Map<String, String> variables;
 
-    private int nextLineNumber;
+    private final InputReader reader;
 
-    /**
-     * Creates a new {@link Context} with given input lines.
-     *
-     * @param lines
-     *         the input lines to parse
-     */
-    public Context(List<String> lines) {
-        this.lines = lines;
-        this.nextLineNumber = 0;
+    public Context(InputReader reader) {
         this.variables = new HashMap<>();
+        this.reader = reader;
     }
 
     public int getNextLineNumber() {
-        return nextLineNumber;
+        return reader.getNextLineNumber();
     }
 
     public String readLine() {
-        if (nextLineNumber >= lines.size()) {
-            throw new NoMoreLinesToReadException();
-        }
-        return lines.get(nextLineNumber++);
+        return reader.readLine();
+    }
+
+    public void closeReader() {
+        reader.close();
     }
 
     public String getVariable(String key) throws InputParsingException {
@@ -60,5 +51,4 @@ public class Context {
     public void setVariable(String key, String value) {
         variables.put(key, value);
     }
-
 }

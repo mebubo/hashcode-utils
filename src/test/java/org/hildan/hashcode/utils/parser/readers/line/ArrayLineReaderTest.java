@@ -8,6 +8,8 @@ import java.util.function.IntFunction;
 
 import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.config.Config;
+import org.hildan.hashcode.utils.parser.context.InputReader;
+import org.hildan.hashcode.utils.parser.context.LinesReader;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -65,7 +67,8 @@ public class ArrayLineReaderTest {
                 expectation.arrayCreator);
 
         List<Object[]> parentMock = new ArrayList<>(1);
-        Context context = new Context(Arrays.asList(expectation.line, "ignored line"));
+        InputReader inputReader = new LinesReader(Arrays.asList(expectation.line, "ignored line"));
+        Context context = new Context(inputReader);
 
         reader.readSection(parentMock, context, new Config());
 

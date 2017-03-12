@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.context.Context;
+import org.hildan.hashcode.utils.parser.context.InputReader;
+import org.hildan.hashcode.utils.parser.context.LinesReader;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.intellij.lang.annotations.RegExp;
 import org.jetbrains.annotations.NotNull;
@@ -84,19 +86,32 @@ public class HCParser<T> {
      * @return the created object representing the input problem
      */
     public T parse(List<String> lines) {
-        Context context = new Context(lines);
-        return parse(context);
+        return parse(new LinesReader(lines));
     }
 
     /**
-     * Creates an instance of T by reading the input from the given context.
+     * Creates an instance of T by reading the input from the given {@link InputReader}.
+     *
+     * @param inputReader
+     *         the {@link InputReader} to use to consume the input
+     *
+     * @return the created object representing the input problem
+     */
+    public T parse(InputReader inputReader) {
+        return parse(new Context(inputReader));
+    }
+
+    /**
+     * Creates an instance of T by reading the input from the given {@link Context}.
      *
      * @param context
-     *         the context from which to read the input to parse
+     *         the {@link Context} from which to read the input to parse
      *
      * @return the created object representing the input problem
      */
     public T parse(Context context) {
-        return rootReader.read(context, config);
+        T result = rootReader.read(context, config);
+        context.closeReader();
+        return result;
     }
 }

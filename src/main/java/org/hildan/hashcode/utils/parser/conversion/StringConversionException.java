@@ -21,8 +21,8 @@ public class StringConversionException extends InputParsingException {
         this(targetType, value, defaultMessage(targetType, value));
     }
 
-    StringConversionException(Class<?> targetType, String value, Throwable e) {
-        super(defaultMessage(targetType, value), e);
+    StringConversionException(Class<?> targetType, String value, Throwable cause) {
+        super(defaultMessage(targetType, value), cause);
         this.targetType = targetType;
         this.value = value;
     }
