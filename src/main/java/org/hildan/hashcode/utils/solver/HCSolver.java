@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.function.Function;
 
 import org.hildan.hashcode.utils.parser.HCParser;
+import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 
 public class HCSolver<P> extends AbstractFileSolver {
 
@@ -14,6 +15,24 @@ public class HCSolver<P> extends AbstractFileSolver {
     public HCSolver(HCParser<P> problemParser, Function<P, ? extends Iterable<? extends CharSequence>> solver) {
         this.problemParser = problemParser;
         this.solver = solver;
+    }
+
+    public static <P extends Solvable> HCSolver<P> of(HCParser<P> parser) {
+        return new HCSolver<>(parser, P::solve);
+    }
+
+    public static <P extends Solvable> HCSolver<P> of(ObjectReader<P> reader) {
+        return new HCSolver<>(new HCParser<>(reader), P::solve);
+    }
+
+    public static <P> HCSolver<P> of(HCParser<P> parser,
+                                     Function<P, ? extends Iterable<? extends CharSequence>> solver) {
+        return new HCSolver<>(parser, solver);
+    }
+
+    public static <P> HCSolver<P> of(ObjectReader<P> reader,
+                                     Function<P, ? extends Iterable<? extends CharSequence>> solver) {
+        return new HCSolver<>(new HCParser<>(reader), solver);
     }
 
     @Override
