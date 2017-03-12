@@ -36,11 +36,12 @@ public class StringConverter {
      *         the target type of the conversion
      *
      * @return the converted value
+     *
      * @throws IllegalArgumentException
      *         if the provided targetType is not a primitive wrapper type
      */
-    public static @NotNull <T> T convertToPrimitiveWrapper(@NotNull Class<T> targetType, @NotNull String value)
-            throws IllegalArgumentException {
+    public static @NotNull <T> T convertToPrimitiveWrapper(@NotNull Class<T> targetType, @NotNull String value) throws
+            IllegalArgumentException {
         if (!isWrapperType(targetType)) {
             throw new IllegalArgumentException(
                     "The provided type '" + targetType.getSimpleName() + "' is not a wrapper of primitive");
@@ -64,10 +65,12 @@ public class StringConverter {
      *
      * @return the converted value as an object of the target type. This has to be returned as an Object due to the java
      * language limitation (we cannot return primitives in generics).
+     *
      * @throws StringConversionException
      *         if the string value cannot be converted to the given type, or if the target type is not supported
      */
-    public static @NotNull Object convert(@NotNull Class<?> targetType, @NotNull String value) throws StringConversionException {
+    public static @NotNull Object convert(@NotNull Class<?> targetType, @NotNull String value) throws
+            StringConversionException {
         try {
             if (targetType.equals(boolean.class) || targetType.equals(Boolean.class)) {
                 return convertToBoolean(value);

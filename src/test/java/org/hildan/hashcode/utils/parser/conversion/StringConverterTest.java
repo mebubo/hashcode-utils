@@ -9,17 +9,21 @@ import org.junit.experimental.theories.Theory;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(Theories.class)
 public class StringConverterTest {
-    
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     private static class SuccessfulConversion<T> {
         final Class<T> type;
+
         final String input;
+
         final T targetValue;
 
         SuccessfulConversion(Class<T> type, String input, T targetValue) {
@@ -31,6 +35,7 @@ public class StringConverterTest {
 
     private static class ConversionFailure {
         final Class<?> type;
+
         final String input;
 
         ConversionFailure(Class<?> type, String input) {
@@ -41,7 +46,7 @@ public class StringConverterTest {
 
     @DataPoints({"all", "primitives"})
     public static SuccessfulConversion<?>[] conversions() {
-        return new SuccessfulConversion<?>[] {
+        return new SuccessfulConversion<?>[]{
                 new SuccessfulConversion<>(Boolean.class, "true", true),
                 new SuccessfulConversion<>(Boolean.class, "True", true),
                 new SuccessfulConversion<>(Boolean.class, "TRUE", true),
@@ -70,7 +75,7 @@ public class StringConverterTest {
 
     @DataPoints({"all", "strings"})
     public static SuccessfulConversion<?>[] conversionsToString() {
-        return new SuccessfulConversion<?>[] {
+        return new SuccessfulConversion<?>[]{
                 new SuccessfulConversion<>(String.class, "test", "test"),
                 new SuccessfulConversion<>(String.class, " ", " "),
                 new SuccessfulConversion<>(String.class, "", ""),
@@ -79,7 +84,7 @@ public class StringConverterTest {
 
     @DataPoints
     public static ConversionFailure[] conversionFailures() {
-        return new ConversionFailure[] {
+        return new ConversionFailure[]{
                 new ConversionFailure(Boolean.class, ""),
                 new ConversionFailure(Boolean.class, " "),
                 new ConversionFailure(Boolean.class, "not a boolean"),
@@ -146,8 +151,8 @@ public class StringConverterTest {
     }
 
     @Theory
-    public void convertToPrimitiveWrapper_failsOnStringTarget(@FromDataPoints("strings") SuccessfulConversion<?>
-            conversion) {
+    public void convertToPrimitiveWrapper_failsOnStringTarget(
+            @FromDataPoints("strings") SuccessfulConversion<?> conversion) {
         thrown.expect(IllegalArgumentException.class);
         StringConverter.convertToPrimitiveWrapper(conversion.type, conversion.input);
     }

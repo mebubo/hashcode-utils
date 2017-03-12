@@ -52,17 +52,17 @@ public class HCParserTest {
     @Test
     public void test() {
 
-        ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new)
-                                                          .fieldsAndVarsLine("x", "y");
+        ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new).fieldsAndVarsLine("x", "y");
 
         ObjectReader<Shape> shapeReader = TreeObjectReader.of(Shape::new)
                                                           .fieldsAndVarsLine("name", "nPoints")
-                                                          .listSection((o, l) -> o.points = l, o -> o.nPoints, pointReader);
+                                                          .listSection((o, l) -> o.points = l, o -> o.nPoints,
+                                                                  pointReader);
 
         ObjectReader<Problem> problemReader = TreeObjectReader.of(Problem::new)
-                                                              .fieldsAndVarsLine("param1", "param2", "nShapes@myArraySize")
-                                                              .arraySection((p, l) -> p.shapes = l, Shape[]::new,
-                                                                      "myArraySize", shapeReader);
+                                                              .fieldsAndVarsLine("param1", "param2", "nShapes@N")
+                                                              .arraySection((p, l) -> p.shapes = l, Shape[]::new, "N",
+                                                                      shapeReader);
 
         List<String> lines = Arrays.asList(CONTENT.split("\\n"));
         HCParser<Problem> hcParser = new HCParser<>(problemReader);

@@ -47,5 +47,4 @@ public class AbstractFileSolverTest {
         };
         assertEquals(expectation.expectedOutput, solver.computeOutputFilename(expectation.input));
     }
-
 }
