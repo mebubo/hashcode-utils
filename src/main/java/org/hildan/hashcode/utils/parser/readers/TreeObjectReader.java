@@ -15,7 +15,7 @@ import org.hildan.hashcode.utils.parser.readers.line.ArrayLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.DoubleArrayLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.FieldsAndVarsLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.IntArrayLineReader;
-import org.hildan.hashcode.utils.parser.readers.line.ListLineReader;
+import org.hildan.hashcode.utils.parser.readers.line.CollectionLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.LongArrayLineReader;
 import org.hildan.hashcode.utils.parser.readers.section.ObjectSectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
@@ -161,7 +161,7 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
     }
 
     /**
-     * Tells this reader to create an list of objects from the next line, and set it on the object being created using
+     * Tells this reader to create a list of objects from the next line, and set it on the object being created using
      * the provided setter.
      *
      * @param setter
@@ -174,7 +174,7 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @return this {@code TreeObjectReader}, for a convenient configuration syntax
      */
     public <E> TreeObjectReader<T> listLine(BiConsumer<T, List<E>> setter, Function<String, E> itemConverter) {
-        return section(new ListLineReader<>(itemConverter, setter));
+        return section(new CollectionLineReader<>(itemConverter, setter, ArrayList::new));
     }
 
     /**
