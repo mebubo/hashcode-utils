@@ -8,7 +8,7 @@ apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 
 group = 'org.hildan.hashcode'
-version = '3.0.0'
+version = '4.0.0'
 description = 'Utilities for programs solving Google Hash Code problems'
 ext.labels = ['hashcode', 'google', 'google-hashcode', 'utils', 'input', 'parser', 'solver', 'runner', 'framework']
 
