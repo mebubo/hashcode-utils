@@ -8,7 +8,7 @@ public class Endpoint {
 
     public int dcLatency;
 
-    public int cacheIds[];
+    public int[] cacheIds;
 
     public Map<Integer, Integer> cacheLatencies = new HashMap<>();
 
