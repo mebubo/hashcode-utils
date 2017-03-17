@@ -35,12 +35,11 @@ public class StreamingExample {
     }
 
     private static ObjectReader<StreamingProblem> createReader() {
-        ObjectReader<Latency> latencyReader = TreeObjectReader.of(Latency::new)
-                                                              .fieldsAndVarsLine("cacheIndex", "latency");
+        ObjectReader<Latency> latencyReader =
+                TreeObjectReader.of(Latency::new).fieldsAndVarsLine("cacheIndex", "latency");
 
-        ObjectReader<RequestDesc> requestDescReader = TreeObjectReader.of(RequestDesc::new)
-                                                                      .fieldsAndVarsLine("videoId", "endpointId",
-                                                                              "count");
+        ObjectReader<RequestDesc> requestReader =
+                TreeObjectReader.of(RequestDesc::new).fieldsAndVarsLine("videoId", "endpointId", "count");
 
         ObjectReader<Endpoint> endpointReader = TreeObjectReader.of(Endpoint::new)
                                                                 .fieldsAndVarsLine("dcLatency", "@nCaches")
@@ -53,7 +52,7 @@ public class StreamingExample {
                                .intArrayLine((sp, arr) -> sp.videoSizes = arr)
                                .arraySection((sp, arr) -> sp.endpoints = arr, Endpoint[]::new, "E", endpointReader)
                                .arraySection((sp, arr) -> sp.requestDescs = arr, RequestDesc[]::new, "R",
-                                       requestDescReader);
+                                       requestReader);
     }
 
     @Test
@@ -68,7 +67,7 @@ public class StreamingExample {
         assertEquals(4, problem.nRequestDescriptions);
         assertEquals(3, problem.nCaches);
         assertEquals(100, problem.cacheSize);
-        assertArrayEquals(new int[] {50, 50, 80, 30, 110}, problem.videoSizes);
+        assertArrayEquals(new int[]{50, 50, 80, 30, 110}, problem.videoSizes);
 
         assertEquals(2, problem.endpoints.length);
 

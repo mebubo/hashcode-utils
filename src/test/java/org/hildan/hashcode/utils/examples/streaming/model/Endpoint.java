@@ -17,9 +17,9 @@ public class Endpoint {
     public Map<Video, Long> nRequestsPerVideo = new HashMap<>();
 
     public void setLatencies(Latency[] latencies) {
-        cacheIds = Arrays.stream(latencies).mapToInt(l -> l.cacheIndex).toArray();
-        Arrays.stream(latencies).forEach(l -> cacheLatencies.put(l.cacheIndex, l.latency));
-        Arrays.stream(latencies).forEach(l -> gainPerCache.put(l.cacheIndex, dcLatency - l.latency));
+        cacheIds = Arrays.stream(latencies).mapToInt(l -> l.cacheId).toArray();
+        Arrays.stream(latencies).forEach(l -> cacheLatencies.put(l.cacheId, l.latency));
+        Arrays.stream(latencies).forEach(l -> gainPerCache.put(l.cacheId, dcLatency - l.latency));
     }
 
     public void addRequests(Video video, int nbRequests) {
