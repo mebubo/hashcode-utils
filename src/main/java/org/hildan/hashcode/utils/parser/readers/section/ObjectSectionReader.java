@@ -19,9 +19,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ObjectSectionReader<T, P> implements SectionReader<P> {
 
-    private final ObjectReader<T> childReader;
+    private final ObjectReader<? extends T> childReader;
 
-    private final BiConsumer<P, T> parentSetter;
+    private final BiConsumer<P, ? super T> parentSetter;
 
     /**
      * Creates a new {@code ObjectSectionReader}.
@@ -31,7 +31,7 @@ public class ObjectSectionReader<T, P> implements SectionReader<P> {
      * @param parentSetter
      *         the setter to use to set the created child object on the parent object
      */
-    public ObjectSectionReader(ObjectReader<T> childReader, BiConsumer<P, T> parentSetter) {
+    public ObjectSectionReader(ObjectReader<? extends T> childReader, BiConsumer<P, ? super T> parentSetter) {
         this.childReader = childReader;
         this.parentSetter = parentSetter;
     }
