@@ -86,8 +86,9 @@ public class FieldsAndVarsLineReader<P> extends SingleLineSectionReader<P> {
             Field field = clazz.getDeclaredField(fieldName);
             setField(obj, field, value);
         } catch (NoSuchFieldException e) {
-            throw new InputParsingException("The provided field name was not found in class " + clazz.getSimpleName(),
-                    e);
+            throw new InputParsingException(
+                    String.format("The provided field name '%s' was not found in class '%s'", fieldName,
+                            clazz.getSimpleName()), e);
         }
     }
 

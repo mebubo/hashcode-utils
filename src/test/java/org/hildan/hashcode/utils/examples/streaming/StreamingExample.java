@@ -36,15 +36,15 @@ public class StreamingExample {
 
     private static ObjectReader<StreamingProblem> createReader() {
         ObjectReader<Latency> latencyReader =
-                TreeObjectReader.of(Latency::new).fieldsAndVarsLine("cacheIndex", "latency");
+                TreeObjectReader.of(Latency::new).fieldsAndVarsLine("cacheId", "latency");
 
         ObjectReader<RequestDesc> requestReader =
                 TreeObjectReader.of(RequestDesc::new).fieldsAndVarsLine("videoId", "endpointId", "count");
 
         ObjectReader<Endpoint> endpointReader = TreeObjectReader.of(Endpoint::new)
-                                                                .fieldsAndVarsLine("dcLatency", "@nCaches")
+                                                                .fieldsAndVarsLine("dcLatency", "@K")
                                                                 .arraySection(Endpoint::setLatencies, Latency[]::new,
-                                                                        "nCaches", latencyReader);
+                                                                        "K", latencyReader);
 
         return TreeObjectReader.of(StreamingProblem::new)
                                .fieldsAndVarsLine("nVideos", "nEndpoints@E", "nRequestDescriptions@R", "nCaches",
