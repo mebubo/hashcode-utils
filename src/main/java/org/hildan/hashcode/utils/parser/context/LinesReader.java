@@ -19,7 +19,7 @@ public class LinesReader implements InputReader {
      */
     public LinesReader(List<String> lines) {
         this.lines = lines;
-        this.nextLineNumber = 0;
+        this.nextLineNumber = 1;
     }
 
     @Override
