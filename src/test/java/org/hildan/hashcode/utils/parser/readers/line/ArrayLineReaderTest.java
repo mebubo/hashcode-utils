@@ -1,15 +1,13 @@
 package org.hildan.hashcode.utils.parser.readers.line;
 
+import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.config.Config;
-import org.hildan.hashcode.utils.parser.context.InputReader;
-import org.hildan.hashcode.utils.parser.context.LinesReader;
+import org.hildan.hashcode.utils.parser.context.Context;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -68,8 +66,7 @@ public class ArrayLineReaderTest {
                 expectation.arrayCreator);
 
         List<Object[]> parentMock = new ArrayList<>(1);
-        InputReader inputReader = new LinesReader(Arrays.asList(expectation.line, "ignored line"));
-        Context context = new Context(inputReader);
+        Context context = new Context(new StringReader(expectation.line + "\nignored line"), new Config());
 
         reader.readSection(parentMock, context, new Config());
 

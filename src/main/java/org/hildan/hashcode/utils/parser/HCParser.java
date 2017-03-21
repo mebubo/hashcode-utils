@@ -1,14 +1,12 @@
 package org.hildan.hashcode.utils.parser;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
+import java.io.StringReader;
 
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.context.Context;
-import org.hildan.hashcode.utils.parser.context.InputReader;
-import org.hildan.hashcode.utils.parser.context.LinesReader;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.intellij.lang.annotations.RegExp;
 import org.jetbrains.annotations.NotNull;
@@ -69,36 +67,35 @@ public class HCParser<T> {
      *         the path to the file to parse
      *
      * @return the created object representing the input problem
-     * @throws IOException
-     *         if an error occurs while reading the file
+     * @throws FileNotFoundException
+     *         if the given file does not exist
      */
-    public T parse(String filename) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(filename));
-        return parse(lines);
+    public T parseFile(String filename) throws FileNotFoundException {
+        return parse(new FileReader(filename));
     }
 
     /**
-     * Parses the given input lines to create an instance of T.
+     * Parses the given input to create an instance of T.
      *
-     * @param lines
-     *         the input lines to parse
+     * @param content
+     *         the input to parse
      *
      * @return the created object representing the input problem
      */
-    public T parse(List<String> lines) {
-        return parse(new LinesReader(lines));
+    public T parse(String content) {
+        return parse(new StringReader(content));
     }
 
     /**
-     * Creates an instance of T by reading the input from the given {@link InputReader}.
+     * Creates an instance of T by reading the input from the given {@link Reader}.
      *
      * @param inputReader
-     *         the {@link InputReader} to use to consume the input
+     *         the {@link Reader} to use to consume the input
      *
      * @return the created object representing the input problem
      */
-    public T parse(InputReader inputReader) {
-        return parse(new Context(inputReader));
+    public T parse(Reader inputReader) {
+        return parse(new Context(inputReader, config));
     }
 
     /**

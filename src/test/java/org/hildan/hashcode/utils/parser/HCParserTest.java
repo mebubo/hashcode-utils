@@ -66,7 +66,7 @@ public class HCParserTest {
 
         List<String> lines = Arrays.asList(CONTENT.split("\\n"));
         HCParser<Problem> hcParser = new HCParser<>(problemReader);
-        Problem problem = hcParser.parse(lines);
+        Problem problem = hcParser.parse(CONTENT);
 
         assertEquals(42, problem.param1);
         assertEquals(24, problem.param2);

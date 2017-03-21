@@ -1,9 +1,15 @@
 package org.hildan.hashcode.utils.parser.context;
 
+import java.io.LineNumberReader;
+import java.io.Reader;
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
+import org.hildan.hashcode.utils.parser.config.Config;
 
 /**
  * Represents the current parsing context. It provides methods to access the input data and the context variables.
@@ -12,17 +18,21 @@ public class Context {
 
     private final Map<String, String> variables;
 
-    private final InputReader reader;
+    private final LineNumberReader reader;
+
+    private final Scanner scanner;
 
     /**
-     * Creates a new parsing context using the given {@link InputReader} to access the input.
+     * Creates a new parsing context using the given {@link Reader} to access the input.
      *
      * @param reader
      *         the reader to use to read the input
      */
-    public Context(InputReader reader) {
+    public Context(Reader reader, Config config) {
         this.variables = new HashMap<>();
-        this.reader = reader;
+        this.reader = new LineNumberReader(reader);
+        this.reader.setLineNumber(1);
+        this.scanner = new Scanner(this.reader).useDelimiter(config.getSeparator());
     }
 
     /**
@@ -31,7 +41,25 @@ public class Context {
      * @return the next line's number
      */
     public int getNextLineNumber() {
-        return reader.getNextLineNumber();
+        return reader.getLineNumber();
+    }
+
+    /**
+     * Scans the next token of the input as an int.
+     *
+     * @return the int scanned from the input
+     *
+     * @throws NoMoreLinesToReadException
+     *         if there is no more lines to read
+     */
+    public int readInt() {
+        try {
+            return scanner.nextInt();
+        } catch (InputMismatchException e) {
+            throw new InputParsingException(getNextLineNumber(), "", e);
+        } catch (NoSuchElementException e) {
+            throw new NoMoreLinesToReadException();
+        }
     }
 
     /**
@@ -43,7 +71,11 @@ public class Context {
      *         if there is no more lines to read
      */
     public String readLine() {
-        return reader.readLine();
+        try {
+            return scanner.nextLine();
+        } catch (NoSuchElementException e) {
+            throw new NoMoreLinesToReadException();
+        }
     }
 
     /**
@@ -53,7 +85,19 @@ public class Context {
      *         if there is still some input left to read
      */
     public void closeReader() {
-        reader.close();
+        try {
+            int nbLinesLeft = 0;
+            while (scanner.hasNextLine()) {
+                if (!scanner.nextLine().trim().isEmpty()) {
+                    nbLinesLeft++;
+                }
+            }
+            if (nbLinesLeft > 0) {
+                throw new IncompleteReadException(nbLinesLeft);
+            }
+        } finally {
+            scanner.close();
+        }
     }
 
     /**
