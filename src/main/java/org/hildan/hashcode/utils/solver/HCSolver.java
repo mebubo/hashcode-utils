@@ -38,7 +38,7 @@ public class HCSolver<P> extends AbstractFileSolver {
     @Override
     protected Iterable<? extends CharSequence> solve(String inputFilename) {
         try {
-            P problem = problemParser.parse(inputFilename);
+            P problem = problemParser.parseFile(inputFilename);
             return solver.apply(problem);
         } catch (IOException e) {
             throw new SolverException("Exception occurred while parsing the input file '" + inputFilename + "'", e);

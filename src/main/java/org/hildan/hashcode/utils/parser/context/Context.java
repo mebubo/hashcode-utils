@@ -27,6 +27,8 @@ public class Context {
      *
      * @param reader
      *         the reader to use to read the input
+     * @param config
+     *         the config defining how the parser should behave
      */
     public Context(Reader reader, Config config) {
         this.variables = new HashMap<>();

@@ -1,8 +1,5 @@
 package org.hildan.hashcode.utils.examples.streaming;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.hildan.hashcode.utils.examples.streaming.model.Endpoint;
 import org.hildan.hashcode.utils.examples.streaming.model.Latency;
 import org.hildan.hashcode.utils.examples.streaming.model.RequestDesc;
@@ -30,10 +27,6 @@ public class StreamingExample {
                     + "4 0 500\n" // 500 requests for video 4 coming from endpoint 0.
                     + "1 0 1000"; // 1000 requests for video 1 coming from endpoint 0.
 
-    private static List<String> getLines(String input) {
-        return Arrays.asList(input.split("\\n"));
-    }
-
     private static ObjectReader<StreamingProblem> createReader() {
         ObjectReader<Latency> latencyReader =
                 TreeObjectReader.of(Latency::new).fieldsAndVarsLine("cacheId", "latency");
@@ -59,7 +52,7 @@ public class StreamingExample {
     public void test_parser() {
         ObjectReader<StreamingProblem> rootReader = createReader();
         HCParser<StreamingProblem> parser = new HCParser<>(rootReader);
-        StreamingProblem problem = parser.parse(getLines(input));
+        StreamingProblem problem = parser.parse(input);
         // test parsed object
 
         assertEquals(5, problem.nVideos);
