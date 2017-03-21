@@ -8,14 +8,18 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
-import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
+import org.hildan.hashcode.utils.parser.context.Context;
+import org.hildan.hashcode.utils.parser.readers.creators.Int3Creator;
+import org.hildan.hashcode.utils.parser.readers.creators.Int4Creator;
+import org.hildan.hashcode.utils.parser.readers.creators.Int5Creator;
+import org.hildan.hashcode.utils.parser.readers.creators.ObjectCreator;
 import org.hildan.hashcode.utils.parser.readers.line.ArrayLineReader;
+import org.hildan.hashcode.utils.parser.readers.line.CollectionLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.DoubleArrayLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.FieldsAndVarsLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.IntArrayLineReader;
-import org.hildan.hashcode.utils.parser.readers.line.CollectionLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.LongArrayLineReader;
 import org.hildan.hashcode.utils.parser.readers.section.ObjectSectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
@@ -36,11 +40,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public class TreeObjectReader<T> implements ObjectReader<T> {
 
-    private final Supplier<T> constructor;
+    private final ObjectCreator<T> constructor;
 
     private final List<SectionReader<T>> sectionReaders;
 
-    private TreeObjectReader(Supplier<T> constructor) {
+    private TreeObjectReader(ObjectCreator<T> constructor) {
         this.constructor = constructor;
         this.sectionReaders = new ArrayList<>();
     }
@@ -56,12 +60,96 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @return a new {@code TreeObjectReader}
      */
     public static <T> TreeObjectReader<T> of(Supplier<T> constructor) {
+        return new TreeObjectReader<>(ctx -> constructor.get());
+    }
+
+    /**
+     * Creates a new {@code TreeObjectReader} for the given type.
+     *
+     * @param constructor
+     *         the constructor to use to create new instances
+     * @param <T>
+     *         the type of objects that the new {@code TreeObjectReader} should create
+     *
+     * @return a new {@code TreeObjectReader}
+     */
+    public static <T> TreeObjectReader<T> of(Function<Integer, T> constructor) {
+        return new TreeObjectReader<>(ctx -> constructor.apply(ctx.readInt()));
+    }
+
+    /**
+     * Creates a new {@code TreeObjectReader} for the given type.
+     *
+     * @param constructor
+     *         the constructor to use to create new instances
+     * @param <T>
+     *         the type of objects that the new {@code TreeObjectReader} should create
+     *
+     * @return a new {@code TreeObjectReader}
+     */
+    public static <T> TreeObjectReader<T> of(BiFunction<Integer, Integer, T> constructor) {
+        return new TreeObjectReader<>(ctx -> constructor.apply(ctx.readInt(), ctx.readInt()));
+    }
+
+    /**
+     * Creates a new {@code TreeObjectReader} for the given type.
+     *
+     * @param constructor
+     *         the constructor to use to create new instances
+     * @param <T>
+     *         the type of objects that the new {@code TreeObjectReader} should create
+     *
+     * @return a new {@code TreeObjectReader}
+     */
+    public static <T> TreeObjectReader<T> of(Int3Creator<T> constructor) {
+        return new TreeObjectReader<>(constructor);
+    }
+
+    /**
+     * Creates a new {@code TreeObjectReader} for the given type.
+     *
+     * @param constructor
+     *         the constructor to use to create new instances
+     * @param <T>
+     *         the type of objects that the new {@code TreeObjectReader} should create
+     *
+     * @return a new {@code TreeObjectReader}
+     */
+    public static <T> TreeObjectReader<T> of(Int4Creator<T> constructor) {
+        return new TreeObjectReader<>(constructor);
+    }
+
+    /**
+     * Creates a new {@code TreeObjectReader} for the given type.
+     *
+     * @param constructor
+     *         the constructor to use to create new instances
+     * @param <T>
+     *         the type of objects that the new {@code TreeObjectReader} should create
+     *
+     * @return a new {@code TreeObjectReader}
+     */
+    public static <T> TreeObjectReader<T> of(Int5Creator<T> constructor) {
+        return new TreeObjectReader<>(constructor);
+    }
+
+    /**
+     * Creates a new {@code TreeObjectReader} for the given type.
+     *
+     * @param constructor
+     *         the constructor to use to create new instances
+     * @param <T>
+     *         the type of objects that the new {@code TreeObjectReader} should create
+     *
+     * @return a new {@code TreeObjectReader}
+     */
+    public static <T> TreeObjectReader<T> of(ObjectCreator<T> constructor) {
         return new TreeObjectReader<>(constructor);
     }
 
     @Override
     public T read(@NotNull Context context, @NotNull Config config) throws InputParsingException {
-        T obj = constructor.get();
+        T obj = constructor.create(context);
         for (SectionReader<T> sectionReader : sectionReaders) {
             sectionReader.readSection(obj, context, config);
         }
