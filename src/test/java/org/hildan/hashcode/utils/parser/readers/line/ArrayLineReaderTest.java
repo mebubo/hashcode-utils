@@ -68,7 +68,7 @@ public class ArrayLineReaderTest {
         List<Object[]> parentMock = new ArrayList<>(1);
         Context context = new Context(new StringReader(expectation.line + "\nignored line"), new Config());
 
-        reader.readSection(parentMock, context, new Config());
+        reader.readSection(parentMock, context);
 
         assertEquals(1, parentMock.size());
         assertArrayEquals(expectation.expectedOutput, parentMock.get(0));

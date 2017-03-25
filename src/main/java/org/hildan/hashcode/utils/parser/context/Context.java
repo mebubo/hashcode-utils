@@ -81,6 +81,23 @@ public class Context {
     }
 
     /**
+     * Reads and returns the next line of input.
+     *
+     * @return the next line of input
+     *
+     * @throws NoMoreLinesToReadException
+     *         if there is no more lines to read
+     */
+    public String[] readArrayLine() {
+        try {
+            String line = readLine();
+            return line.isEmpty() ? new String[0] : line.split(scanner.delimiter().pattern(), -1);
+        } catch (NoSuchElementException e) {
+            throw new NoMoreLinesToReadException();
+        }
+    }
+
+    /**
      * Releases potential resources used by the reader. Should be called when parsing is over.
      *
      * @throws IncompleteReadException

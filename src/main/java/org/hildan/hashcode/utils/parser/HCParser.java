@@ -107,7 +107,7 @@ public class HCParser<T> {
      * @return the created object representing the input problem
      */
     public T parse(Context context) {
-        T result = rootReader.read(context, config);
+        T result = rootReader.read(context);
         context.closeReader();
         return result;
     }

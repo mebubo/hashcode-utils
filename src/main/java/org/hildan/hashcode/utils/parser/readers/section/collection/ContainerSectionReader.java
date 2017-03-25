@@ -5,7 +5,6 @@ import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
-import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
@@ -54,12 +53,12 @@ public abstract class ContainerSectionReader<E, C, P> implements SectionReader<P
     }
 
     @Override
-    public void readSection(@NotNull P parent, @NotNull Context context, @NotNull Config config) throws
+    public void readSection(@NotNull P parent, @NotNull Context context) throws
             InputParsingException {
         int size = getSize.apply(parent, context);
         C collection = constructor.apply(size);
         for (int i = 0; i < size; i++) {
-            add(collection, i, itemReader.read(context, config));
+            add(collection, i, itemReader.read(context));
         }
         parentSetter.accept(parent, collection);
     }

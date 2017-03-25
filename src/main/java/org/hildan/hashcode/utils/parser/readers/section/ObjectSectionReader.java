@@ -3,7 +3,6 @@ package org.hildan.hashcode.utils.parser.readers.section;
 import java.util.function.BiConsumer;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
-import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.jetbrains.annotations.NotNull;
@@ -37,9 +36,9 @@ public class ObjectSectionReader<T, P> implements SectionReader<P> {
     }
 
     @Override
-    public void readSection(@NotNull P objectToFill, @NotNull Context context, @NotNull Config config) throws
+    public void readSection(@NotNull P objectToFill, @NotNull Context context) throws
             InputParsingException {
-        T value = childReader.read(context, config);
+        T value = childReader.read(context);
         parentSetter.accept(objectToFill, value);
     }
 }

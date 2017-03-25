@@ -16,15 +16,14 @@ import org.jetbrains.annotations.NotNull;
 public abstract class SingleLineSectionReader<P> implements SectionReader<P> {
 
     @Override
-    public void readSection(@NotNull P parent, @NotNull Context context, @NotNull Config config) throws
+    public void readSection(@NotNull P parent, @NotNull Context context) throws
             InputParsingException {
         int lineNum = context.getNextLineNumber();
-        String line = context.readLine();
+        String[] values = context.readArrayLine();
         try {
-            String[] values = line.isEmpty() ? new String[0] : line.split(config.getSeparator(), -1);
-            setValues(parent, values, context, config);
+            setValues(parent, values, context, null);
         } catch (Exception e) {
-            throw new InputParsingException(lineNum, line, e.getMessage(), e);
+            throw new InputParsingException(lineNum, String.join(" ", values), e.getMessage(), e);
         }
     }
 

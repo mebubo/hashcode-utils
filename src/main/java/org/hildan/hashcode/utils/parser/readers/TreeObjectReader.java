@@ -9,7 +9,6 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
-import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.creators.Int3Creator;
 import org.hildan.hashcode.utils.parser.readers.creators.Int4Creator;
@@ -148,10 +147,10 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
     }
 
     @Override
-    public T read(@NotNull Context context, @NotNull Config config) throws InputParsingException {
+    public T read(@NotNull Context context) throws InputParsingException {
         T obj = constructor.create(context);
         for (SectionReader<T> sectionReader : sectionReaders) {
-            sectionReader.readSection(obj, context, config);
+            sectionReader.readSection(obj, context);
         }
         return obj;
     }
