@@ -10,6 +10,7 @@ import java.util.Scanner;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the current parsing context. It provides methods to access the input data and the context variables.
@@ -47,14 +48,33 @@ public class Context {
     }
 
     /**
+     * Scans the next token of the input as a string.
+     *
+     * @return the string scanned from the input
+     *
+     * @throws NoMoreLinesToReadException
+     *         if there is no more lines to read
+     */
+    @NotNull
+    public String readString() throws NoMoreLinesToReadException {
+        try {
+            return scanner.next();
+        } catch (NoSuchElementException e) {
+            throw new NoMoreLinesToReadException();
+        }
+    }
+
+    /**
      * Scans the next token of the input as an int.
      *
      * @return the int scanned from the input
      *
      * @throws NoMoreLinesToReadException
      *         if there is no more lines to read
+     * @throws InputParsingException
+     *         if the input could not be parsed as an int
      */
-    public int readInt() {
+    public int readInt() throws InputParsingException {
         try {
             return scanner.nextInt();
         } catch (InputMismatchException e) {
@@ -72,6 +92,7 @@ public class Context {
      * @throws NoMoreLinesToReadException
      *         if there is no more lines to read
      */
+    @NotNull
     public String readLine() {
         try {
             return scanner.nextLine();
@@ -88,6 +109,7 @@ public class Context {
      * @throws NoMoreLinesToReadException
      *         if there is no more lines to read
      */
+    @NotNull
     public String[] readArrayLine() {
         try {
             String line = readLine();

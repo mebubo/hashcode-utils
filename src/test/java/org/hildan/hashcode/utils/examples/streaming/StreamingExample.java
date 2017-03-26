@@ -35,14 +35,14 @@ public class StreamingExample {
 
         RootReader<Endpoint> endpointReader = RootReader.of(Endpoint::new)
                                                         .fieldsAndVarsLine("dcLatency", "@K")
-                                                        .arraySection(Endpoint::setLatencies, Latency[]::new, "K",
+                                                        .array(Endpoint::setLatencies, Latency[]::new, "K",
                                                                 latencyReader);
 
         return RootReader.of(StreamingProblem::new)
                          .fieldsAndVarsLine("nVideos", "nEndpoints@E", "nRequestDescriptions@R", "nCaches", "cacheSize")
                          .intArrayLine((sp, arr) -> sp.videoSizes = arr)
-                         .arraySection((sp, arr) -> sp.endpoints = arr, Endpoint[]::new, "E", endpointReader)
-                         .arraySection((sp, arr) -> sp.requestDescs = arr, RequestDesc[]::new, "R", requestReader);
+                         .array((sp, arr) -> sp.endpoints = arr, Endpoint[]::new, "E", endpointReader)
+                         .array((sp, arr) -> sp.requestDescs = arr, RequestDesc[]::new, "R", requestReader);
     }
 
     @Test

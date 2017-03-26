@@ -63,7 +63,7 @@ public class Main {
 
 Basically, creating an `HCParser` boils down to configuring a root `ObjectReader`.
 
-Object readers are components that can read as many lines as necessary to build a specific type of object. They can be 
+Object readers are components that can read as much input as necessary to build a specific type of object. They can be 
 composed together to form more complex object readers.
 
 Here, we first create an `ObjectReader<Point>` to be able to read `Point`s from the input. Then we use it to configure 

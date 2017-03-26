@@ -39,16 +39,16 @@ public class Satellites {
 
         RootReader<ImageCollection> collectionReader = RootReader.of(ImageCollection::new)
                                                                  .fieldsAndVarsLine("@L", "@R")
-                                                                 .arraySection((coll, arr) -> coll.locations = arr,
+                                                                 .array((coll, arr) -> coll.locations = arr,
                                                                          Location[]::new, "R", locationsReader)
-                                                                 .arraySection((coll, arr) -> coll.ranges = arr,
+                                                                 .array((coll, arr) -> coll.ranges = arr,
                                                                          int[][]::new, "R", rangeReader);
 
         return RootReader.of(Simulation::new)
                          .fieldsAndVarsLine("@S")
-                         .arraySection((p, arr) -> p.satellites = arr, Satellite[]::new, "S", satelliteReader)
+                         .array((p, arr) -> p.satellites = arr, Satellite[]::new, "S", satelliteReader)
                          .fieldsAndVarsLine("@C")
-                         .arraySection((p, arr) -> p.collections = arr, ImageCollection[]::new, "C", collectionReader);
+                         .array((p, arr) -> p.collections = arr, ImageCollection[]::new, "C", collectionReader);
     }
 
     @Test

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Reads an object from the current {@link Context}, consuming as many lines as necessary.
+ * Reads an object from the current {@link Context}, consuming as much input as necessary.
  *
  * @param <T>
  *         the type of object this {@code ObjectReader} creates
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public interface ObjectReader<T, P> {
 
     /**
-     * Reads an object from the given {@link Context}, consuming as many lines as necessary.
+     * Reads an object from the given {@link Context}, consuming as much input as necessary.
      *
      * @param context
      *         the context to read lines from
@@ -33,8 +33,8 @@ public interface ObjectReader<T, P> {
     T read(@NotNull Context context, @Nullable P parent) throws InputParsingException;
 
     /**
-     * Reads an object from the given {@link Context}, consuming as many lines as necessary.
-     *
+     * Reads an object from the given {@link Context}, consuming as much input as necessary. This is a shorthand for
+     * {@code read(context, null)}, to be used when the object is read as root, and no parent information is available.
      * @param context
      *         the context to read lines from
      *

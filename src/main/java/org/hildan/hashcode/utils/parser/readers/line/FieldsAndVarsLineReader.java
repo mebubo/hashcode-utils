@@ -4,19 +4,19 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
-import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.conversion.StringConversionException;
 import org.hildan.hashcode.utils.parser.conversion.StringConverter;
+import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A {@link SingleLineSectionReader} that reads the values as fields of the parent object, and/or context variables.
+ * A {@link SectionReader} that reads the values as fields of the parent object, and/or context variables.
  *
  * @param <P>
  *         the type of parent that this {@code FieldsAndVarsLineReader} can update
  */
-public class FieldsAndVarsLineReader<P> extends SingleLineSectionReader<P> {
+public class FieldsAndVarsLineReader<P> extends LineReader<String[]> implements SectionReader<P> {
 
     private final String[] fieldAndVarNames;
 
@@ -41,6 +41,7 @@ public class FieldsAndVarsLineReader<P> extends SingleLineSectionReader<P> {
      *         an array of field/variable names, as described above
      */
     public FieldsAndVarsLineReader(String... fieldAndVarNames) {
+        super(arr -> arr);
         this.fieldAndVarNames = fieldAndVarNames;
         this.fields = new String[fieldAndVarNames.length];
         this.variables = new String[fieldAndVarNames.length];
@@ -65,7 +66,9 @@ public class FieldsAndVarsLineReader<P> extends SingleLineSectionReader<P> {
     }
 
     @Override
-    public void setValues(P objectToFill, String[] values, Context context, Config config) {
+    public void readAndSet(@NotNull Context context, @NotNull P parent) throws InputParsingException {
+        String[] values = read(context, parent);
+
         if (values.length != fieldAndVarNames.length) {
             throw new InputParsingException(
                     "The number of values doesn't match the expected fields: " + Arrays.toString(fieldAndVarNames));
@@ -75,7 +78,7 @@ public class FieldsAndVarsLineReader<P> extends SingleLineSectionReader<P> {
                 context.setVariable(variables[i], values[i]);
             }
             if (!fields[i].isEmpty()) {
-                setField(objectToFill, fields[i], values[i]);
+                setField(parent, fields[i], values[i]);
             }
         }
     }

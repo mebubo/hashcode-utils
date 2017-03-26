@@ -56,12 +56,12 @@ public class HCParserTest {
 
         RootReader<Shape> shapeReader = RootReader.of(Shape::new)
                                                             .fieldsAndVarsLine("name", "nPoints")
-                                                            .listSection((o, l) -> o.points = l, o -> o.nPoints,
+                                                            .list((o, l) -> o.points = l, o -> o.nPoints,
                                                                   pointReader);
 
         ObjectReader<Problem, Object> problemReader = RootReader.of(Problem::new)
                                                                 .fieldsAndVarsLine("param1", "param2", "nShapes@N")
-                                                                .arraySection((p, l) -> p.shapes = l, Shape[]::new, "N",
+                                                                .array((p, l) -> p.shapes = l, Shape[]::new, "N",
                                                                       shapeReader);
 
         List<String> lines = Arrays.asList(CONTENT.split("\\n"));

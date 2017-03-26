@@ -1,8 +1,6 @@
 package org.hildan.hashcode.utils.parser.readers.line;
 
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -17,7 +15,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Theories.class)
-public class ArrayLineReaderTest {
+public class LineReaderTest {
 
     private static class Expectation<T> {
 
@@ -62,16 +60,13 @@ public class ArrayLineReaderTest {
 
     @Theory
     public void test(Expectation<Object> expectation) {
-        ArrayLineReader<?, List<Object[]>> reader = new ArrayLineReader<>(List::add, expectation.converter,
-                expectation.arrayCreator);
+        LineReader<Object[]> reader = LineReader.array(expectation.arrayCreator, expectation.converter);
 
-        List<Object[]> parentMock = new ArrayList<>(1);
         Context context = new Context(new StringReader(expectation.line + "\nignored line"), new Config());
 
-        reader.readAndSet(context, parentMock);
+        Object[] array = reader.read(context);
 
-        assertEquals(1, parentMock.size());
-        assertArrayEquals(expectation.expectedOutput, parentMock.get(0));
+        assertArrayEquals(expectation.expectedOutput, array);
         assertEquals("ignored line", context.readLine());
     }
 }
