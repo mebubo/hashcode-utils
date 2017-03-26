@@ -10,18 +10,23 @@ import java.util.function.Supplier;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
+import org.hildan.hashcode.utils.parser.readers.builder.ReaderBuilder;
+import org.hildan.hashcode.utils.parser.readers.builder.StateReader;
+import org.hildan.hashcode.utils.parser.readers.builder.VariableReader;
 import org.hildan.hashcode.utils.parser.readers.creators.Int3Creator;
 import org.hildan.hashcode.utils.parser.readers.creators.Int4Creator;
 import org.hildan.hashcode.utils.parser.readers.creators.Int5Creator;
 import org.hildan.hashcode.utils.parser.readers.creators.ObjectCreator;
 import org.hildan.hashcode.utils.parser.readers.line.FieldsAndVarsLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.LineReader;
+import org.hildan.hashcode.utils.parser.readers.section.FieldAndVarReader;
 import org.hildan.hashcode.utils.parser.readers.section.ObjectSectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An implementation of {@link ObjectReader} that builds an object using child {@link SectionReader}s.
+ * An implementation of {@link ObjectReader} that builds an object without any parent information. It uses child {@link
+ * SectionReader}s to update the fields of the created object.
  * <p>
  * The object is first created, then all section readers are sequentially called (respecting the order) to consume as
  * much input as necessary to fill up the created object.
@@ -33,17 +38,67 @@ import org.jetbrains.annotations.NotNull;
  */
 public class RootReader<T> implements ObjectReader<T, Object> {
 
+    private final List<StateReader> preReaders;
+
     private final ObjectCreator<? extends T> constructor;
 
     private final List<SectionReader<? super T>> sectionReaders;
 
-    private RootReader(ObjectCreator<? extends T> constructor) {
+    /**
+     * Creates a new {@code RootReader} that uses the given constructor to create objects.
+     *
+     * @param constructor
+     *         the constructor to use to create new instances
+     */
+    public RootReader(ObjectCreator<? extends T> constructor) {
+        this(new ArrayList<>(), constructor);
+    }
+
+    /**
+     * Creates a new {@code RootReader} that executes the given pre-readers before calling the given constructor to
+     * create the object. This is useful when setting some context variables in order to call a parameterized
+     * constructor.
+     *
+     * @param preReaders
+     *         the readers to execute before calling the constructor
+     * @param constructor
+     *         the constructor to use to create new instances
+     */
+    public RootReader(List<StateReader> preReaders, ObjectCreator<? extends T> constructor) {
+        this.preReaders = preReaders;
         this.constructor = constructor;
         this.sectionReaders = new ArrayList<>();
     }
 
+    @Override
+    public T read(@NotNull Context context, Object parent) throws InputParsingException {
+        for (StateReader preReader : preReaders) {
+            preReader.read(context);
+        }
+        T obj = constructor.create(context);
+        for (SectionReader<? super T> sectionReader : sectionReaders) {
+            sectionReader.readAndSet(context, obj);
+        }
+        return obj;
+    }
+
     /**
-     * Creates a new {@code RootReader} for the given type.
+     * Creates a {@link ReaderBuilder} that will read as many tokens as necessary and store them in the given variables.
+     * One can then create a {@link RootReader} by calling {@link ReaderBuilder#of(ObjectCreator)} or one of its
+     * overloads, with a parameterized constructor using these variables.
+     *
+     * @param variableNames
+     *         the names of the variables to read. The number of variables passed here determine the number of tokens
+     *         consumed from the input.
+     *
+     * @return a new {@link ReaderBuilder} initialized with a {@link VariableReader} for the given variables.
+     */
+    public static ReaderBuilder withVars(String... variableNames) {
+        return new ReaderBuilder().add(new VariableReader(variableNames));
+    }
+
+    /**
+     * Creates a new {@code RootReader} that creates objects using the given constructor.
      *
      * @param constructor
      *         the constructor to use to create new instances
@@ -57,7 +112,8 @@ public class RootReader<T> implements ObjectReader<T, Object> {
     }
 
     /**
-     * Creates a new {@code RootReader} for the given type.
+     * Creates a new {@code RootReader} that creates objects using the given constructor. This reader reads an integer
+     * from the input in order to call the given constructor.
      *
      * @param constructor
      *         the constructor to use to create new instances
@@ -71,7 +127,8 @@ public class RootReader<T> implements ObjectReader<T, Object> {
     }
 
     /**
-     * Creates a new {@code RootReader} for the given type.
+     * Creates a new {@code RootReader} that creates objects using the given constructor. This reader reads 2 integers
+     * from the input in order to call the given constructor.
      *
      * @param constructor
      *         the constructor to use to create new instances
@@ -85,7 +142,8 @@ public class RootReader<T> implements ObjectReader<T, Object> {
     }
 
     /**
-     * Creates a new {@code RootReader} for the given type.
+     * Creates a new {@code RootReader} that creates objects using the given constructor. This reader reads 3 integers
+     * from the input in order to call the given constructor.
      *
      * @param constructor
      *         the constructor to use to create new instances
@@ -99,7 +157,8 @@ public class RootReader<T> implements ObjectReader<T, Object> {
     }
 
     /**
-     * Creates a new {@code RootReader} for the given type.
+     * Creates a new {@code RootReader} that creates objects using the given constructor. This reader reads 4 integers
+     * from the input in order to call the given constructor.
      *
      * @param constructor
      *         the constructor to use to create new instances
@@ -113,7 +172,8 @@ public class RootReader<T> implements ObjectReader<T, Object> {
     }
 
     /**
-     * Creates a new {@code RootReader} for the given type.
+     * Creates a new {@code RootReader} that creates objects using the given constructor. This reader reads 5 integers
+     * from the input in order to call the given constructor.
      *
      * @param constructor
      *         the constructor to use to create new instances
@@ -127,7 +187,7 @@ public class RootReader<T> implements ObjectReader<T, Object> {
     }
 
     /**
-     * Creates a new {@code RootReader} for the given type.
+     * Creates a new {@code RootReader} that creates objects using the given constructor.
      *
      * @param constructor
      *         the constructor to use to create new instances
@@ -140,15 +200,6 @@ public class RootReader<T> implements ObjectReader<T, Object> {
         return new RootReader<>(constructor);
     }
 
-    @Override
-    public T read(@NotNull Context context, Object parent) throws InputParsingException {
-        T obj = constructor.create(context);
-        for (SectionReader<? super T> sectionReader : sectionReaders) {
-            sectionReader.readAndSet(context, obj);
-        }
-        return obj;
-    }
-
     /**
      * Tells this reader to map each element of the next line to a field of the created object or to a context variable,
      * or both.
@@ -157,8 +208,8 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * "myField1")</li> <li>a '@' symbol followed by a variable name (e.g. "@N", "@myVar", "@123"...)</li> <li>both a
      * field name and a variable name separated by a '@' (e.g. "nItems@N", "size@nbOfSatellites"...)</li> </ul>
      * <p>
-     * Note that "" and "@" describe neither a field nor a variable, and thus the corresponding entry in the line will
-     * be ignored during parsing. A null description is forbidden.
+     * Note that "" describe neither a field nor a variable, and thus the corresponding entry in the line will be
+     * ignored during parsing. Null descriptions and descriptions ending in '@' are forbidden.
      *
      * @param fieldAndVarNames
      *         an array of field/variable names, as described above
@@ -167,6 +218,53 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      */
     public RootReader<T> fieldsAndVarsLine(String... fieldAndVarNames) {
         return section(new FieldsAndVarsLineReader<>(fieldAndVarNames));
+    }
+
+    /**
+     * Reads one token and sets the given field on the object created by this reader.
+     *
+     * @param fieldName
+     *         the name of the field to set
+     *
+     * @return this {@code RootReader}, for a convenient configuration syntax
+     */
+    public RootReader<T> field(String fieldName) {
+        return section(new FieldAndVarReader<>(fieldName, null));
+    }
+
+    /**
+     * Reads one token and sets the given context variable with the value.
+     *
+     * @param variableName
+     *         the name of the variable to set.
+     *
+     * @return this {@code RootReader}, for a convenient configuration syntax
+     */
+    public RootReader<T> var(String variableName) {
+        return section(new FieldAndVarReader<>(null, variableName));
+    }
+
+    /**
+     * Reads one token and sets both the given field and the given context variable with the value.
+     *
+     * @param fieldName
+     *         the name of the field to set
+     * @param variableName
+     *         the name of the variable to set
+     *
+     * @return this {@code RootReader}, for a convenient configuration syntax
+     */
+    public RootReader<T> fieldAndVar(String fieldName, String variableName) {
+        return section(new FieldAndVarReader<>(fieldName, variableName));
+    }
+
+    /**
+     * Consumes one token of the input without setting anything.
+     *
+     * @return this {@code RootReader}, for a convenient configuration syntax
+     */
+    public RootReader<T> skip() {
+        return section((ctx, parent) -> ctx.readString());
     }
 
     /**
