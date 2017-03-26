@@ -5,8 +5,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.config.Config;
+import org.hildan.hashcode.utils.parser.context.Context;
 
 /**
  * A {@link SingleLineSectionReader} that reads the values as a single array of objects.
@@ -18,9 +18,9 @@ import org.hildan.hashcode.utils.parser.config.Config;
  */
 public class ArrayLineReader<E, P> extends SingleLineSectionReader<P> {
 
-    private final BiConsumer<P, ? super E[]> parentSetter;
+    private final BiConsumer<? super P, ? super E[]> parentSetter;
 
-    private final Function<String, ? extends E> converter;
+    private final Function<? super String, ? extends E> converter;
 
     private final IntFunction<E[]> arrayCreator;
 
@@ -34,11 +34,11 @@ public class ArrayLineReader<E, P> extends SingleLineSectionReader<P> {
      * @param arrayCreator
      *         a function to create an array of the right type, given the size as input
      */
-    public ArrayLineReader(BiConsumer<P, ? super E[]> parentSetter, Function<String, ? extends E> converter,
-            IntFunction<? extends E[]> arrayCreator) {
+    public ArrayLineReader(BiConsumer<? super P, ? super E[]> parentSetter,
+                           Function<? super String, ? extends E> converter, IntFunction<E[]> arrayCreator) {
         this.parentSetter = parentSetter;
         this.converter = converter;
-        this.arrayCreator = arrayCreator::apply;
+        this.arrayCreator = arrayCreator;
     }
 
     @Override

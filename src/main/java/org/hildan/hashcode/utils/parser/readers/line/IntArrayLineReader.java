@@ -14,9 +14,9 @@ import org.hildan.hashcode.utils.parser.context.Context;
  */
 public class IntArrayLineReader<P> extends SingleLineSectionReader<P> {
 
-    private final BiConsumer<P, int[]> parentSetter;
+    private final BiConsumer<? super P, int[]> parentSetter;
 
-    public IntArrayLineReader(BiConsumer<P, int[]> parentSetter) {
+    public IntArrayLineReader(BiConsumer<? super P, int[]> parentSetter) {
         this.parentSetter = parentSetter;
     }
 

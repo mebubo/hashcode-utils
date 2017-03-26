@@ -22,7 +22,7 @@ public class HCParser<T> {
 
     private final Config config;
 
-    private final ObjectReader<T> rootReader;
+    private final ObjectReader<T, ?> rootReader;
 
     /**
      * Creates a new {@code HCParser} with the default configuration.
@@ -30,7 +30,7 @@ public class HCParser<T> {
      * @param rootReader
      *         the reader to use to read the input into an object
      */
-    public HCParser(@NotNull ObjectReader<T> rootReader) {
+    public HCParser(@NotNull ObjectReader<T, ?> rootReader) {
         this(rootReader, new Config());
     }
 
@@ -42,7 +42,7 @@ public class HCParser<T> {
      * @param separator
      *         the separator between elements within an input line
      */
-    public HCParser(@NotNull ObjectReader<T> rootReader, @RegExp String separator) {
+    public HCParser(@NotNull ObjectReader<T, ?> rootReader, @RegExp String separator) {
         config = new Config(separator);
         this.rootReader = rootReader;
     }
@@ -55,7 +55,7 @@ public class HCParser<T> {
      * @param config
      *         the configuration defining this parser's behaviour
      */
-    public HCParser(@NotNull ObjectReader<T> rootReader, Config config) {
+    public HCParser(@NotNull ObjectReader<T, ?> rootReader, Config config) {
         this.config = config;
         this.rootReader = rootReader;
     }

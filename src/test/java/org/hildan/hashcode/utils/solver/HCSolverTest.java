@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.hildan.hashcode.utils.parser.HCParser;
-import org.hildan.hashcode.utils.parser.readers.TreeObjectReader;
+import org.hildan.hashcode.utils.parser.readers.RootReader;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,9 +44,9 @@ public class HCSolverTest {
 
     @Before
     public void setUp() throws IOException {
-        TreeObjectReader<Input> inputReader = TreeObjectReader.of(Input::new) //
-                                                              .fieldsAndVarsLine("num") //
-                                                              .stringArrayLine((i, s) -> i.items = s);
+        RootReader<Input> inputReader = RootReader.of(Input::new) //
+                                                  .fieldsAndVarsLine("num") //
+                                                  .stringArrayLine((i, s) -> i.items = s);
         HCParser<Input> parser = new HCParser<>(inputReader);
         solver = new HCSolver<>(parser, i -> Arrays.stream(i.items).map(s -> s + i.num).collect(Collectors.toList()));
     }

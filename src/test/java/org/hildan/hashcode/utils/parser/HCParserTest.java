@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
-import org.hildan.hashcode.utils.parser.readers.TreeObjectReader;
+import org.hildan.hashcode.utils.parser.readers.RootReader;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -52,16 +52,16 @@ public class HCParserTest {
     @Test
     public void test() {
 
-        ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new).fieldsAndVarsLine("x", "y");
+        RootReader<Point> pointReader = RootReader.of(Point::new).fieldsAndVarsLine("x", "y");
 
-        ObjectReader<Shape> shapeReader = TreeObjectReader.of(Shape::new)
-                                                          .fieldsAndVarsLine("name", "nPoints")
-                                                          .listSection((o, l) -> o.points = l, o -> o.nPoints,
+        RootReader<Shape> shapeReader = RootReader.of(Shape::new)
+                                                            .fieldsAndVarsLine("name", "nPoints")
+                                                            .listSection((o, l) -> o.points = l, o -> o.nPoints,
                                                                   pointReader);
 
-        ObjectReader<Problem> problemReader = TreeObjectReader.of(Problem::new)
-                                                              .fieldsAndVarsLine("param1", "param2", "nShapes@N")
-                                                              .arraySection((p, l) -> p.shapes = l, Shape[]::new, "N",
+        ObjectReader<Problem, Object> problemReader = RootReader.of(Problem::new)
+                                                                .fieldsAndVarsLine("param1", "param2", "nShapes@N")
+                                                                .arraySection((p, l) -> p.shapes = l, Shape[]::new, "N",
                                                                       shapeReader);
 
         List<String> lines = Arrays.asList(CONTENT.split("\\n"));

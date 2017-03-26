@@ -6,7 +6,7 @@ import org.hildan.hashcode.utils.examples.streaming.model.RequestDesc;
 import org.hildan.hashcode.utils.examples.streaming.model.StreamingProblem;
 import org.hildan.hashcode.utils.parser.HCParser;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
-import org.hildan.hashcode.utils.parser.readers.TreeObjectReader;
+import org.hildan.hashcode.utils.parser.readers.RootReader;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -27,30 +27,27 @@ public class StreamingExample {
                     + "4 0 500\n" // 500 requests for video 4 coming from endpoint 0.
                     + "1 0 1000"; // 1000 requests for video 1 coming from endpoint 0.
 
-    private static ObjectReader<StreamingProblem> createReader() {
-        ObjectReader<Latency> latencyReader =
-                TreeObjectReader.of(Latency::new).fieldsAndVarsLine("cacheId", "latency");
+    private static ObjectReader<StreamingProblem, Object> createReader() {
+        RootReader<Latency> latencyReader = RootReader.of(Latency::new).fieldsAndVarsLine("cacheId", "latency");
 
-        ObjectReader<RequestDesc> requestReader =
-                TreeObjectReader.of(RequestDesc::new).fieldsAndVarsLine("videoId", "endpointId", "count");
+        RootReader<RequestDesc> requestReader =
+                RootReader.of(RequestDesc::new).fieldsAndVarsLine("videoId", "endpointId", "count");
 
-        ObjectReader<Endpoint> endpointReader = TreeObjectReader.of(Endpoint::new)
-                                                                .fieldsAndVarsLine("dcLatency", "@K")
-                                                                .arraySection(Endpoint::setLatencies, Latency[]::new,
-                                                                        "K", latencyReader);
+        RootReader<Endpoint> endpointReader = RootReader.of(Endpoint::new)
+                                                        .fieldsAndVarsLine("dcLatency", "@K")
+                                                        .arraySection(Endpoint::setLatencies, Latency[]::new, "K",
+                                                                latencyReader);
 
-        return TreeObjectReader.of(StreamingProblem::new)
-                               .fieldsAndVarsLine("nVideos", "nEndpoints@E", "nRequestDescriptions@R", "nCaches",
-                                       "cacheSize")
-                               .intArrayLine((sp, arr) -> sp.videoSizes = arr)
-                               .arraySection((sp, arr) -> sp.endpoints = arr, Endpoint[]::new, "E", endpointReader)
-                               .arraySection((sp, arr) -> sp.requestDescs = arr, RequestDesc[]::new, "R",
-                                       requestReader);
+        return RootReader.of(StreamingProblem::new)
+                         .fieldsAndVarsLine("nVideos", "nEndpoints@E", "nRequestDescriptions@R", "nCaches", "cacheSize")
+                         .intArrayLine((sp, arr) -> sp.videoSizes = arr)
+                         .arraySection((sp, arr) -> sp.endpoints = arr, Endpoint[]::new, "E", endpointReader)
+                         .arraySection((sp, arr) -> sp.requestDescs = arr, RequestDesc[]::new, "R", requestReader);
     }
 
     @Test
     public void test_parser() {
-        ObjectReader<StreamingProblem> rootReader = createReader();
+        ObjectReader<StreamingProblem, Object> rootReader = createReader();
         HCParser<StreamingProblem> parser = new HCParser<>(rootReader);
         StreamingProblem problem = parser.parse(input);
         // test parsed object

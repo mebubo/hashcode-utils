@@ -23,13 +23,13 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class ContainerSectionReader<E, C, P> implements SectionReader<P> {
 
-    private final BiConsumer<P, ? super C> parentSetter;
+    private final BiConsumer<? super P, ? super C> parentSetter;
 
     private final IntFunction<? extends C> constructor;
 
-    private final ObjectReader<E> itemReader;
+    private final ObjectReader<? extends E, ? super P> itemReader;
 
-    private final BiFunction<P, Context, Integer> getSize;
+    private final BiFunction<? super P, Context, Integer> getSize;
 
     /**
      * Creates a new {@code ContainerSectionReader} that may read the expected number of items from the parent
@@ -44,8 +44,9 @@ public abstract class ContainerSectionReader<E, C, P> implements SectionReader<P
      * @param parentSetter
      *         a setter to update the parent with the created container
      */
-    public ContainerSectionReader(IntFunction<? extends C> constructor, ObjectReader<E> itemReader,
-                                  BiFunction<P, Context, Integer> getSize, BiConsumer<P, ? super C> parentSetter) {
+    public ContainerSectionReader(IntFunction<? extends C> constructor, ObjectReader<? extends E, ? super P> itemReader,
+                                  BiFunction<? super P, Context, Integer> getSize,
+                                  BiConsumer<? super P, ? super C> parentSetter) {
         this.constructor = constructor;
         this.itemReader = itemReader;
         this.getSize = getSize;
@@ -53,12 +54,11 @@ public abstract class ContainerSectionReader<E, C, P> implements SectionReader<P
     }
 
     @Override
-    public void readSection(@NotNull P parent, @NotNull Context context) throws
-            InputParsingException {
+    public void readAndSet(@NotNull Context context, @NotNull P parent) throws InputParsingException {
         int size = getSize.apply(parent, context);
         C collection = constructor.apply(size);
         for (int i = 0; i < size; i++) {
-            add(collection, i, itemReader.read(context));
+            add(collection, i, itemReader.read(context, parent));
         }
         parentSetter.accept(parent, collection);
     }

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class SingleLineSectionReader<P> implements SectionReader<P> {
 
     @Override
-    public void readSection(@NotNull P parent, @NotNull Context context) throws
+    public void readAndSet(@NotNull Context context, @NotNull P parent) throws
             InputParsingException {
         int lineNum = context.getNextLineNumber();
         String[] values = context.readArrayLine();

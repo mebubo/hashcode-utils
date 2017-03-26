@@ -33,124 +33,124 @@ import org.jetbrains.annotations.NotNull;
  * much input as necessary to fill up the created object.
  *
  * @param <T>
- *         the type of object this {@code TreeObjectReader} creates
+ *         the type of object this {@code RootReader} creates
  *
  * @see SectionReader
  */
-public class TreeObjectReader<T> implements ObjectReader<T> {
+public class RootReader<T> implements ObjectReader<T, Object> {
 
-    private final ObjectCreator<T> constructor;
+    private final ObjectCreator<? extends T> constructor;
 
-    private final List<SectionReader<T>> sectionReaders;
+    private final List<SectionReader<? super T>> sectionReaders;
 
-    private TreeObjectReader(ObjectCreator<T> constructor) {
+    private RootReader(ObjectCreator<? extends T> constructor) {
         this.constructor = constructor;
         this.sectionReaders = new ArrayList<>();
     }
 
     /**
-     * Creates a new {@code TreeObjectReader} for the given type.
+     * Creates a new {@code RootReader} for the given type.
      *
      * @param constructor
      *         the constructor to use to create new instances
      * @param <T>
-     *         the type of objects that the new {@code TreeObjectReader} should create
+     *         the type of objects that the new {@code RootReader} should create
      *
-     * @return a new {@code TreeObjectReader}
+     * @return a new {@code RootReader}
      */
-    public static <T> TreeObjectReader<T> of(Supplier<T> constructor) {
-        return new TreeObjectReader<>(ctx -> constructor.get());
+    public static <T> RootReader<T> of(Supplier<? extends T> constructor) {
+        return new RootReader<>(ctx -> constructor.get());
     }
 
     /**
-     * Creates a new {@code TreeObjectReader} for the given type.
+     * Creates a new {@code RootReader} for the given type.
      *
      * @param constructor
      *         the constructor to use to create new instances
      * @param <T>
-     *         the type of objects that the new {@code TreeObjectReader} should create
+     *         the type of objects that the new {@code RootReader} should create
      *
-     * @return a new {@code TreeObjectReader}
+     * @return a new {@code RootReader}
      */
-    public static <T> TreeObjectReader<T> of(Function<Integer, T> constructor) {
-        return new TreeObjectReader<>(ctx -> constructor.apply(ctx.readInt()));
+    public static <T> RootReader<T> of(Function<Integer, ? extends T> constructor) {
+        return new RootReader<>(ctx -> constructor.apply(ctx.readInt()));
     }
 
     /**
-     * Creates a new {@code TreeObjectReader} for the given type.
+     * Creates a new {@code RootReader} for the given type.
      *
      * @param constructor
      *         the constructor to use to create new instances
      * @param <T>
-     *         the type of objects that the new {@code TreeObjectReader} should create
+     *         the type of objects that the new {@code RootReader} should create
      *
-     * @return a new {@code TreeObjectReader}
+     * @return a new {@code RootReader}
      */
-    public static <T> TreeObjectReader<T> of(BiFunction<Integer, Integer, T> constructor) {
-        return new TreeObjectReader<>(ctx -> constructor.apply(ctx.readInt(), ctx.readInt()));
+    public static <T> RootReader<T> of(BiFunction<Integer, Integer, ? extends T> constructor) {
+        return new RootReader<>(ctx -> constructor.apply(ctx.readInt(), ctx.readInt()));
     }
 
     /**
-     * Creates a new {@code TreeObjectReader} for the given type.
+     * Creates a new {@code RootReader} for the given type.
      *
      * @param constructor
      *         the constructor to use to create new instances
      * @param <T>
-     *         the type of objects that the new {@code TreeObjectReader} should create
+     *         the type of objects that the new {@code RootReader} should create
      *
-     * @return a new {@code TreeObjectReader}
+     * @return a new {@code RootReader}
      */
-    public static <T> TreeObjectReader<T> of(Int3Creator<T> constructor) {
-        return new TreeObjectReader<>(constructor);
+    public static <T> RootReader<T> of(Int3Creator<? extends T> constructor) {
+        return new RootReader<>(constructor);
     }
 
     /**
-     * Creates a new {@code TreeObjectReader} for the given type.
+     * Creates a new {@code RootReader} for the given type.
      *
      * @param constructor
      *         the constructor to use to create new instances
      * @param <T>
-     *         the type of objects that the new {@code TreeObjectReader} should create
+     *         the type of objects that the new {@code RootReader} should create
      *
-     * @return a new {@code TreeObjectReader}
+     * @return a new {@code RootReader}
      */
-    public static <T> TreeObjectReader<T> of(Int4Creator<T> constructor) {
-        return new TreeObjectReader<>(constructor);
+    public static <T> RootReader<T> of(Int4Creator<T> constructor) {
+        return new RootReader<>(constructor);
     }
 
     /**
-     * Creates a new {@code TreeObjectReader} for the given type.
+     * Creates a new {@code RootReader} for the given type.
      *
      * @param constructor
      *         the constructor to use to create new instances
      * @param <T>
-     *         the type of objects that the new {@code TreeObjectReader} should create
+     *         the type of objects that the new {@code RootReader} should create
      *
-     * @return a new {@code TreeObjectReader}
+     * @return a new {@code RootReader}
      */
-    public static <T> TreeObjectReader<T> of(Int5Creator<T> constructor) {
-        return new TreeObjectReader<>(constructor);
+    public static <T> RootReader<T> of(Int5Creator<T> constructor) {
+        return new RootReader<>(constructor);
     }
 
     /**
-     * Creates a new {@code TreeObjectReader} for the given type.
+     * Creates a new {@code RootReader} for the given type.
      *
      * @param constructor
      *         the constructor to use to create new instances
      * @param <T>
-     *         the type of objects that the new {@code TreeObjectReader} should create
+     *         the type of objects that the new {@code RootReader} should create
      *
-     * @return a new {@code TreeObjectReader}
+     * @return a new {@code RootReader}
      */
-    public static <T> TreeObjectReader<T> of(ObjectCreator<T> constructor) {
-        return new TreeObjectReader<>(constructor);
+    public static <T> RootReader<T> of(ObjectCreator<T> constructor) {
+        return new RootReader<>(constructor);
     }
 
     @Override
-    public T read(@NotNull Context context) throws InputParsingException {
+    public T read(@NotNull Context context, Object parent) throws InputParsingException {
         T obj = constructor.create(context);
-        for (SectionReader<T> sectionReader : sectionReaders) {
-            sectionReader.readSection(obj, context);
+        for (SectionReader<? super T> sectionReader : sectionReaders) {
+            sectionReader.readAndSet(context, obj);
         }
         return obj;
     }
@@ -169,9 +169,9 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param fieldAndVarNames
      *         an array of field/variable names, as described above
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public TreeObjectReader<T> fieldsAndVarsLine(String... fieldAndVarNames) {
+    public RootReader<T> fieldsAndVarsLine(String... fieldAndVarNames) {
         return section(new FieldsAndVarsLineReader<>(fieldAndVarNames));
     }
 
@@ -182,9 +182,9 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param setter
      *         the setter to call on the object being created, with the created array
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public TreeObjectReader<T> intArrayLine(BiConsumer<T, int[]> setter) {
+    public RootReader<T> intArrayLine(BiConsumer<? super T, int[]> setter) {
         return section(new IntArrayLineReader<>(setter));
     }
 
@@ -195,9 +195,9 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param setter
      *         the setter to call on the object being created, with the created array
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public TreeObjectReader<T> longArrayLine(BiConsumer<T, long[]> setter) {
+    public RootReader<T> longArrayLine(BiConsumer<? super T, long[]> setter) {
         return section(new LongArrayLineReader<>(setter));
     }
 
@@ -208,9 +208,9 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param setter
      *         the setter to call on the object being created, with the created array
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public TreeObjectReader<T> doubleArrayLine(BiConsumer<T, double[]> setter) {
+    public RootReader<T> doubleArrayLine(BiConsumer<? super T, double[]> setter) {
         return section(new DoubleArrayLineReader<>(setter));
     }
 
@@ -221,9 +221,9 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param setter
      *         the setter to call on the object being created, with the created array
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public TreeObjectReader<T> stringArrayLine(BiConsumer<T, String[]> setter) {
+    public RootReader<T> stringArrayLine(BiConsumer<? super T, String[]> setter) {
         return section(new ArrayLineReader<>(setter, s -> s, String[]::new));
     }
 
@@ -240,11 +240,11 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param <E>
      *         the type of elements in the created array
      *
-     *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public <E> TreeObjectReader<T> arrayLine(BiConsumer<T, E[]> setter, IntFunction<E[]> arrayCreator,
-                                             Function<String, E> itemConverter) {
+    public <E> RootReader<T> arrayLine(BiConsumer<? super T, ? super E[]> setter,
+                                       IntFunction<E[]> arrayCreator,
+                                       Function<? super String, ? extends E> itemConverter) {
         return section(new ArrayLineReader<>(setter, itemConverter, arrayCreator));
     }
 
@@ -259,10 +259,11 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param <E>
      *         the type of elements in the created list
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public <E> TreeObjectReader<T> listLine(BiConsumer<T, List<E>> setter, Function<String, E> itemConverter) {
-        return section(new CollectionLineReader<>(itemConverter, setter, ArrayList::new));
+    public <E> RootReader<T> listLine(BiConsumer<? super T, ? super List<E>> setter,
+                                      Function<String, ? extends E> itemConverter) {
+        return section(new CollectionLineReader<E, List<E>, T>(itemConverter, setter, ArrayList::new));
     }
 
     /**
@@ -282,10 +283,11 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param <E>
      *         the type of elements in the created array
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public <E> TreeObjectReader<T> arraySection(BiConsumer<T, E[]> setter, IntFunction<E[]> arrayCreator,
-                                                String sizeVariable, ObjectReader<E> itemReader) {
+    public <E> RootReader<T> arraySection(BiConsumer<? super T, ? super E[]> setter,
+                                          IntFunction<? extends E[]> arrayCreator, String sizeVariable,
+                                          ObjectReader<? extends E, ? super T> itemReader) {
         return section(new ArraySectionReader<>(arrayCreator, itemReader, sizeGetter(sizeVariable), setter));
     }
 
@@ -305,10 +307,11 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param <E>
      *         the type of elements in the created array
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public <E> TreeObjectReader<T> arraySection(BiConsumer<T, E[]> setter, IntFunction<E[]> arrayCreator,
-                                                Function<T, Integer> getSize, ObjectReader<E> itemReader) {
+    public <E> RootReader<T> arraySection(BiConsumer<? super T, ? super E[]> setter,
+                                          IntFunction<? extends E[]> arrayCreator, Function<? super T, Integer> getSize,
+                                          ObjectReader<? extends E, ? super T> itemReader) {
         return section(new ArraySectionReader<>(arrayCreator, itemReader, sizeGetter(getSize), setter));
     }
 
@@ -328,10 +331,12 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param <E>
      *         the type of elements in the created array
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public <E> TreeObjectReader<T> arraySection(BiConsumer<T, E[]> setter, IntFunction<E[]> arrayCreator,
-                                                BiFunction<T, Context, Integer> getSize, ObjectReader<E> itemReader) {
+    public <E> RootReader<T> arraySection(BiConsumer<? super T, ? super E[]> setter,
+                                          IntFunction<? extends E[]> arrayCreator,
+                                          BiFunction<? super T, Context, Integer> getSize,
+                                          ObjectReader<? extends E, ? super T> itemReader) {
         return section(new ArraySectionReader<>(arrayCreator, itemReader, getSize, setter));
     }
 
@@ -350,11 +355,12 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param <E>
      *         the type of elements in the created list
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public <E> TreeObjectReader<T> listSection(BiConsumer<T, List<E>> setter, String sizeVariable,
-                                               ObjectReader<E> itemReader) {
-        return section(new CollectionSectionReader<>(ArrayList::new, itemReader, sizeGetter(sizeVariable), setter));
+    public <E> RootReader<T> listSection(BiConsumer<? super T, ? super List<E>> setter, String sizeVariable,
+                                         ObjectReader<? extends E, ? super T> itemReader) {
+        return section(new CollectionSectionReader<E, List<E>, T>(ArrayList::new, itemReader, sizeGetter(sizeVariable),
+                setter));
     }
 
     /**
@@ -370,11 +376,11 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param <E>
      *         the type of elements in the created list
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public <E> TreeObjectReader<T> listSection(BiConsumer<T, List<E>> setter, Function<T, Integer> getSize,
-                                               ObjectReader<E> itemReader) {
-        return section(new CollectionSectionReader<>(ArrayList::new, itemReader, sizeGetter(getSize), setter));
+    public <E> RootReader<T> listSection(BiConsumer<? super T, ? super List<E>> setter,
+                                         Function<? super T, Integer> getSize, ObjectReader<? extends E, ? super T> itemReader) {
+        return section(new CollectionSectionReader<E, List<E>, T>(ArrayList::new, itemReader, sizeGetter(getSize), setter));
     }
 
     /**
@@ -391,11 +397,12 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param <E>
      *         the type of elements in the created list
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public <E> TreeObjectReader<T> listSection(BiConsumer<T, List<E>> setter, BiFunction<T, Context, Integer> getSize,
-                                               ObjectReader<E> itemReader) {
-        return section(new CollectionSectionReader<>(ArrayList::new, itemReader, getSize, setter));
+    public <E> RootReader<T> listSection(BiConsumer<? super T, ? super List<E>> setter,
+                                         BiFunction<? super T, Context, Integer> getSize,
+                                         ObjectReader<? extends E, ? super T> itemReader) {
+        return section(new CollectionSectionReader<E, List<E>, T>(ArrayList::new, itemReader, getSize, setter));
     }
 
     /**
@@ -409,9 +416,10 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * @param <C>
      *         the type of object to create
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public <C> TreeObjectReader<T> objectSection(BiConsumer<T, C> setter, ObjectReader<C> childReader) {
+    public <C> RootReader<T> objectSection(BiConsumer<? super T, ? super C> setter,
+                                           ObjectReader<? extends C, ? super T> childReader) {
         return section(new ObjectSectionReader<>(childReader, setter));
     }
 
@@ -421,15 +429,15 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
      * <p>
      * The order matters, because each child section reader will be called in the order of insertion.
      * <p>
-     * This is the most generic configuration method of {@code TreeObjectReader}, and most of the time you should use
+     * This is the most generic configuration method of {@code RootReader}, and most of the time you should use
      * the other configuration methods instead.
      *
      * @param sectionReader
      *         the section reader to use to read a part of the created object
      *
-     * @return this {@code TreeObjectReader}, for a convenient configuration syntax
+     * @return this {@code RootReader}, for a convenient configuration syntax
      */
-    public TreeObjectReader<T> section(SectionReader<T> sectionReader) {
+    public RootReader<T> section(SectionReader<? super T> sectionReader) {
         sectionReaders.add(sectionReader);
         return this;
     }
@@ -438,7 +446,7 @@ public class TreeObjectReader<T> implements ObjectReader<T> {
         return (p, c) -> c.getVariableAsInt(sizeVariable);
     }
 
-    private static <P> BiFunction<P, Context, Integer> sizeGetter(Function<P, Integer> getSizeFromParent) {
+    private static <P> BiFunction<P, Context, Integer> sizeGetter(Function<? super P, Integer> getSizeFromParent) {
         return (p, c) -> getSizeFromParent.apply(p);
     }
 }

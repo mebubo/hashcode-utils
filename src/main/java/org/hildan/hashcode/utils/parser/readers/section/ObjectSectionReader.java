@@ -18,9 +18,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ObjectSectionReader<T, P> implements SectionReader<P> {
 
-    private final ObjectReader<? extends T> childReader;
+    private final ObjectReader<? extends T, ? super P> childReader;
 
-    private final BiConsumer<P, ? super T> parentSetter;
+    private final BiConsumer<? super P, ? super T> parentSetter;
 
     /**
      * Creates a new {@code ObjectSectionReader}.
@@ -30,15 +30,15 @@ public class ObjectSectionReader<T, P> implements SectionReader<P> {
      * @param parentSetter
      *         the setter to use to set the created child object on the parent object
      */
-    public ObjectSectionReader(ObjectReader<? extends T> childReader, BiConsumer<P, ? super T> parentSetter) {
+    public ObjectSectionReader(ObjectReader<? extends T, ? super P> childReader,
+                               BiConsumer<? super P, ? super T> parentSetter) {
         this.childReader = childReader;
         this.parentSetter = parentSetter;
     }
 
     @Override
-    public void readSection(@NotNull P objectToFill, @NotNull Context context) throws
-            InputParsingException {
-        T value = childReader.read(context);
+    public void readAndSet(@NotNull Context context, @NotNull P objectToFill) throws InputParsingException {
+        T value = childReader.read(context, objectToFill);
         parentSetter.accept(objectToFill, value);
     }
 }

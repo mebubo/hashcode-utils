@@ -18,12 +18,12 @@ public interface SectionReader<P> {
     /**
      * Reads as much input as necessary to update a section of the given parent object.
      *
-     * @param parent
-     *         the parent object to update
      * @param context
      *         the context to read from
+     * @param parent
+     *         the parent object to update
      * @throws InputParsingException
      *         if something went wrong while reading the input
      */
-    void readSection(@NotNull P parent, @NotNull Context context) throws InputParsingException;
+    void readAndSet(@NotNull Context context, @NotNull P parent) throws InputParsingException;
 }

@@ -61,14 +61,14 @@ public class ArrayLineReaderTest {
     }
 
     @Theory
-    public void test(Expectation<?> expectation) {
+    public void test(Expectation<Object> expectation) {
         ArrayLineReader<?, List<Object[]>> reader = new ArrayLineReader<>(List::add, expectation.converter,
                 expectation.arrayCreator);
 
         List<Object[]> parentMock = new ArrayList<>(1);
         Context context = new Context(new StringReader(expectation.line + "\nignored line"), new Config());
 
-        reader.readSection(parentMock, context);
+        reader.readAndSet(context, parentMock);
 
         assertEquals(1, parentMock.size());
         assertArrayEquals(expectation.expectedOutput, parentMock.get(0));

@@ -19,8 +19,9 @@ import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
  */
 public class ArraySectionReader<E, P> extends ContainerSectionReader<E, E[], P> {
 
-    public ArraySectionReader(IntFunction<? extends E[]> arrayCreator, ObjectReader<E> itemReader,
-                              BiFunction<P, Context, Integer> getSize, BiConsumer<P, ? super E[]> parentSetter) {
+    public ArraySectionReader(IntFunction<? extends E[]> arrayCreator, ObjectReader<? extends E, ? super P> itemReader,
+                              BiFunction<? super P, Context, Integer> getSize,
+                              BiConsumer<? super P, ? super E[]> parentSetter) {
         super(arrayCreator, itemReader, getSize, parentSetter);
     }
 

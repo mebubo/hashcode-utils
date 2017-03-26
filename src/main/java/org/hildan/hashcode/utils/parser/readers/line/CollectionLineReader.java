@@ -20,7 +20,7 @@ import org.hildan.hashcode.utils.parser.context.Context;
  */
 public class CollectionLineReader<E, C extends Collection<E>, P> extends SingleLineSectionReader<P> {
 
-    private final BiConsumer<P, ? super C> parentSetter;
+    private final BiConsumer<? super P, ? super C> parentSetter;
 
     private final Function<String, ? extends E> converter;
 
@@ -36,7 +36,7 @@ public class CollectionLineReader<E, C extends Collection<E>, P> extends SingleL
      * @param constructor
      *         a function to create a collection of the desired type
      */
-    public CollectionLineReader(Function<String, ? extends E> converter, BiConsumer<P, ? super C> parentSetter,
+    public CollectionLineReader(Function<String, ? extends E> converter, BiConsumer<? super P, ? super C> parentSetter,
                                 Supplier<? extends C> constructor) {
         this.parentSetter = parentSetter;
         this.converter = converter;

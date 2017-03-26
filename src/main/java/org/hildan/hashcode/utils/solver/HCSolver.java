@@ -21,7 +21,7 @@ public class HCSolver<P> extends AbstractFileSolver {
         return new HCSolver<>(parser, P::solve);
     }
 
-    public static <P extends Solvable> HCSolver<P> of(ObjectReader<P> reader) {
+    public static <P extends Solvable> HCSolver<P> of(ObjectReader<P, Object> reader) {
         return new HCSolver<>(new HCParser<>(reader), P::solve);
     }
 
@@ -30,7 +30,7 @@ public class HCSolver<P> extends AbstractFileSolver {
         return new HCSolver<>(parser, solver);
     }
 
-    public static <P> HCSolver<P> of(ObjectReader<P> reader,
+    public static <P> HCSolver<P> of(ObjectReader<P, Object> reader,
                                      Function<P, ? extends Iterable<? extends CharSequence>> solver) {
         return new HCSolver<>(new HCParser<>(reader), solver);
     }

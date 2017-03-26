@@ -33,8 +33,9 @@ public class CollectionSectionReader<E, C extends Collection<E>, P> extends Cont
      * @param parentSetter
      *         a setter to update the parent with the created container
      */
-    public CollectionSectionReader(IntFunction<? extends C> constructor, ObjectReader<E> itemReader,
-                                   BiFunction<P, Context, Integer> getSize, BiConsumer<P, C> parentSetter) {
+    public CollectionSectionReader(IntFunction<C> constructor, ObjectReader<? extends E, ? super P> itemReader,
+                                   BiFunction<? super P, Context, Integer> getSize,
+                                   BiConsumer<? super P, ? super C> parentSetter) {
         super(constructor, itemReader, getSize, parentSetter);
     }
 
