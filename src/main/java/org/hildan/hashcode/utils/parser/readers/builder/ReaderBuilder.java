@@ -19,6 +19,14 @@ public class ReaderBuilder {
 
     private final List<StateReader> preReaders = new ArrayList<>();
 
+    /**
+     * Adds a pre-reader to this builder, to be be passed on to the {@link RootReader} when created.
+     *
+     * @param reader
+     *         a reader to be executed by the {@link RootReader} before creating an object
+     *
+     * @return this builder, for convenient chaining
+     */
     public ReaderBuilder add(StateReader reader) {
         preReaders.add(reader);
         return this;
@@ -31,6 +39,8 @@ public class ReaderBuilder {
      *
      * @param constructor
      *         the constructor to use to create new instances
+     * @param varName
+     *         the variable to use as parameter to the given constructor
      * @param <T>
      *         the type of objects that the new {@code RootReader} should create
      *
@@ -47,6 +57,10 @@ public class ReaderBuilder {
      *
      * @param constructor
      *         the constructor to use to create new instances
+     * @param var1
+     *         the variable to use as 1st parameter to the given constructor
+     * @param var2
+     *         the variable to use as 2nd parameter to the given constructor
      * @param <T>
      *         the type of objects that the new {@code RootReader} should create
      *
@@ -63,6 +77,12 @@ public class ReaderBuilder {
      *
      * @param constructor
      *         the constructor to use to create new instances
+     * @param var1
+     *         the variable to use as 1st parameter to the given constructor
+     * @param var2
+     *         the variable to use as 2nd parameter to the given constructor
+     * @param var3
+     *         the variable to use as 3rd parameter to the given constructor
      * @param <T>
      *         the type of objects that the new {@code RootReader} should create
      *
@@ -80,6 +100,14 @@ public class ReaderBuilder {
      *
      * @param constructor
      *         the constructor to use to create new instances
+     * @param var1
+     *         the variable to use as 1st parameter to the given constructor
+     * @param var2
+     *         the variable to use as 2nd parameter to the given constructor
+     * @param var3
+     *         the variable to use as 3rd parameter to the given constructor
+     * @param var4
+     *         the variable to use as 4th parameter to the given constructor
      * @param <T>
      *         the type of objects that the new {@code RootReader} should create
      *
@@ -97,6 +125,16 @@ public class ReaderBuilder {
      *
      * @param constructor
      *         the constructor to use to create new instances
+     * @param var1
+     *         the variable to use as 1st parameter to the given constructor
+     * @param var2
+     *         the variable to use as 2nd parameter to the given constructor
+     * @param var3
+     *         the variable to use as 3rd parameter to the given constructor
+     * @param var4
+     *         the variable to use as 4th parameter to the given constructor
+     * @param var5
+     *         the variable to use as 5th parameter to the given constructor
      * @param <T>
      *         the type of objects that the new {@code RootReader} should create
      *
