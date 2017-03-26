@@ -1,4 +1,4 @@
-package org.hildan.hashcode.utils.parser.conversion;
+package org.hildan.hashcode.utils.parser.reflect;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  * A converter that turns strings into primitive types or primitive wrapper types. It also supports conversion to
  * String, which is a no-op.
  */
-public class StringConverter {
+class StringConverter {
 
     private static final Set<Class<?>> WRAPPER_TYPES;
 

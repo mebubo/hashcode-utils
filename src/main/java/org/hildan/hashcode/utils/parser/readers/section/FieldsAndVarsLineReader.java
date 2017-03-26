@@ -1,12 +1,10 @@
-package org.hildan.hashcode.utils.parser.readers.line;
+package org.hildan.hashcode.utils.parser.readers.section;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
-import org.hildan.hashcode.utils.parser.readers.section.FieldAndVarReader;
-import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 import org.jetbrains.annotations.NotNull;
 
 /**

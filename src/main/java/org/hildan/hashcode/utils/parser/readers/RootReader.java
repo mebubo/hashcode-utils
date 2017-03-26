@@ -17,7 +17,7 @@ import org.hildan.hashcode.utils.parser.readers.creators.Int3Creator;
 import org.hildan.hashcode.utils.parser.readers.creators.Int4Creator;
 import org.hildan.hashcode.utils.parser.readers.creators.Int5Creator;
 import org.hildan.hashcode.utils.parser.readers.creators.ObjectCreator;
-import org.hildan.hashcode.utils.parser.readers.line.FieldsAndVarsLineReader;
+import org.hildan.hashcode.utils.parser.readers.section.FieldsAndVarsLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.LineReader;
 import org.hildan.hashcode.utils.parser.readers.section.FieldAndVarReader;
 import org.hildan.hashcode.utils.parser.readers.section.ObjectSectionReader;

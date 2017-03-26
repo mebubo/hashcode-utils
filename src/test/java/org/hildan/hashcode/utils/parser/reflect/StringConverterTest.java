@@ -1,4 +1,4 @@
-package org.hildan.hashcode.utils.parser.conversion;
+package org.hildan.hashcode.utils.parser.reflect;
 
 import org.junit.Rule;
 import org.junit.Test;

@@ -1,11 +1,8 @@
 package org.hildan.hashcode.utils.parser.readers.section;
 
-import java.lang.reflect.Field;
-
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
-import org.hildan.hashcode.utils.parser.conversion.StringConversionException;
-import org.hildan.hashcode.utils.parser.conversion.StringConverter;
+import org.hildan.hashcode.utils.parser.reflect.ReflectUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -55,34 +52,7 @@ public class FieldAndVarReader<P> implements SectionReader<P> {
             context.setVariable(variableName, value);
         }
         if (fieldName != null) {
-            setField(parent, fieldName, value);
-        }
-    }
-
-    private static void setField(Object obj, String fieldName, String value) throws InputParsingException {
-        Class<?> clazz = obj.getClass();
-        try {
-            Field field = clazz.getDeclaredField(fieldName);
-            setField(obj, field, value);
-        } catch (NoSuchFieldException e) {
-            throw new InputParsingException(
-                    String.format("The provided field name '%s' was not found in class '%s'", fieldName,
-                            clazz.getSimpleName()), e);
-        }
-    }
-
-    private static void setField(Object obj, Field field, String value) throws InputParsingException {
-        try {
-            field.setAccessible(true);
-            field.set(obj, StringConverter.convert(field.getType(), value));
-        } catch (StringConversionException e) {
-            throw new InputParsingException(
-                    "Type mismatch, cannot assign value '" + value + "' to field '" + field.getName() + "' of type "
-                            + field.getType().getSimpleName());
-        } catch (IllegalAccessException e) {
-            throw new InputParsingException(
-                    "Could not set field '" + field.getDeclaringClass().getSimpleName() + "." + field.getName()
-                            + "' to value '" + value + "'", e);
+            ReflectUtils.setField(parent, fieldName, value);
         }
     }
 }
