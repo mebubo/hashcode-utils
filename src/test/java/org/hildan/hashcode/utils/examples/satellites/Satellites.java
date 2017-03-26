@@ -9,6 +9,9 @@ import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.hildan.hashcode.utils.parser.readers.RootReader;
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
 public class Satellites {
 
     private static final String input = "3600\n" // Simulation lasts an hour.
@@ -37,15 +40,14 @@ public class Satellites {
         ObjectReader<Location, ImageCollection> locationsReader =
                 (ctx, parent) -> new Location(parent, ctx.readInt(), ctx.readInt());
 
-        RootReader<ImageCollection> collectionReader = RootReader.of(ImageCollection::new)
-                                                                 .fieldsAndVarsLine("@L", "@R")
+        RootReader<ImageCollection> collectionReader = RootReader.withVars("V", "L", "R")
+                                                                 .of(ImageCollection::new, "V", "L", "R")
                                                                  .array((coll, arr) -> coll.locations = arr,
-                                                                         Location[]::new, "R", locationsReader)
-                                                                 .array((coll, arr) -> coll.ranges = arr,
-                                                                         int[][]::new, "R", rangeReader);
-
+                                                                         Location[]::new, "L", locationsReader)
+                                                                 .array((coll, arr) -> coll.ranges = arr, int[][]::new,
+                                                                         "R", rangeReader);
         return RootReader.of(Simulation::new)
-                         .fieldsAndVarsLine("@S")
+                         .var("S")
                          .array((p, arr) -> p.satellites = arr, Satellite[]::new, "S", satelliteReader)
                          .fieldsAndVarsLine("@C")
                          .array((p, arr) -> p.collections = arr, ImageCollection[]::new, "C", collectionReader);
@@ -58,36 +60,59 @@ public class Satellites {
         Simulation problem = parser.parse(input);
         // test parsed object
 
-        //        assertEquals(5, problem.nVideos);
-        //        assertEquals(2, problem.nEndpoints);
-        //        assertEquals(4, problem.nRequestDescriptions);
-        //        assertEquals(3, problem.nCaches);
-        //        assertEquals(100, problem.cacheSize);
-        //        assertArrayEquals(new int[]{50, 50, 80, 30, 110}, problem.videoSizes);
-        //
-        //        assertEquals(2, problem.endpoints.length);
-        //
-        //        assertEquals(1000, problem.endpoints[0].dcLatency);
-        //        assertEquals(3, problem.endpoints[0].cacheLatencies.size());
-        //        assertEquals(Integer.valueOf(100), problem.endpoints[0].cacheLatencies.get(0));
-        //        assertEquals(Integer.valueOf(200), problem.endpoints[0].cacheLatencies.get(2));
-        //        assertEquals(Integer.valueOf(300), problem.endpoints[0].cacheLatencies.get(1));
-        //
-        //        assertEquals(500, problem.endpoints[1].dcLatency);
-        //        assertEquals(0, problem.endpoints[1].cacheLatencies.size());
-        //
-        //        assertEquals(4, problem.requestDescs.length);
-        //        assertEquals(1500, problem.requestDescs[0].count);
-        //        assertEquals(3, problem.requestDescs[0].videoId);
-        //        assertEquals(0, problem.requestDescs[0].endpointId);
-        //        assertEquals(1000, problem.requestDescs[1].count);
-        //        assertEquals(0, problem.requestDescs[1].videoId);
-        //        assertEquals(1, problem.requestDescs[1].endpointId);
-        //        assertEquals(500, problem.requestDescs[2].count);
-        //        assertEquals(4, problem.requestDescs[2].videoId);
-        //        assertEquals(0, problem.requestDescs[2].endpointId);
-        //        assertEquals(1000, problem.requestDescs[3].count);
-        //        assertEquals(1, problem.requestDescs[3].videoId);
-        //        assertEquals(0, problem.requestDescs[3].endpointId);
+        assertEquals(3600, problem.nTurns);
+        assertEquals(2, problem.satellites.length);
+
+        Satellite sat0 = problem.satellites[0];
+        assertArrayEquals(new int[]{170000, 8300}, sat0.position);
+        assertEquals(300, sat0.latitudeVelocity);
+        assertEquals(50, sat0.maxOrientationChangePerTurn);
+        assertEquals(500, sat0.maxOrientationValue);
+
+        Satellite sat1 = problem.satellites[1];
+        assertArrayEquals(new int[]{180000, 8300}, sat1.position);
+        assertEquals(-300, sat1.latitudeVelocity);
+        assertEquals(50, sat1.maxOrientationChangePerTurn);
+        assertEquals(500, sat1.maxOrientationValue);
+
+        assertEquals(3, problem.collections.length);
+
+        ImageCollection coll0 = problem.collections[0];
+        assertEquals(100, coll0.value);
+        assertEquals(1, coll0.locations.length);
+        assertEquals(1, coll0.ranges.length);
+
+        Location loc00 = coll0.locations[0];
+        assertEquals(coll0, loc00.parentCollection);
+        assertArrayEquals(new int[]{175958, 8387}, loc00.coords);
+
+        assertArrayEquals(new int[]{0, 3599}, coll0.ranges[0]);
+
+        ImageCollection coll1 = problem.collections[1];
+        assertEquals(100, coll1.value);
+        assertEquals(1, coll1.locations.length);
+        assertEquals(2, coll1.ranges.length);
+
+        Location loc10 = coll1.locations[0];
+        assertEquals(coll1, loc10.parentCollection);
+        assertArrayEquals(new int[]{175889, 8260}, loc10.coords);
+
+        assertArrayEquals(new int[]{0, 900}, coll1.ranges[0]);
+        assertArrayEquals(new int[]{2700, 3599}, coll1.ranges[1]);
+
+        ImageCollection coll2 = problem.collections[2];
+        assertEquals(300, coll2.value);
+        assertEquals(2, coll2.locations.length);
+        assertEquals(1, coll2.ranges.length);
+
+        Location loc20 = coll2.locations[0];
+        assertEquals(coll2, loc20.parentCollection);
+        assertArrayEquals(new int[]{175958, 8387}, loc20.coords);
+
+        Location loc21 = coll2.locations[1];
+        assertEquals(coll2, loc21.parentCollection);
+        assertArrayEquals(new int[]{175889, 8260}, loc21.coords);
+
+        assertArrayEquals(new int[]{3300, 3599}, coll2.ranges[0]);
     }
 }
