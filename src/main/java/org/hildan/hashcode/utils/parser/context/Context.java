@@ -1,12 +1,8 @@
 package org.hildan.hashcode.utils.parser.context;
 
-import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.HashMap;
-import java.util.InputMismatchException;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.config.Config;
@@ -19,9 +15,7 @@ public class Context {
 
     private final Map<String, String> variables;
 
-    private final LineNumberReader reader;
-
-    private final Scanner scanner;
+    private final LineNumberScanner scanner;
 
     /**
      * Creates a new parsing context using the given {@link Reader} to access the input.
@@ -33,18 +27,7 @@ public class Context {
      */
     public Context(Reader reader, Config config) {
         this.variables = new HashMap<>();
-        this.reader = new LineNumberReader(reader);
-        this.reader.setLineNumber(1);
-        this.scanner = new Scanner(this.reader).useDelimiter(config.getSeparator());
-    }
-
-    /**
-     * Gets the index of the line that would be returned by a call to {@link #readLine()}.
-     *
-     * @return the next line's number
-     */
-    public int getNextLineNumber() {
-        return reader.getLineNumber();
+        this.scanner = new LineNumberScanner(reader, config.getSeparator());
     }
 
     /**
@@ -54,14 +37,12 @@ public class Context {
      *
      * @throws NoMoreLinesToReadException
      *         if there is no more lines to read
+     * @throws InputParsingException
+     *         if an error occurs while reading the input
      */
     @NotNull
     public String readString() throws NoMoreLinesToReadException {
-        try {
-            return scanner.next();
-        } catch (NoSuchElementException e) {
-            throw new NoMoreLinesToReadException();
-        }
+        return scanner.nextString();
     }
 
     /**
@@ -75,70 +56,45 @@ public class Context {
      *         if the input could not be parsed as an int
      */
     public int readInt() throws InputParsingException {
-        try {
-            return scanner.nextInt();
-        } catch (InputMismatchException e) {
-            throw new InputParsingException(getNextLineNumber(), "", e);
-        } catch (NoSuchElementException e) {
-            throw new NoMoreLinesToReadException();
-        }
+        return scanner.nextInt();
     }
 
     /**
-     * Reads and returns the next line of input.
+     * Reads and returns the next line of input as an array of string tokens.
      *
      * @return the next line of input
      *
+     * @throws IncompleteLineReadException
+     *         if the previous line was not completely consumed
      * @throws NoMoreLinesToReadException
      *         if there is no more lines to read
+     * @throws InputParsingException
+     *         if an error occurs while reading the input
      */
-    @NotNull
-    public String readLine() {
-        try {
-            return scanner.nextLine();
-        } catch (NoSuchElementException e) {
-            throw new NoMoreLinesToReadException();
-        }
-    }
-
-    /**
-     * Reads and returns the next line of input.
-     *
-     * @return the next line of input
-     *
-     * @throws NoMoreLinesToReadException
-     *         if there is no more lines to read
-     */
-    @NotNull
-    public String[] readArrayLine() {
-        try {
-            String line = readLine();
-            return line.isEmpty() ? new String[0] : line.split(scanner.delimiter().pattern(), -1);
-        } catch (NoSuchElementException e) {
-            throw new NoMoreLinesToReadException();
-        }
+    public String[] readLine() throws InputParsingException {
+        return scanner.nextLineTokens();
     }
 
     /**
      * Releases potential resources used by the reader. Should be called when parsing is over.
      *
-     * @throws IncompleteReadException
+     * @throws IncompleteInputReadException
      *         if there is still some input left to read
      */
     public void closeReader() {
-        try {
-            int nbLinesLeft = 0;
-            while (scanner.hasNextLine()) {
-                if (!scanner.nextLine().trim().isEmpty()) {
-                    nbLinesLeft++;
-                }
-            }
-            if (nbLinesLeft > 0) {
-                throw new IncompleteReadException(nbLinesLeft);
-            }
-        } finally {
-            scanner.close();
-        }
+        scanner.close();
+    }
+
+    /**
+     * Wraps the given exception into an {@link InputParsingException}.
+     *
+     * @param ex
+     *         the exception to wrap
+     *
+     * @return a new {@link InputParsingException} with the given exception as cause
+     */
+    public InputParsingException wrapException(Exception ex) {
+        return new InputParsingException(scanner.getLineNumber(), scanner.getCurrentLine(), ex.getMessage(), ex);
     }
 
     /**

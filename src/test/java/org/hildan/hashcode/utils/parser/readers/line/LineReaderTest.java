@@ -12,7 +12,6 @@ import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(Theories.class)
 public class LineReaderTest {
@@ -67,6 +66,6 @@ public class LineReaderTest {
         Object[] array = reader.read(context);
 
         assertArrayEquals(expectation.expectedOutput, array);
-        assertEquals("ignored line", context.readLine());
+        assertArrayEquals(new String[]{"ignored", "line"}, context.readLine());
     }
 }

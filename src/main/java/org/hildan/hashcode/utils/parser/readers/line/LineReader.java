@@ -25,12 +25,11 @@ public class LineReader<T> implements ObjectReader<T, Object> {
     @NotNull
     @Override
     public T read(@NotNull Context context, @Nullable Object parent) throws InputParsingException {
-        int lineNum = context.getNextLineNumber();
-        String[] values = context.readArrayLine();
+        String[] values = context.readLine();
         try {
             return converter.apply(values);
         } catch (Exception e) {
-            throw new InputParsingException(lineNum, String.join(" ", values), e.getMessage(), e);
+            throw context.wrapException(e);
         }
     }
 
