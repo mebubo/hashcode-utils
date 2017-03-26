@@ -79,8 +79,10 @@ public class ContainerReader<E, C, P> implements ObjectReader<C, P> {
     }
 
     public static <E, C extends Collection<E>, P> ObjectReader<C, P> collection(IntFunction<C> constructor,
-                                                                                BiFunction<? super P, Context, Integer> getSize,
-                                                                                ObjectReader<? extends E, ? super P> itemReader) {
+                                                                                BiFunction<? super P, Context,
+                                                                                        Integer> getSize,
+                                                                                ObjectReader<? extends E, ? super P>
+                                                                                        itemReader) {
         return new ContainerReader<>(constructor, getSize, (c, i, e) -> c.add(e), itemReader);
     }
 }

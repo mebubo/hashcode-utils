@@ -57,7 +57,8 @@ public interface SectionReader<P> {
     static <E, C extends Collection<E>, P> SectionReader<P> collection(BiConsumer<? super P, ? super C> parentSetter,
                                                                        IntFunction<C> constructor,
                                                                        BiFunction<? super P, Context, Integer> getSize,
-                                                                       ObjectReader<? extends E, ? super P> itemReader) {
+                                                                       ObjectReader<? extends E, ? super P>
+                                                                               itemReader) {
         return of(parentSetter, ContainerReader.collection(constructor, getSize, itemReader));
     }
 }

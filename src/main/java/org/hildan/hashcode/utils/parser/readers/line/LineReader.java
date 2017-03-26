@@ -60,7 +60,8 @@ public class LineReader<T> implements ObjectReader<T, Object> {
     }
 
     public static <E, C extends Collection<E>> LineReader<C> collection(Supplier<C> constructor,
-                                                                        Function<? super String, ? extends E> converter) {
+                                                                        Function<? super String, ? extends E>
+                                                                                converter) {
         return new LineReader<>(arr -> Arrays.stream(arr).map(converter).collect(Collectors.toCollection(constructor)));
     }
 }
