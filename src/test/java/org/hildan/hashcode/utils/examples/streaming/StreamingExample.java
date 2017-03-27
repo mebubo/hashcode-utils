@@ -34,7 +34,8 @@ public class StreamingExample {
                 RootReader.of(RequestDesc::new).fieldsAndVarsLine("videoId", "endpointId", "count");
 
         RootReader<Endpoint> endpointReader = RootReader.of(Endpoint::new)
-                                                        .fieldsAndVarsLine("dcLatency", "@K")
+                                                        .field("dcLatency")
+                                                        .var("K")
                                                         .array(Endpoint::setLatencies, Latency[]::new, "K",
                                                                 latencyReader);
 
