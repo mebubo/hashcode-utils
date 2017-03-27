@@ -16,10 +16,12 @@ import org.hildan.hashcode.utils.parser.readers.builder.VariableReader;
 import org.hildan.hashcode.utils.parser.readers.creators.Int3Creator;
 import org.hildan.hashcode.utils.parser.readers.creators.Int4Creator;
 import org.hildan.hashcode.utils.parser.readers.creators.Int5Creator;
+import org.hildan.hashcode.utils.parser.readers.creators.Int6Creator;
+import org.hildan.hashcode.utils.parser.readers.creators.Int7Creator;
 import org.hildan.hashcode.utils.parser.readers.creators.ObjectCreator;
-import org.hildan.hashcode.utils.parser.readers.section.FieldsAndVarsLineReader;
 import org.hildan.hashcode.utils.parser.readers.line.LineReader;
 import org.hildan.hashcode.utils.parser.readers.section.FieldAndVarReader;
+import org.hildan.hashcode.utils.parser.readers.section.FieldsAndVarsLineReader;
 import org.hildan.hashcode.utils.parser.readers.section.ObjectSectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 import org.jetbrains.annotations.NotNull;
@@ -183,6 +185,36 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * @return a new {@code RootReader}
      */
     public static <T> RootReader<T> of(Int5Creator<T> constructor) {
+        return new RootReader<>(constructor);
+    }
+
+    /**
+     * Creates a new {@code RootReader} that creates objects using the given constructor. This reader reads 6 integers
+     * from the input in order to call the given constructor.
+     *
+     * @param constructor
+     *         the constructor to use to create new instances
+     * @param <T>
+     *         the type of objects that the new {@code RootReader} should create
+     *
+     * @return a new {@code RootReader}
+     */
+    public static <T> RootReader<T> of(Int6Creator<T> constructor) {
+        return new RootReader<>(constructor);
+    }
+
+    /**
+     * Creates a new {@code RootReader} that creates objects using the given constructor. This reader reads 7 integers
+     * from the input in order to call the given constructor.
+     *
+     * @param constructor
+     *         the constructor to use to create new instances
+     * @param <T>
+     *         the type of objects that the new {@code RootReader} should create
+     *
+     * @return a new {@code RootReader}
+     */
+    public static <T> RootReader<T> of(Int7Creator<T> constructor) {
         return new RootReader<>(constructor);
     }
 
