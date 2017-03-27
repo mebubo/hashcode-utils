@@ -16,20 +16,20 @@ public class Satellites {
 
     private static final String input = "3600\n" // Simulation lasts an hour.
             + "2\n" // Two satellites.
-            + "170000 8300 300 50 500\n" // First satellite starts at [170000, 8300], heading north
+            + "170000 8300 300 50 500\n"  // First satellite starts at [170000, 8300], heading north
             + "180000 8300 -300 50 500\n" // Second satellite starts at [180000, 8300], heading south.
-            + "3\n" // Three image collections.
-            + "100 1 1\n" // First image collection is worth 100 points
+            + "3\n"           // Three image collections.
+            + "100 1 1\n"     // First image collection is worth 100 points
             + "175958 8387\n" // The only location: Google office in Paris
-            + "0 3599\n" // The image can be taken at any time.
-            + "100 1 2\n" // Second image collection is worth 100 points.
+            + "0 3599\n"      // The image can be taken at any time.
+            + "100 1 2\n"     // Second image collection is worth 100 points.
             + "175889 8260\n" // The only location: the Eiffel Tower
-            + "0 900\n" // The image has to be taken in the first 15 minutes...
-            + "2700 3599\n" // ...or in the last 15 minutes
-            + "300 2 1\n" // Third image collection, worth 300 points.
+            + "0 900\n"       // The image has to be taken in the first 15 minutes...
+            + "2700 3599\n"   // ...or in the last 15 minutes
+            + "300 2 1\n"     // Third image collection, worth 300 points.
             + "175958 8387\n" // Google office.
             + "175889 8260\n" // The Eiffel Tower.
-            + "3300 3599\n"; // The images need to be taken in the last 5 minutes.
+            + "3300 3599\n";  // The images need to be taken in the last 5 minutes.
 
     private static ObjectReader<Simulation, Object> createReader() {
 
