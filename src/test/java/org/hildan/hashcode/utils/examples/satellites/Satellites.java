@@ -58,7 +58,6 @@ public class Satellites {
         ObjectReader<Simulation, Object> rootReader = createReader();
         HCParser<Simulation> parser = new HCParser<>(rootReader);
         Simulation problem = parser.parse(input);
-        // test parsed object
 
         assertEquals(3600, problem.nTurns);
         assertEquals(2, problem.satellites.length);

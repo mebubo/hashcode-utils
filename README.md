@@ -1,5 +1,5 @@
 # Google HashCode utils
-[![Download](https://api.bintray.com/packages/joffrey-bion/maven/hashcode-utils/images/download.svg) ](https://bintray.com/joffrey-bion/maven/hashcode-utils/_latestVersion)
+[![Download](https://api.bintray.com/packages/joffrey-bion/maven/hashcode-utils/images/download.svg)](https://bintray.com/joffrey-bion/maven/hashcode-utils/_latestVersion)
 [![Build Status](https://travis-ci.org/joffrey-bion/hashcode-utils.svg?branch=master)](https://travis-ci.org/joffrey-bion/hashcode-utils)
 
 This library provides useful tools to make your life easier when competing in the Google Hash Code:

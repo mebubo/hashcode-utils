@@ -51,7 +51,6 @@ public class StreamingExample {
         ObjectReader<StreamingProblem, Object> rootReader = createReader();
         HCParser<StreamingProblem> parser = new HCParser<>(rootReader);
         StreamingProblem problem = parser.parse(input);
-        // test parsed object
 
         assertEquals(5, problem.nVideos);
         assertEquals(2, problem.nEndpoints);
@@ -72,15 +71,19 @@ public class StreamingExample {
         assertEquals(0, problem.endpoints[1].cacheLatencies.size());
 
         assertEquals(4, problem.requestDescs.length);
+
         assertEquals(1500, problem.requestDescs[0].count);
         assertEquals(3, problem.requestDescs[0].videoId);
         assertEquals(0, problem.requestDescs[0].endpointId);
+
         assertEquals(1000, problem.requestDescs[1].count);
         assertEquals(0, problem.requestDescs[1].videoId);
         assertEquals(1, problem.requestDescs[1].endpointId);
+
         assertEquals(500, problem.requestDescs[2].count);
         assertEquals(4, problem.requestDescs[2].videoId);
         assertEquals(0, problem.requestDescs[2].endpointId);
+
         assertEquals(1000, problem.requestDescs[3].count);
         assertEquals(1, problem.requestDescs[3].videoId);
         assertEquals(0, problem.requestDescs[3].endpointId);
