@@ -67,22 +67,76 @@ public class ContainerReader<E, C, P> implements ObjectReader<C, P> {
         return collection;
     }
 
+    /**
+     * Creates a {@code ContainerReader} that reads an array of items.
+     *
+     * @param arrayCreator
+     *         a function to create a new array, given its size
+     * @param getSize
+     *         a function to get the number of items to read, which is given the parent object and context as parameter.
+     *         Note that the given parent parameter may be null if this reader is called to create a root object.
+     * @param itemReader
+     *         a reader to call as many times as the size returned by {@code getSize}. This is what actually consumes
+     *         input in the created reader.
+     * @param <E>
+     *         the type of elements in the array
+     * @param <P>
+     *         the type of parent that the created array will be part of
+     *
+     * @return the created {@code ContainerReader}
+     */
     public static <E, P> ObjectReader<E[], P> array(IntFunction<E[]> arrayCreator,
                                                     BiFunction<? super P, Context, Integer> getSize,
                                                     ObjectReader<? extends E, ? super P> itemReader) {
         return new ContainerReader<>(arrayCreator, getSize, Array::set, itemReader);
     }
 
-    public static <E, P> ObjectReader<List<E>, P> list(BiFunction<? super P, Context, Integer> getSize,
-                                                       ObjectReader<? extends E, ? super P> itemReader) {
-        return new ContainerReader<>(ArrayList::new, getSize, (c, i, e) -> c.add(e), itemReader);
-    }
-
+    /**
+     * Creates a {@code ContainerReader} that reads a collection of items.
+     *
+     * @param constructor
+     *         a function to create a new collection, given its size
+     * @param getSize
+     *         a function to get the number of items to read, which is given the parent object and context as parameter.
+     *         Note that the given parent parameter may be null if this reader is called to create a root object.
+     * @param itemReader
+     *         a reader to call as many times as the size returned by {@code getSize}. This is what actually consumes
+     *         input in the created reader.
+     * @param <E>
+     *         the type of elements in the collection
+     * @param <C>
+     *         the type of collections to create
+     * @param <P>
+     *         the type of parent that the created collection will be part of
+     *
+     * @return the created {@code ContainerReader}
+     */
     public static <E, C extends Collection<E>, P> ObjectReader<C, P> collection(IntFunction<C> constructor,
                                                                                 BiFunction<? super P, Context,
                                                                                         Integer> getSize,
                                                                                 ObjectReader<? extends E, ? super P>
                                                                                         itemReader) {
         return new ContainerReader<>(constructor, getSize, (c, i, e) -> c.add(e), itemReader);
+    }
+
+    /**
+     * Creates a {@code ContainerReader} that reads a list of items.
+     *
+     * @param getSize
+     *         a function to get the number of items to read, which is given the parent object and context as parameter.
+     *         Note that the given parent parameter may be null if this reader is called to create a root object.
+     * @param itemReader
+     *         a reader to call as many times as the size returned by {@code getSize}. This is what actually consumes
+     *         input in the created reader.
+     * @param <E>
+     *         the type of elements in the list
+     * @param <P>
+     *         the type of parent that the created list will be part of
+     *
+     * @return the created {@code ContainerReader}
+     */
+    public static <E, P> ObjectReader<List<E>, P> list(BiFunction<? super P, Context, Integer> getSize,
+                                                       ObjectReader<? extends E, ? super P> itemReader) {
+        return collection(ArrayList::new, getSize, itemReader);
     }
 }
