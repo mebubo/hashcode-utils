@@ -41,7 +41,7 @@ public class Satellites {
                 (ctx, parent) -> new Location(parent, ctx.readInt(), ctx.readInt());
 
         RootReader<ImageCollection> collectionReader = RootReader.withVars("V", "L", "R")
-                                                                 .of(ImageCollection::new, "V", "L", "R")
+                                                                 .of(ImageCollection::new, "V")
                                                                  .array((coll, arr) -> coll.locations = arr,
                                                                          Location[]::new, "L", locationsReader)
                                                                  .array((coll, arr) -> coll.ranges = arr, int[][]::new,
