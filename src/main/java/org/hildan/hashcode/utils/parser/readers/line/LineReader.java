@@ -48,6 +48,8 @@ public class LineReader<T> implements ObjectReader<T> {
      *
      * @param converter
      *         the function to convert the input line's tokens into an object
+     * @param <T>
+     *         the type of objects created by the returned {@code LineReader}
      *
      * @return the created {@code LineReader}
      */

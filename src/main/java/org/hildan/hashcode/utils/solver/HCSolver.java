@@ -5,7 +5,6 @@ import java.util.function.Function;
 
 import org.hildan.hashcode.utils.parser.HCParser;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
-import org.hildan.hashcode.utils.parser.readers.RootReader;
 
 public class HCSolver<P> extends AbstractFileSolver {
 

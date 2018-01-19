@@ -5,7 +5,6 @@ import org.hildan.hashcode.utils.examples.streaming.model.Latency;
 import org.hildan.hashcode.utils.examples.streaming.model.RequestDesc;
 import org.hildan.hashcode.utils.examples.streaming.model.StreamingProblem;
 import org.hildan.hashcode.utils.parser.HCParser;
-import org.hildan.hashcode.utils.parser.readers.ChildReader;
 import org.hildan.hashcode.utils.parser.readers.RootReader;
 import org.junit.Test;
 
@@ -30,8 +29,8 @@ public class StreamingExample {
     private static RootReader<StreamingProblem> createReader() {
         RootReader<Latency> latencyReader = RootReader.of(Latency::new).fieldsAndVarsLine("cacheId", "latency");
 
-        RootReader<RequestDesc> requestReader =
-                RootReader.of(RequestDesc::new).fieldsAndVarsLine("videoId", "endpointId", "count");
+        RootReader<RequestDesc> requestReader = RootReader.of(RequestDesc::new)
+                                                          .fieldsAndVarsLine("videoId", "endpointId", "count");
 
         RootReader<Endpoint> endpointReader = RootReader.of(Endpoint::new)
                                                         .field("dcLatency")
@@ -57,7 +56,7 @@ public class StreamingExample {
         assertEquals(4, problem.nRequestDescriptions);
         assertEquals(3, problem.nCaches);
         assertEquals(100, problem.cacheSize);
-        assertArrayEquals(new int[]{50, 50, 80, 30, 110}, problem.videoSizes);
+        assertArrayEquals(new int[] {50, 50, 80, 30, 110}, problem.videoSizes);
 
         assertEquals(2, problem.endpoints.length);
 

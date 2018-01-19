@@ -42,9 +42,9 @@ public interface SectionReader<P> {
         return new ObjectSectionReader<>(itemReader, parentSetter);
     }
 
-    static <E, P> SectionReader<P> ofArray(BiConsumer<? super P, ? super E[]> parentSetter, IntFunction<E[]> arrayCreator,
-                                         BiFunction<? super P, Context, Integer> getSize,
-                                         ChildReader<? extends E, ? super P> itemReader) {
+    static <E, P> SectionReader<P> ofArray(BiConsumer<? super P, ? super E[]> parentSetter,
+            IntFunction<E[]> arrayCreator, BiFunction<? super P, Context, Integer> getSize,
+            ChildReader<? extends E, ? super P> itemReader) {
         return of(parentSetter, ContainerReader.array(arrayCreator, getSize, itemReader));
     }
 

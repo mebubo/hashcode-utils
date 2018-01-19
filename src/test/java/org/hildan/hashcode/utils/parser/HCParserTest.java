@@ -1,6 +1,5 @@
 package org.hildan.hashcode.utils.parser;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.hildan.hashcode.utils.parser.readers.RootReader;
