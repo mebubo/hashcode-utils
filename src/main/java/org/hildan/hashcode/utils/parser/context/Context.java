@@ -88,13 +88,15 @@ public class Context {
     /**
      * Wraps the given exception into an {@link InputParsingException}.
      *
-     * @param ex
+     * @param message
+     *         the message of the wrapped {@link InputParsingException}
+     * @param cause
      *         the exception to wrap
      *
      * @return a new {@link InputParsingException} with the given exception as cause
      */
-    public InputParsingException wrapException(Exception ex) {
-        return new InputParsingException(scanner.getLineNumber(), scanner.getCurrentLine(), ex.getMessage(), ex);
+    public InputParsingException wrapException(String message, Exception cause) {
+        return new InputParsingException(scanner.getLineNumber(), scanner.getCurrentLine(), message, cause);
     }
 
     /**

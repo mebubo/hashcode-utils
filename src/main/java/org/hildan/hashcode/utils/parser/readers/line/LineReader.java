@@ -39,7 +39,7 @@ public class LineReader<T> implements ObjectReader<T> {
         try {
             return converter.apply(values);
         } catch (Exception e) {
-            throw context.wrapException(e);
+            throw context.wrapException("exception while converting the values: " + Arrays.toString(values), e);
         }
     }
 
