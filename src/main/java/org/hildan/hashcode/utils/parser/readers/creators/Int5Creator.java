@@ -27,10 +27,10 @@ public interface Int5Creator<T> extends ObjectCreator<T> {
      *         an int argument
      * @param arg3
      *         an int argument
-     * @param arg5
+     * @param arg4
      *         an int argument
      *
      * @return the created object
      */
-    T create(int arg0, int arg1, int arg2, int arg3, int arg5);
+    T create(int arg0, int arg1, int arg2, int arg3, int arg4);
 }
