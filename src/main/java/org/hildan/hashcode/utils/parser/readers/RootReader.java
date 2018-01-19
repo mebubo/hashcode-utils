@@ -403,7 +403,7 @@ public class RootReader<T> implements ObjectReader<T> {
      * @param arrayCreator
      *         a function to create a new array, given the desired size
      * @param sizeVariable
-     *         a context variable to get
+     *         a context variable that will contain the desired size of the array
      * @param itemReader
      *         a child reader used to read each item
      * @param <E>
@@ -425,8 +425,7 @@ public class RootReader<T> implements ObjectReader<T> {
      * @param arrayCreator
      *         a function to create a new array, given the desired size
      * @param getSize
-     *         a function to get the size of the array to create. It takes the object being created as parameter, as
-     *         well as the current {@link Context}
+     *         a function to get the size of the array to create. It takes the object being created as parameter.
      * @param itemReader
      *         a child reader used to read each item
      * @param <E>
@@ -448,8 +447,8 @@ public class RootReader<T> implements ObjectReader<T> {
      * @param arrayCreator
      *         a function to create a new array, given the desired size
      * @param getSize
-     *         a function to get the size of the list to create. It takes the object being created as parameter, as well
-     *         as the current {@link Context}
+     *         a function to get the size of the array to create. It takes the object being created as parameter, as
+     *         well as the current {@link Context}
      * @param itemReader
      *         a child reader used to read each item
      * @param <E>
@@ -471,7 +470,7 @@ public class RootReader<T> implements ObjectReader<T> {
      * @param setter
      *         the setter to call on the object being created, with the created list
      * @param sizeVariable
-     *         a context variable to get
+     *         a context variable that will contain the number of elements to read and put in the list
      * @param itemReader
      *         a child reader used to read each item
      * @param <E>

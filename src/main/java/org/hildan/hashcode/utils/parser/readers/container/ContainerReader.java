@@ -58,7 +58,7 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
     }
 
     @Override
-    public C read(@NotNull Context context, @Nullable P parent) throws InputParsingException {
+    public C read(@NotNull Context context, @NotNull P parent) throws InputParsingException {
         int size = getSize.apply(parent, context);
         C collection = constructor.apply(size);
         for (int i = 0; i < size; i++) {
