@@ -9,12 +9,12 @@ import java.util.function.IntFunction;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
-import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.hildan.hashcode.utils.parser.readers.ChildReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * An {@link ObjectReader} that creates a container, and reads multiple child objects from the input, adding them to the
+ * An {@link ChildReader} that creates a container, and reads multiple child objects from the input, adding them to the
  * container.
  *
  * @param <E>
@@ -24,11 +24,11 @@ import org.jetbrains.annotations.Nullable;
  * @param <P>
  *         the type of parent on which this {@code ContainerReader} sets the created container
  */
-public class ContainerReader<E, C, P> implements ObjectReader<C, P> {
+public class ContainerReader<E, C, P> implements ChildReader<C, P> {
 
     private final IntFunction<? extends C> constructor;
 
-    private final ObjectReader<? extends E, ? super P> itemReader;
+    private final ChildReader<? extends E, ? super P> itemReader;
 
     private final BiFunction<? super P, Context, Integer> getSize;
 
@@ -50,7 +50,7 @@ public class ContainerReader<E, C, P> implements ObjectReader<C, P> {
      */
     public ContainerReader(IntFunction<? extends C> constructor, BiFunction<? super P, Context, Integer> getSize,
                            AddFunction<? super E, ? super C> addFunction,
-                           ObjectReader<? extends E, ? super P> itemReader) {
+                           ChildReader<? extends E, ? super P> itemReader) {
         this.constructor = constructor;
         this.itemReader = itemReader;
         this.getSize = getSize;
@@ -85,9 +85,9 @@ public class ContainerReader<E, C, P> implements ObjectReader<C, P> {
      *
      * @return the created {@code ContainerReader}
      */
-    public static <E, P> ObjectReader<E[], P> array(IntFunction<E[]> arrayCreator,
+    public static <E, P> ChildReader<E[], P> array(IntFunction<E[]> arrayCreator,
                                                     BiFunction<? super P, Context, Integer> getSize,
-                                                    ObjectReader<? extends E, ? super P> itemReader) {
+                                                    ChildReader<? extends E, ? super P> itemReader) {
         return new ContainerReader<>(arrayCreator, getSize, Array::set, itemReader);
     }
 
@@ -111,10 +111,10 @@ public class ContainerReader<E, C, P> implements ObjectReader<C, P> {
      *
      * @return the created {@code ContainerReader}
      */
-    public static <E, C extends Collection<E>, P> ObjectReader<C, P> collection(IntFunction<C> constructor,
+    public static <E, C extends Collection<E>, P> ChildReader<C, P> collection(IntFunction<C> constructor,
                                                                                 BiFunction<? super P, Context,
                                                                                         Integer> getSize,
-                                                                                ObjectReader<? extends E, ? super P>
+                                                                                ChildReader<? extends E, ? super P>
                                                                                         itemReader) {
         return new ContainerReader<>(constructor, getSize, (c, i, e) -> c.add(e), itemReader);
     }
@@ -135,8 +135,8 @@ public class ContainerReader<E, C, P> implements ObjectReader<C, P> {
      *
      * @return the created {@code ContainerReader}
      */
-    public static <E, P> ObjectReader<List<E>, P> list(BiFunction<? super P, Context, Integer> getSize,
-                                                       ObjectReader<? extends E, ? super P> itemReader) {
+    public static <E, P> ChildReader<List<E>, P> list(BiFunction<? super P, Context, Integer> getSize,
+                                                       ChildReader<? extends E, ? super P> itemReader) {
         return collection(ArrayList::new, getSize, itemReader);
     }
 }

@@ -25,10 +25,11 @@ import org.hildan.hashcode.utils.parser.readers.section.FieldsAndVarsLineReader;
 import org.hildan.hashcode.utils.parser.readers.section.ObjectSectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * An implementation of {@link ObjectReader} that builds an object without any parent information. It uses child {@link
- * SectionReader}s to update the fields of the created object.
+ * A default implementation of {@link ObjectReader}. It may use one or more {@link SectionReader}s to update the
+ * fields of the created object.
  * <p>
  * The object is first created, then all section readers are sequentially called (respecting the order) to consume as
  * much input as necessary to fill up the created object.
@@ -38,7 +39,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @see SectionReader
  */
-public class RootReader<T> implements ObjectReader<T, Object> {
+public class RootReader<T> implements ObjectReader<T> {
 
     private final List<StateReader> preReaders;
 
@@ -73,7 +74,8 @@ public class RootReader<T> implements ObjectReader<T, Object> {
     }
 
     @Override
-    public T read(@NotNull Context context, Object parent) throws InputParsingException {
+    @Nullable
+    public T read(@NotNull Context context) throws InputParsingException {
         for (StateReader preReader : preReaders) {
             preReader.read(context);
         }
@@ -367,7 +369,7 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public <E> RootReader<T> arrayLine(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
-                                       Function<? super String, ? extends E> itemConverter) {
+            Function<? super String, ? extends E> itemConverter) {
         return section(SectionReader.of(setter, LineReader.array(arrayCreator, itemConverter)));
     }
 
@@ -385,7 +387,7 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public <E> RootReader<T> listLine(BiConsumer<? super T, ? super List<E>> setter,
-                                      Function<String, ? extends E> itemConverter) {
+            Function<String, ? extends E> itemConverter) {
         LineReader<List<E>> lineReader = LineReader.list(itemConverter);
         return section(SectionReader.of(setter, lineReader));
     }
@@ -410,7 +412,7 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public <E> RootReader<T> array(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
-                                   String sizeVariable, ObjectReader<? extends E, ? super T> itemReader) {
+            String sizeVariable, ChildReader<? extends E, ? super T> itemReader) {
         return section(SectionReader.array(setter, arrayCreator, sizeGetter(sizeVariable), itemReader));
     }
 
@@ -433,8 +435,7 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public <E> RootReader<T> array(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
-                                   Function<? super T, Integer> getSize,
-                                   ObjectReader<? extends E, ? super T> itemReader) {
+            Function<? super T, Integer> getSize, ChildReader<? extends E, ? super T> itemReader) {
         return section(SectionReader.array(setter, arrayCreator, sizeGetter(getSize), itemReader));
     }
 
@@ -457,8 +458,7 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public <E> RootReader<T> array(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
-                                   BiFunction<? super T, Context, Integer> getSize,
-                                   ObjectReader<? extends E, ? super T> itemReader) {
+            BiFunction<? super T, Context, Integer> getSize, ChildReader<? extends E, ? super T> itemReader) {
         return section(SectionReader.array(setter, arrayCreator, getSize, itemReader));
     }
 
@@ -480,7 +480,7 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public <E> RootReader<T> list(BiConsumer<? super T, ? super List<E>> setter, String sizeVariable,
-                                  ObjectReader<? extends E, ? super T> itemReader) {
+            ChildReader<? extends E, ? super T> itemReader) {
         return section(SectionReader.list(setter, sizeGetter(sizeVariable), itemReader));
     }
 
@@ -500,7 +500,7 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public <E> RootReader<T> list(BiConsumer<? super T, ? super List<E>> setter, Function<? super T, Integer> getSize,
-                                  ObjectReader<? extends E, ? super T> itemReader) {
+            ChildReader<? extends E, ? super T> itemReader) {
         return section(SectionReader.list(setter, sizeGetter(getSize), itemReader));
     }
 
@@ -521,8 +521,7 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public <E> RootReader<T> list(BiConsumer<? super T, ? super List<E>> setter,
-                                  BiFunction<? super T, Context, Integer> getSize,
-                                  ObjectReader<? extends E, ? super T> itemReader) {
+            BiFunction<? super T, Context, Integer> getSize, ChildReader<? extends E, ? super T> itemReader) {
         return section(SectionReader.list(setter, getSize, itemReader));
     }
 
@@ -540,7 +539,7 @@ public class RootReader<T> implements ObjectReader<T, Object> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public <C> RootReader<T> objectSection(BiConsumer<? super T, ? super C> setter,
-                                           ObjectReader<? extends C, ? super T> childReader) {
+            ChildReader<? extends C, ? super T> childReader) {
         return section(new ObjectSectionReader<>(childReader, setter));
     }
 

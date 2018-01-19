@@ -9,17 +9,17 @@ import java.util.stream.Collectors;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
+import org.hildan.hashcode.utils.parser.readers.ChildReader;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * An {@link ObjectReader} that reads a full line of input to create an object, with no side-effect on the parent.
+ * An {@link ChildReader} that reads a full line of input to create an object, with no side-effect on the parent.
  *
  * @param <T>
  *         the type of objects created by this {@code LineReader}
  */
-public class LineReader<T> implements ObjectReader<T, Object> {
+public class LineReader<T> implements ObjectReader<T> {
 
     private final Function<? super String[], T> converter;
 
@@ -35,7 +35,7 @@ public class LineReader<T> implements ObjectReader<T, Object> {
 
     @NotNull
     @Override
-    public T read(@NotNull Context context, @Nullable Object parent) throws InputParsingException {
+    public T read(@NotNull Context context) throws InputParsingException {
         String[] values = context.readLine();
         try {
             return converter.apply(values);

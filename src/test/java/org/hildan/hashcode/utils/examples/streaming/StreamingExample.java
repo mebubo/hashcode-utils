@@ -5,7 +5,7 @@ import org.hildan.hashcode.utils.examples.streaming.model.Latency;
 import org.hildan.hashcode.utils.examples.streaming.model.RequestDesc;
 import org.hildan.hashcode.utils.examples.streaming.model.StreamingProblem;
 import org.hildan.hashcode.utils.parser.HCParser;
-import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.hildan.hashcode.utils.parser.readers.ChildReader;
 import org.hildan.hashcode.utils.parser.readers.RootReader;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class StreamingExample {
                     + "4 0 500\n"  // 500 requests for video 4 coming from endpoint 0.
                     + "1 0 1000";  // 1000 requests for video 1 coming from endpoint 0.
 
-    private static ObjectReader<StreamingProblem, Object> createReader() {
+    private static RootReader<StreamingProblem> createReader() {
         RootReader<Latency> latencyReader = RootReader.of(Latency::new).fieldsAndVarsLine("cacheId", "latency");
 
         RootReader<RequestDesc> requestReader =
@@ -48,7 +48,7 @@ public class StreamingExample {
 
     @Test
     public void test_parser() {
-        ObjectReader<StreamingProblem, Object> rootReader = createReader();
+        RootReader<StreamingProblem> rootReader = createReader();
         HCParser<StreamingProblem> parser = new HCParser<>(rootReader);
         StreamingProblem problem = parser.parse(input);
 

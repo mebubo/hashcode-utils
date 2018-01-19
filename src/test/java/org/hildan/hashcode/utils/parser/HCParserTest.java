@@ -3,7 +3,6 @@ package org.hildan.hashcode.utils.parser;
 import java.util.Arrays;
 import java.util.List;
 
-import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.hildan.hashcode.utils.parser.readers.RootReader;
 import org.junit.Test;
 
@@ -55,16 +54,13 @@ public class HCParserTest {
         RootReader<Point> pointReader = RootReader.of(Point::new).fieldsAndVarsLine("x", "y");
 
         RootReader<Shape> shapeReader = RootReader.of(Shape::new)
-                                                            .fieldsAndVarsLine("name", "nPoints")
-                                                            .list((o, l) -> o.points = l, o -> o.nPoints,
-                                                                  pointReader);
+                                                  .fieldsAndVarsLine("name", "nPoints")
+                                                  .list((o, l) -> o.points = l, o -> o.nPoints, pointReader);
 
-        ObjectReader<Problem, Object> problemReader = RootReader.of(Problem::new)
-                                                                .fieldsAndVarsLine("param1", "param2", "nShapes@N")
-                                                                .array((p, l) -> p.shapes = l, Shape[]::new, "N",
-                                                                      shapeReader);
+        RootReader<Problem> problemReader = RootReader.of(Problem::new)
+                                                      .fieldsAndVarsLine("param1", "param2", "nShapes@N")
+                                                      .array((p, l) -> p.shapes = l, Shape[]::new, "N", shapeReader);
 
-        List<String> lines = Arrays.asList(CONTENT.split("\\n"));
         HCParser<Problem> hcParser = new HCParser<>(problemReader);
         Problem problem = hcParser.parse(CONTENT);
 

@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 import org.hildan.hashcode.utils.parser.HCParser;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.hildan.hashcode.utils.parser.readers.RootReader;
 
 public class HCSolver<P> extends AbstractFileSolver {
 
@@ -21,7 +22,7 @@ public class HCSolver<P> extends AbstractFileSolver {
         return new HCSolver<>(parser, P::solve);
     }
 
-    public static <P extends Solvable> HCSolver<P> of(ObjectReader<P, Object> reader) {
+    public static <P extends Solvable> HCSolver<P> of(ObjectReader<P> reader) {
         return new HCSolver<>(new HCParser<>(reader), P::solve);
     }
 
@@ -30,7 +31,7 @@ public class HCSolver<P> extends AbstractFileSolver {
         return new HCSolver<>(parser, solver);
     }
 
-    public static <P> HCSolver<P> of(ObjectReader<P, Object> reader,
+    public static <P> HCSolver<P> of(ObjectReader<P> reader,
                                      Function<P, ? extends Iterable<? extends CharSequence>> solver) {
         return new HCSolver<>(new HCParser<>(reader), solver);
     }

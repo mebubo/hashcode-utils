@@ -4,7 +4,7 @@ import java.util.function.BiConsumer;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
-import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.hildan.hashcode.utils.parser.readers.ChildReader;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ObjectSectionReader<T, P> implements SectionReader<P> {
 
-    private final ObjectReader<? extends T, ? super P> childReader;
+    private final ChildReader<? extends T, ? super P> childReader;
 
     private final BiConsumer<? super P, ? super T> parentSetter;
 
@@ -30,7 +30,7 @@ public class ObjectSectionReader<T, P> implements SectionReader<P> {
      * @param parentSetter
      *         the setter to use to set the created child object on the parent object
      */
-    public ObjectSectionReader(ObjectReader<? extends T, ? super P> childReader,
+    public ObjectSectionReader(ChildReader<? extends T, ? super P> childReader,
                                BiConsumer<? super P, ? super T> parentSetter) {
         this.childReader = childReader;
         this.parentSetter = parentSetter;

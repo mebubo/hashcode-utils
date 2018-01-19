@@ -5,7 +5,7 @@ import org.hildan.hashcode.utils.examples.satellites.model.Location;
 import org.hildan.hashcode.utils.examples.satellites.model.Satellite;
 import org.hildan.hashcode.utils.examples.satellites.model.Simulation;
 import org.hildan.hashcode.utils.parser.HCParser;
-import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.hildan.hashcode.utils.parser.readers.ChildReader;
 import org.hildan.hashcode.utils.parser.readers.RootReader;
 import org.junit.Test;
 
@@ -31,13 +31,13 @@ public class Satellites {
             + "175889 8260\n" // The Eiffel Tower.
             + "3300 3599\n";  // The images need to be taken in the last 5 minutes.
 
-    private static ObjectReader<Simulation, Object> createReader() {
+    private static RootReader<Simulation> createReader() {
 
         RootReader<Satellite> satelliteReader = RootReader.of(Satellite::new);
 
         RootReader<int[]> rangeReader = RootReader.of((lat, lgt) -> new int[]{lat, lgt});
 
-        ObjectReader<Location, ImageCollection> locationsReader =
+        ChildReader<Location, ImageCollection> locationsReader =
                 (ctx, parent) -> new Location(parent, ctx.readInt(), ctx.readInt());
 
         RootReader<ImageCollection> collectionReader = RootReader.withVars("V", "L", "R")
@@ -55,7 +55,7 @@ public class Satellites {
 
     @Test
     public void test_parser() {
-        ObjectReader<Simulation, Object> rootReader = createReader();
+        RootReader<Simulation> rootReader = createReader();
         HCParser<Simulation> parser = new HCParser<>(rootReader);
         Simulation problem = parser.parse(input);
 

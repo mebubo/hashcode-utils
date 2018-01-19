@@ -33,7 +33,7 @@ public class Drones {
                     + "1\n"      // Third order contains 1 item
                     + "2\n";     // Items of product types: 2
 
-    private static ObjectReader<Simulation, Object> createReader() {
+    private static ObjectReader<Simulation> createReader() {
 
         RootReader<Warehouse> warehouseReader = RootReader.of(Warehouse::new) // implicitly parses the row and col
                                                           .intArrayLine((w, arr) -> w.stocks = arr);
@@ -55,7 +55,7 @@ public class Drones {
 
     @Test
     public void test_parser() {
-        ObjectReader<Simulation, Object> rootReader = createReader();
+        ObjectReader<Simulation> rootReader = createReader();
         HCParser<Simulation> parser = new HCParser<>(rootReader);
         Simulation problem = parser.parse(input);
 

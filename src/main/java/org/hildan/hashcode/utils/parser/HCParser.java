@@ -7,12 +7,14 @@ import java.io.StringReader;
 
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.context.Context;
+import org.hildan.hashcode.utils.parser.readers.ChildReader;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.hildan.hashcode.utils.parser.readers.RootReader;
 import org.intellij.lang.annotations.RegExp;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * {@code HCParser} parses textual input using a root {@link ObjectReader}. This is useful to convert Hash Code's
+ * {@code HCParser} parses textual input using a root {@link ChildReader}. This is useful to convert Hash Code's
  * input file into an object representation of the problem.
  *
  * @param <T>
@@ -22,7 +24,7 @@ public class HCParser<T> {
 
     private final Config config;
 
-    private final ObjectReader<T, ?> rootReader;
+    private final ObjectReader<T> rootReader;
 
     /**
      * Creates a new {@code HCParser} with the default configuration.
@@ -30,7 +32,7 @@ public class HCParser<T> {
      * @param rootReader
      *         the reader to use to read the input into an object
      */
-    public HCParser(@NotNull ObjectReader<T, ?> rootReader) {
+    public HCParser(@NotNull ObjectReader<T> rootReader) {
         this(rootReader, new Config());
     }
 
@@ -42,7 +44,7 @@ public class HCParser<T> {
      * @param separator
      *         the separator between elements within an input line
      */
-    public HCParser(@NotNull ObjectReader<T, ?> rootReader, @RegExp String separator) {
+    public HCParser(@NotNull ObjectReader<T> rootReader, @RegExp String separator) {
         config = new Config(separator);
         this.rootReader = rootReader;
     }
@@ -55,7 +57,7 @@ public class HCParser<T> {
      * @param config
      *         the configuration defining this parser's behaviour
      */
-    public HCParser(@NotNull ObjectReader<T, ?> rootReader, Config config) {
+    public HCParser(@NotNull ObjectReader<T> rootReader, Config config) {
         this.config = config;
         this.rootReader = rootReader;
     }
