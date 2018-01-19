@@ -1,8 +1,11 @@
 package org.hildan.hashcode.utils.parser.context;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,19 +41,24 @@ public class LineNumberScannerTest {
     @Test
     public void getCurrentLine() {
         assertNull(scanner.getCurrentLine());
-        scanner.nextString();
-        scanner.nextString();
+        assertEquals("this", scanner.nextString());
+        assertEquals("is", scanner.nextString());
         assertEquals("this is a test", scanner.getCurrentLine());
-        scanner.nextString();
-        scanner.nextString();
+
+        assertEquals("a", scanner.nextString());
+        assertEquals("test", scanner.nextString());
         assertEquals("this is a test", scanner.getCurrentLine());
-        scanner.nextInt();
-        scanner.nextInt();
+
+        assertEquals(42, scanner.nextInt());
+        assertEquals(43, scanner.nextInt());
         assertEquals("42 43 -44", scanner.getCurrentLine());
-        scanner.nextInt();
+
+        assertEquals(-44, scanner.nextInt());
         assertEquals("42 43 -44", scanner.getCurrentLine());
+
         scanner.nextLine();
         assertEquals("", scanner.getCurrentLine());
+
         scanner.nextLine();
         assertEquals("something", scanner.getCurrentLine());
     }
@@ -108,4 +116,28 @@ public class LineNumberScannerTest {
     public void close_failsOnUnconsumedInput() {
         scanner.close();
     }
+
+    @Test(expected = InputParsingException.class)
+    public void nextLine_failsOnIOException() {
+        scanner = new LineNumberScanner(new FailingReader(), "\\s");
+        scanner.nextLine();
+    }
+
+    @Test(expected = InputParsingException.class)
+    public void close_failsOnIOException() {
+        scanner = new LineNumberScanner(new FailingReader(), "\\s");
+        scanner.close();
+    }
+
+    private static class FailingReader extends Reader {
+        @Override
+        public int read(@NotNull char[] cbuf, int off, int len) throws IOException {
+            throw new IOException("test exception");
+        }
+
+        @Override
+        public void close() throws IOException {
+            throw new IOException("test exception");
+        }
+    };
 }

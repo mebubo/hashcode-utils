@@ -7,7 +7,11 @@ import java.io.Reader;
 import java.util.Arrays;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * A scanner that is aware of the line numbers and throws exceptions that contain this useful piece of information.
+ */
 public class LineNumberScanner implements Closeable, AutoCloseable {
 
     private final LineNumberReader reader;
@@ -20,16 +24,41 @@ public class LineNumberScanner implements Closeable, AutoCloseable {
 
     private int nextTokenIndex;
 
+    /**
+     * Creates a new {@code LineNumberScanner} using the given reader as underlying source.
+     *
+     * @param reader
+     *         the reader to read the data from
+     * @param delimiter
+     *         the delimiter to use to identify separate tokens
+     */
     public LineNumberScanner(Reader reader, String delimiter) {
         this.reader = new LineNumberReader(reader);
         this.reader.setLineNumber(0);
         this.delimiter = delimiter;
     }
 
+    /**
+     * Gets the line number of the last token read. If no token has been read yet, the line number is 0. Then the
+     * line numbering is 1-based.
+     * <p>
+     * Note that this method does not move the scanner or consume any input.
+     *
+     * @return the line number of the last token seen
+     */
     public int getLineNumber() {
         return reader.getLineNumber();
     }
 
+    /**
+     * Gets the full line containing the last token read. If no token has been read yet, the current line is null.
+     * Even if the last token read is in the middle of the line, the full line is returned from beginning to end.
+     * <p>
+     * Note that this method does not move the scanner or consume any input.
+     *
+     * @return the current line as a string
+     */
+    @Nullable
     public String getCurrentLine() {
         return currentLineRaw;
     }
@@ -62,10 +91,11 @@ public class LineNumberScanner implements Closeable, AutoCloseable {
      *         if the input could not be parsed as an int
      */
     public int nextInt() throws InputParsingException {
+        String value = nextString();
         try {
-            return Integer.parseInt(nextString());
+            return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new InputParsingException(getLineNumber(), "", e);
+            throw new InputParsingException(getLineNumber(), "expected integer, got '" + value + "'", e);
         }
     }
 
