@@ -59,7 +59,7 @@ public class LineReaderTest {
 
     @Theory
     public void test(Expectation<Object> expectation) {
-        LineReader<Object[]> reader = LineReader.array(expectation.arrayCreator, expectation.converter);
+        LineReader<Object[]> reader = LineReader.ofArray(expectation.arrayCreator, expectation.converter);
 
         Context context = new Context(new StringReader(expectation.line + "\nignored line"), new Config());
 

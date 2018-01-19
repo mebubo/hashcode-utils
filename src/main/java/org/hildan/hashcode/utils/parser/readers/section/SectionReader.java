@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
  * @param <P>
  *         the type of parent that this {@code SectionReader} can update
  */
+@FunctionalInterface
 public interface SectionReader<P> {
 
     /**
@@ -41,20 +42,20 @@ public interface SectionReader<P> {
         return new ObjectSectionReader<>(itemReader, parentSetter);
     }
 
-    static <E, P> SectionReader<P> array(BiConsumer<? super P, ? super E[]> parentSetter, IntFunction<E[]> arrayCreator,
+    static <E, P> SectionReader<P> ofArray(BiConsumer<? super P, ? super E[]> parentSetter, IntFunction<E[]> arrayCreator,
                                          BiFunction<? super P, Context, Integer> getSize,
                                          ChildReader<? extends E, ? super P> itemReader) {
         return of(parentSetter, ContainerReader.array(arrayCreator, getSize, itemReader));
     }
 
-    static <E, P> SectionReader<P> list(BiConsumer<? super P, ? super List<E>> parentSetter,
+    static <E, P> SectionReader<P> ofList(BiConsumer<? super P, ? super List<E>> parentSetter,
                                         BiFunction<? super P, Context, Integer> getSize,
                                         ChildReader<? extends E, ? super P> itemReader) {
         ChildReader<List<E>, P> listReader = ContainerReader.list(getSize, itemReader);
         return of(parentSetter, listReader);
     }
 
-    static <E, C extends Collection<E>, P> SectionReader<P> collection(BiConsumer<? super P, ? super C> parentSetter,
+    static <E, C extends Collection<E>, P> SectionReader<P> ofCollection(BiConsumer<? super P, ? super C> parentSetter,
                                                                        IntFunction<C> constructor,
                                                                        BiFunction<? super P, Context, Integer> getSize,
                                                                        ChildReader<? extends E, ? super P>

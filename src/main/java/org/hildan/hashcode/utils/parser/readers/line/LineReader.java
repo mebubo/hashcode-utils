@@ -9,12 +9,11 @@ import java.util.stream.Collectors;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
-import org.hildan.hashcode.utils.parser.readers.ChildReader;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * An {@link ChildReader} that reads a full line of input to create an object, with no side-effect on the parent.
+ * An {@link ObjectReader} that reads a full line of input to create an object.
  *
  * @param <T>
  *         the type of objects created by this {@code LineReader}
@@ -29,7 +28,7 @@ public class LineReader<T> implements ObjectReader<T> {
      * @param converter
      *         the function to convert the input line's tokens into an object
      */
-    public LineReader(Function<? super String[], T> converter) {
+    private LineReader(Function<? super String[], T> converter) {
         this.converter = converter;
     }
 
@@ -45,12 +44,24 @@ public class LineReader<T> implements ObjectReader<T> {
     }
 
     /**
+     * Creates a new {@code LineReader} that reads a full line and converts the result using the given converter.
+     *
+     * @param converter
+     *         the function to convert the input line's tokens into an object
+     *
+     * @return the created {@code LineReader}
+     */
+    public static <T> LineReader<T> of(Function<? super String[], T> converter) {
+        return new LineReader<>(converter);
+    }
+
+    /**
      * Creates a new {@code LineReader} that reads a full line as an array of integers.
      *
      * @return the created {@code LineReader}
      */
-    public static LineReader<int[]> ints() {
-        return new LineReader<>(arr -> Arrays.stream(arr).mapToInt(Integer::parseInt).toArray());
+    public static LineReader<int[]> ofIntArray() {
+        return of(arr -> Arrays.stream(arr).mapToInt(Integer::parseInt).toArray());
     }
 
     /**
@@ -58,8 +69,8 @@ public class LineReader<T> implements ObjectReader<T> {
      *
      * @return the created {@code LineReader}
      */
-    public static LineReader<long[]> longs() {
-        return new LineReader<>(arr -> Arrays.stream(arr).mapToLong(Long::parseLong).toArray());
+    public static LineReader<long[]> ofLongArray() {
+        return of(arr -> Arrays.stream(arr).mapToLong(Long::parseLong).toArray());
     }
 
     /**
@@ -67,8 +78,8 @@ public class LineReader<T> implements ObjectReader<T> {
      *
      * @return the created {@code LineReader}
      */
-    public static LineReader<double[]> doubles() {
-        return new LineReader<>(arr -> Arrays.stream(arr).mapToDouble(Double::parseDouble).toArray());
+    public static LineReader<double[]> ofDoubleArray() {
+        return of(arr -> Arrays.stream(arr).mapToDouble(Double::parseDouble).toArray());
     }
 
     /**
@@ -76,8 +87,8 @@ public class LineReader<T> implements ObjectReader<T> {
      *
      * @return the created {@code LineReader}
      */
-    public static LineReader<String[]> strings() {
-        return new LineReader<>(arr -> arr);
+    public static LineReader<String[]> ofStringArray() {
+        return of(arr -> arr);
     }
 
     /**
@@ -92,9 +103,9 @@ public class LineReader<T> implements ObjectReader<T> {
      *
      * @return the created {@code LineReader}
      */
-    public static <E> LineReader<E[]> array(IntFunction<E[]> arrayCreator,
-                                            Function<? super String, ? extends E> itemConverter) {
-        return new LineReader<>(arr -> Arrays.stream(arr).map(itemConverter).toArray(arrayCreator));
+    public static <E> LineReader<E[]> ofArray(IntFunction<E[]> arrayCreator,
+            Function<? super String, ? extends E> itemConverter) {
+        return of(arr -> Arrays.stream(arr).map(itemConverter).toArray(arrayCreator));
     }
 
     /**
@@ -107,8 +118,8 @@ public class LineReader<T> implements ObjectReader<T> {
      *
      * @return the created {@code LineReader}
      */
-    public static <E> LineReader<List<E>> list(Function<? super String, ? extends E> itemConverter) {
-        return collect(itemConverter, Collectors.toList());
+    public static <E> LineReader<List<E>> ofList(Function<? super String, ? extends E> itemConverter) {
+        return ofCollection(itemConverter, Collectors.toList());
     }
 
     /**
@@ -126,8 +137,8 @@ public class LineReader<T> implements ObjectReader<T> {
      *
      * @return the created {@code LineReader}
      */
-    public static <E, R> LineReader<R> collect(Function<? super String, ? extends E> itemConverter,
-                                               Collector<E, ?, R> collector) {
-        return new LineReader<>(arr -> Arrays.stream(arr).map(itemConverter).collect(collector));
+    public static <E, R> LineReader<R> ofCollection(Function<? super String, ? extends E> itemConverter,
+            Collector<E, ?, R> collector) {
+        return of(arr -> Arrays.stream(arr).map(itemConverter).collect(collector));
     }
 }

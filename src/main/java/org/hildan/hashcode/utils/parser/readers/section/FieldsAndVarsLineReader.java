@@ -20,9 +20,12 @@ public class FieldsAndVarsLineReader<P> implements SectionReader<P> {
     /**
      * Creates a new {@code FieldsAndVarsLineReader} with the given field/variable names.
      * <p>
-     * The field/variable names are given as strings that can each be one of: <ul> <li>a field name (e.g.
-     * "myField1")</li> <li>a '@' symbol followed by a variable name (e.g. "@N", "@myVar", "@123"...)</li> <li>both a
-     * field name and a variable name separated by a '@' (e.g. "nItems@N", "size@nbOfSatellites"...)</li> </ul>
+     * The field/variable names are given as strings that can each be one of:
+     * <ul>
+     * <li>a field name (e.g. "myField1")</li>
+     * <li>a '@' symbol followed by a variable name (e.g. "@N", "@myVar", "@123"...)</li>
+     * <li>both a field name and a variable name separated by a '@' (e.g. "nItems@N", "size@nbOfSatellites"...)</li>
+     * </ul>
      * <p>
      * Note that "" describe neither a field nor a variable, and thus the corresponding entry in the line will be
      * ignored during parsing. Null descriptions and descriptions ending in '@' are forbidden.

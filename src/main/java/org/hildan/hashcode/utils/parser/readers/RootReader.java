@@ -311,7 +311,7 @@ public class RootReader<T> implements ObjectReader<T> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public RootReader<T> intArrayLine(BiConsumer<? super T, int[]> setter) {
-        return section(SectionReader.of(setter, LineReader.ints()));
+        return section(SectionReader.of(setter, LineReader.ofIntArray()));
     }
 
     /**
@@ -324,7 +324,7 @@ public class RootReader<T> implements ObjectReader<T> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public RootReader<T> longArrayLine(BiConsumer<? super T, long[]> setter) {
-        return section(SectionReader.of(setter, LineReader.longs()));
+        return section(SectionReader.of(setter, LineReader.ofLongArray()));
     }
 
     /**
@@ -337,7 +337,7 @@ public class RootReader<T> implements ObjectReader<T> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public RootReader<T> doubleArrayLine(BiConsumer<? super T, double[]> setter) {
-        return section(SectionReader.of(setter, LineReader.doubles()));
+        return section(SectionReader.of(setter, LineReader.ofDoubleArray()));
     }
 
     /**
@@ -350,7 +350,7 @@ public class RootReader<T> implements ObjectReader<T> {
      * @return this {@code RootReader}, for a convenient configuration syntax
      */
     public RootReader<T> stringArrayLine(BiConsumer<? super T, String[]> setter) {
-        return section(SectionReader.of(setter, LineReader.strings()));
+        return section(SectionReader.of(setter, LineReader.ofStringArray()));
     }
 
     /**
@@ -370,7 +370,7 @@ public class RootReader<T> implements ObjectReader<T> {
      */
     public <E> RootReader<T> arrayLine(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
             Function<? super String, ? extends E> itemConverter) {
-        return section(SectionReader.of(setter, LineReader.array(arrayCreator, itemConverter)));
+        return section(SectionReader.of(setter, LineReader.ofArray(arrayCreator, itemConverter)));
     }
 
     /**
@@ -388,7 +388,7 @@ public class RootReader<T> implements ObjectReader<T> {
      */
     public <E> RootReader<T> listLine(BiConsumer<? super T, ? super List<E>> setter,
             Function<String, ? extends E> itemConverter) {
-        LineReader<List<E>> lineReader = LineReader.list(itemConverter);
+        LineReader<List<E>> lineReader = LineReader.ofList(itemConverter);
         return section(SectionReader.of(setter, lineReader));
     }
 
@@ -413,7 +413,7 @@ public class RootReader<T> implements ObjectReader<T> {
      */
     public <E> RootReader<T> array(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
             String sizeVariable, ChildReader<? extends E, ? super T> itemReader) {
-        return section(SectionReader.array(setter, arrayCreator, sizeGetter(sizeVariable), itemReader));
+        return section(SectionReader.ofArray(setter, arrayCreator, sizeGetter(sizeVariable), itemReader));
     }
 
     /**
@@ -436,7 +436,7 @@ public class RootReader<T> implements ObjectReader<T> {
      */
     public <E> RootReader<T> array(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
             Function<? super T, Integer> getSize, ChildReader<? extends E, ? super T> itemReader) {
-        return section(SectionReader.array(setter, arrayCreator, sizeGetter(getSize), itemReader));
+        return section(SectionReader.ofArray(setter, arrayCreator, sizeGetter(getSize), itemReader));
     }
 
     /**
@@ -459,7 +459,7 @@ public class RootReader<T> implements ObjectReader<T> {
      */
     public <E> RootReader<T> array(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
             BiFunction<? super T, Context, Integer> getSize, ChildReader<? extends E, ? super T> itemReader) {
-        return section(SectionReader.array(setter, arrayCreator, getSize, itemReader));
+        return section(SectionReader.ofArray(setter, arrayCreator, getSize, itemReader));
     }
 
     /**
@@ -481,7 +481,7 @@ public class RootReader<T> implements ObjectReader<T> {
      */
     public <E> RootReader<T> list(BiConsumer<? super T, ? super List<E>> setter, String sizeVariable,
             ChildReader<? extends E, ? super T> itemReader) {
-        return section(SectionReader.list(setter, sizeGetter(sizeVariable), itemReader));
+        return section(SectionReader.ofList(setter, sizeGetter(sizeVariable), itemReader));
     }
 
     /**
@@ -501,7 +501,7 @@ public class RootReader<T> implements ObjectReader<T> {
      */
     public <E> RootReader<T> list(BiConsumer<? super T, ? super List<E>> setter, Function<? super T, Integer> getSize,
             ChildReader<? extends E, ? super T> itemReader) {
-        return section(SectionReader.list(setter, sizeGetter(getSize), itemReader));
+        return section(SectionReader.ofList(setter, sizeGetter(getSize), itemReader));
     }
 
     /**
@@ -522,7 +522,7 @@ public class RootReader<T> implements ObjectReader<T> {
      */
     public <E> RootReader<T> list(BiConsumer<? super T, ? super List<E>> setter,
             BiFunction<? super T, Context, Integer> getSize, ChildReader<? extends E, ? super T> itemReader) {
-        return section(SectionReader.list(setter, getSize, itemReader));
+        return section(SectionReader.ofList(setter, getSize, itemReader));
     }
 
     /**
