@@ -46,13 +46,13 @@ public class FieldAndVarReader<P> implements SectionReader<P> {
     }
 
     @Override
-    public void readAndSet(@NotNull Context context, @NotNull P parent) throws InputParsingException {
+    public void readAndSet(@NotNull Context context, @NotNull P object) throws InputParsingException {
         String value = context.readString();
         if (variableName != null) {
             context.setVariable(variableName, value);
         }
         if (fieldName != null) {
-            ReflectUtils.setField(parent, fieldName, value);
+            ReflectUtils.setField(object, fieldName, value);
         }
     }
 }

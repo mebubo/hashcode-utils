@@ -22,7 +22,6 @@ import org.hildan.hashcode.utils.parser.readers.creators.ObjectCreator;
 import org.hildan.hashcode.utils.parser.readers.line.LineReader;
 import org.hildan.hashcode.utils.parser.readers.section.FieldAndVarReader;
 import org.hildan.hashcode.utils.parser.readers.section.FieldsAndVarsLineReader;
-import org.hildan.hashcode.utils.parser.readers.section.ObjectSectionReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,7 +52,7 @@ public class RootReader<T> implements ObjectReader<T> {
      * @param constructor
      *         the constructor to use to create new instances
      */
-    public RootReader(ObjectCreator<? extends T> constructor) {
+    private RootReader(ObjectCreator<? extends T> constructor) {
         this(new ArrayList<>(), constructor);
     }
 
@@ -539,7 +538,7 @@ public class RootReader<T> implements ObjectReader<T> {
      */
     public <C> RootReader<T> objectSection(BiConsumer<? super T, ? super C> setter,
             ChildReader<? extends C, ? super T> childReader) {
-        return section(new ObjectSectionReader<>(childReader, setter));
+        return section(SectionReader.of(setter, childReader));
     }
 
     /**

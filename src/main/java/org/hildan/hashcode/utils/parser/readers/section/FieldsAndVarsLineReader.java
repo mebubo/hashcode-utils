@@ -67,9 +67,9 @@ public class FieldsAndVarsLineReader<P> implements SectionReader<P> {
     }
 
     @Override
-    public void readAndSet(@NotNull Context context, @NotNull P parent) throws InputParsingException {
+    public void readAndSet(@NotNull Context context, @NotNull P object) throws InputParsingException {
         for (FieldAndVarReader<P> reader : readers) {
-            reader.readAndSet(context, parent);
+            reader.readAndSet(context, object);
         }
     }
 }
