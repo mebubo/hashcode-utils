@@ -28,7 +28,8 @@ public class LineReader<T> implements ObjectReader<T> {
      * @param converter
      *         the function to convert the input line's tokens into an object
      */
-    private LineReader(Function<? super String[], T> converter) {
+    @SuppressWarnings("WeakerAccess")
+    protected LineReader(Function<? super String[], T> converter) {
         this.converter = converter;
     }
 

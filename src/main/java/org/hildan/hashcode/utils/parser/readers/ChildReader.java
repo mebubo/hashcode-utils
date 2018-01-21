@@ -32,5 +32,5 @@ public interface ChildReader<T, P> {
      *         if something went wrong when reading the input
      */
     @Nullable
-    T read(@NotNull Context context, @NotNull P parent) throws InputParsingException;
+    T read(@NotNull Context context, @Nullable P parent) throws InputParsingException;
 }

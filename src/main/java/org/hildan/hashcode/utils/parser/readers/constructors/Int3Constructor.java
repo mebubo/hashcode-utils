@@ -1,18 +1,20 @@
-package org.hildan.hashcode.utils.parser.readers.creators;
+package org.hildan.hashcode.utils.parser.readers.constructors;
 
 import org.hildan.hashcode.utils.parser.context.Context;
+import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Stands for a constructor with 3 int arguments. It can be used as an {@link ObjectCreator} that reads 3 integers from
- * the input before calling {@link #create(int, int, int)} with the parsed values.
+ * Stands for a constructor with 3 int arguments. It can also read these integers from the input in order to call
+ * {@link #create(int, int, int)} with the parsed values, which makes it an {@link ObjectReader}.
  *
  * @param <T>
  *         the type of objects that this constructor creates
  */
-public interface Int3Creator<T> extends ObjectCreator<T> {
+public interface Int3Constructor<T> extends ObjectReader<T> {
 
     @Override
-    default T create(Context context) {
+    default T read(@NotNull Context context) {
         return create(context.readInt(), context.readInt(), context.readInt());
     }
 

@@ -4,8 +4,8 @@ import org.hildan.hashcode.utils.examples.drones.model.Order;
 import org.hildan.hashcode.utils.examples.drones.model.Simulation;
 import org.hildan.hashcode.utils.examples.drones.model.Warehouse;
 import org.hildan.hashcode.utils.parser.HCParser;
+import org.hildan.hashcode.utils.parser.readers.HCReader;
 import org.hildan.hashcode.utils.parser.readers.ObjectReader;
-import org.hildan.hashcode.utils.parser.readers.RootReader;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -35,22 +35,22 @@ public class Drones {
 
     private static ObjectReader<Simulation> createReader() {
 
-        RootReader<Warehouse> warehouseReader = RootReader.of(Warehouse::new) // implicitly parses the row and col
+        ObjectReader<Warehouse> warehouseReader = HCReader.of(Warehouse::new) // implicitly parses the row and col
                                                           .intArrayLine((w, arr) -> w.stocks = arr);
 
-        RootReader<Order> orderReader = RootReader.withVars("x", "y")
+        ObjectReader<Order> orderReader = HCReader.withVars("x", "y")
                                                   // P is already available since the first line of input, we re-use it
                                                   .of(Order::new, "x", "y", "P")
                                                   .skip() // skip the item count as we take the whole next line anyway
                                                   .intArrayLine(Order::setItems);
 
-        return RootReader.withVars("nRows", "nCols", "D", "nTurns", "maxLoad", "P")
-                         .of(Simulation::new, "nRows", "nCols", "D", "nTurns", "maxLoad", "P")
-                         .intArrayLine((p, arr) -> p.productTypeWeights = arr)
-                         .var("W")
-                         .array((p, arr) -> p.warehouses = arr, Warehouse[]::new, "W", warehouseReader)
-                         .var("C")
-                         .array(Simulation::setOrders, Order[]::new, "C", orderReader);
+        return HCReader.withVars("nRows", "nCols", "D", "nTurns", "maxLoad", "P")
+                       .of(Simulation::new, "nRows", "nCols", "D", "nTurns", "maxLoad", "P")
+                       .intArrayLine((p, arr) -> p.productTypeWeights = arr)
+                       .var("W")
+                       .array((p, arr) -> p.warehouses = arr, Warehouse[]::new, "W", warehouseReader)
+                       .var("C")
+                       .array(Simulation::setOrders, Order[]::new, "C", orderReader);
     }
 
     @Test
@@ -67,35 +67,35 @@ public class Drones {
 
         assertEquals(3, problem.nProductTypes);
         assertEquals(3, problem.productTypeWeights.length);
-        assertArrayEquals(new int[]{100, 5, 450}, problem.productTypeWeights);
+        assertArrayEquals(new int[] {100, 5, 450}, problem.productTypeWeights);
 
         assertEquals(2, problem.warehouses.length);
 
         Warehouse w0 = problem.warehouses[0];
         assertEquals(0, w0.row);
         assertEquals(0, w0.col);
-        assertArrayEquals(new int[]{5, 1, 0}, w0.stocks);
+        assertArrayEquals(new int[] {5, 1, 0}, w0.stocks);
 
         Warehouse w1 = problem.warehouses[1];
         assertEquals(5, w1.row);
         assertEquals(5, w1.col);
-        assertArrayEquals(new int[]{0, 10, 2}, w1.stocks);
+        assertArrayEquals(new int[] {0, 10, 2}, w1.stocks);
 
         assertEquals(3, problem.orders.length);
 
         Order order0 = problem.orders[0];
         assertEquals(1, order0.row);
         assertEquals(1, order0.col);
-        assertArrayEquals(new int[]{1, 0, 1}, order0.quantities);
+        assertArrayEquals(new int[] {1, 0, 1}, order0.quantities);
 
         Order order1 = problem.orders[1];
         assertEquals(3, order1.row);
         assertEquals(3, order1.col);
-        assertArrayEquals(new int[]{1, 0, 0}, order1.quantities);
+        assertArrayEquals(new int[] {1, 0, 0}, order1.quantities);
 
         Order order2 = problem.orders[2];
         assertEquals(5, order2.row);
         assertEquals(6, order2.col);
-        assertArrayEquals(new int[]{0, 0, 1}, order2.quantities);
+        assertArrayEquals(new int[] {0, 0, 1}, order2.quantities);
     }
 }

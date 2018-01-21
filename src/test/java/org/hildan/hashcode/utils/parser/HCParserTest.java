@@ -2,7 +2,8 @@ package org.hildan.hashcode.utils.parser;
 
 import java.util.List;
 
-import org.hildan.hashcode.utils.parser.readers.RootReader;
+import org.hildan.hashcode.utils.parser.readers.HCReader;
+import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -50,13 +51,13 @@ public class HCParserTest {
     @Test
     public void test() {
 
-        RootReader<Point> pointReader = RootReader.of(Point::new).fieldsAndVarsLine("x", "y");
+        ObjectReader<Point> pointReader = HCReader.of(Point::new).fieldsAndVarsLine("x", "y");
 
-        RootReader<Shape> shapeReader = RootReader.of(Shape::new)
+        ObjectReader<Shape> shapeReader = HCReader.of(Shape::new)
                                                   .fieldsAndVarsLine("name", "nPoints")
                                                   .list((o, l) -> o.points = l, o -> o.nPoints, pointReader);
 
-        RootReader<Problem> problemReader = RootReader.of(Problem::new)
+        ObjectReader<Problem> problemReader = HCReader.of(Problem::new)
                                                       .fieldsAndVarsLine("param1", "param2", "nShapes@N")
                                                       .array((p, l) -> p.shapes = l, Shape[]::new, "N", shapeReader);
 

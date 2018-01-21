@@ -11,6 +11,7 @@ import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.ChildReader;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * An {@link ChildReader} that creates a container, and reads multiple child objects from the input, adding them to the
@@ -56,7 +57,7 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
     }
 
     @Override
-    public C read(@NotNull Context context, @NotNull P parent) throws InputParsingException {
+    public C read(@NotNull Context context, @Nullable P parent) throws InputParsingException {
         int size = getSize.apply(parent, context);
         C collection = constructor.apply(size);
         for (int i = 0; i < size; i++) {
@@ -78,6 +79,12 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
      *         a function to add elements to the created container
      * @param itemReader
      *         a child reader used to read each item
+     * @param <E>
+     *         the type of the elements in the container
+     * @param <C>
+     *         the type of the container itself
+     * @param <P>
+     *         the type of parent on which the created {@code ContainerReader} will set the created containers
      *
      * @return the created {@code ContainerReader}
      */

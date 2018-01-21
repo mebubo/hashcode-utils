@@ -11,6 +11,7 @@ import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.ChildReader;
 import org.hildan.hashcode.utils.parser.readers.container.ContainerReader;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A reader that consumes as much input as necessary (a possibly multi-line "section") to update a previously created
@@ -35,7 +36,7 @@ public interface SectionReader<T> {
      * @throws InputParsingException
      *         if something went wrong while reading the input
      */
-    void readAndSet(@NotNull Context context, @NotNull T object) throws InputParsingException;
+    void readAndSet(@NotNull Context context, @Nullable T object) throws InputParsingException;
 
     /**
      * Returns a {@link SectionReader} that reads a value and sets it on the target object, consuming as much input

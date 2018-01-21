@@ -1,18 +1,21 @@
-package org.hildan.hashcode.utils.parser.readers.creators;
+package org.hildan.hashcode.utils.parser.readers.constructors;
 
 import org.hildan.hashcode.utils.parser.context.Context;
+import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Stands for a constructor with 7 int arguments. It can be used as an {@link ObjectCreator} that reads 7 integers from
+ * Stands for a constructor with 7 int arguments. It can be used as an {@link ObjectReader} that reads 7 integers from
  * the input before calling {@link #create(int, int, int, int, int, int, int)} with the parsed values.
  *
  * @param <T>
  *         the type of objects that this constructor creates
  */
-public interface Int7Creator<T> extends ObjectCreator<T> {
+@FunctionalInterface
+public interface Int7Constructor<T> extends ObjectReader<T> {
 
     @Override
-    default T create(Context context) {
+    default T read(@NotNull Context context) {
         return create(context.readInt(), context.readInt(), context.readInt(), context.readInt(), context.readInt(),
                 context.readInt(), context.readInt());
     }

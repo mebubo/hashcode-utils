@@ -5,7 +5,8 @@ import org.hildan.hashcode.utils.examples.streaming.model.Latency;
 import org.hildan.hashcode.utils.examples.streaming.model.RequestDesc;
 import org.hildan.hashcode.utils.examples.streaming.model.StreamingProblem;
 import org.hildan.hashcode.utils.parser.HCParser;
-import org.hildan.hashcode.utils.parser.readers.RootReader;
+import org.hildan.hashcode.utils.parser.readers.HCReader;
+import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -26,28 +27,29 @@ public class StreamingExample {
                     + "4 0 500\n"  // 500 requests for video 4 coming from endpoint 0.
                     + "1 0 1000";  // 1000 requests for video 1 coming from endpoint 0.
 
-    private static RootReader<StreamingProblem> createReader() {
-        RootReader<Latency> latencyReader = RootReader.of(Latency::new).fieldsAndVarsLine("cacheId", "latency");
+    private static ObjectReader<StreamingProblem> createReader() {
+        ObjectReader<Latency> latencyReader = HCReader.of(Latency::new).fieldsAndVarsLine("cacheId", "latency");
 
-        RootReader<RequestDesc> requestReader = RootReader.of(RequestDesc::new)
+        ObjectReader<RequestDesc> requestReader = HCReader.of(RequestDesc::new)
                                                           .fieldsAndVarsLine("videoId", "endpointId", "count");
 
-        RootReader<Endpoint> endpointReader = RootReader.of(Endpoint::new)
+        ObjectReader<Endpoint> endpointReader = HCReader.of(Endpoint::new)
                                                         .field("dcLatency")
                                                         .var("K")
                                                         .array(Endpoint::setLatencies, Latency[]::new, "K",
-                                                                latencyReader);
+                                                                        latencyReader);
 
-        return RootReader.of(StreamingProblem::new)
-                         .fieldsAndVarsLine("nVideos", "nEndpoints@E", "nRequestDescriptions@R", "nCaches", "cacheSize")
-                         .intArrayLine((sp, arr) -> sp.videoSizes = arr)
-                         .array((sp, arr) -> sp.endpoints = arr, Endpoint[]::new, "E", endpointReader)
-                         .array((sp, arr) -> sp.requestDescs = arr, RequestDesc[]::new, "R", requestReader);
+        return HCReader.of(StreamingProblem::new)
+                       .fieldsAndVarsLine("nVideos", "nEndpoints@E", "nRequestDescriptions@R", "nCaches",
+                                       "cacheSize")
+                       .intArrayLine((sp, arr) -> sp.videoSizes = arr)
+                       .array((sp, arr) -> sp.endpoints = arr, Endpoint[]::new, "E", endpointReader)
+                       .array((sp, arr) -> sp.requestDescs = arr, RequestDesc[]::new, "R", requestReader);
     }
 
     @Test
     public void test_parser() {
-        RootReader<StreamingProblem> rootReader = createReader();
+        ObjectReader<StreamingProblem> rootReader = createReader();
         HCParser<StreamingProblem> parser = new HCParser<>(rootReader);
         StreamingProblem problem = parser.parse(input);
 

@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.hildan.hashcode.utils.parser.HCParser;
-import org.hildan.hashcode.utils.parser.readers.RootReader;
+import org.hildan.hashcode.utils.parser.readers.HCReader;
+import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,7 +45,7 @@ public class HCSolverTest {
 
     @Before
     public void setUp() throws IOException {
-        RootReader<Input> inputReader = RootReader.of(Input::new) //
+        ObjectReader<Input> inputReader = HCReader.of(Input::new) //
                                                   .fieldsAndVarsLine("num") //
                                                   .stringArrayLine((i, s) -> i.items = s);
         HCParser<Input> parser = new HCParser<>(inputReader);

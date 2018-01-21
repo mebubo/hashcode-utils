@@ -6,7 +6,8 @@ import org.hildan.hashcode.utils.examples.satellites.model.Satellite;
 import org.hildan.hashcode.utils.examples.satellites.model.Simulation;
 import org.hildan.hashcode.utils.parser.HCParser;
 import org.hildan.hashcode.utils.parser.readers.ChildReader;
-import org.hildan.hashcode.utils.parser.readers.RootReader;
+import org.hildan.hashcode.utils.parser.readers.HCReader;
+import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -31,31 +32,31 @@ public class Satellites {
             + "175889 8260\n" // The Eiffel Tower.
             + "3300 3599\n";  // The images need to be taken in the last 5 minutes.
 
-    private static RootReader<Simulation> createReader() {
+    private static ObjectReader<Simulation> createReader() {
 
-        RootReader<Satellite> satelliteReader = RootReader.of(Satellite::new);
+        ObjectReader<Satellite> satelliteReader = HCReader.of(Satellite::new);
 
-        RootReader<int[]> rangeReader = RootReader.of((lat, lgt) -> new int[]{lat, lgt});
+        ObjectReader<int[]> rangeReader = HCReader.of((lat, lgt) -> new int[]{lat, lgt});
 
         ChildReader<Location, ImageCollection> locationsReader =
                 (ctx, parent) -> new Location(parent, ctx.readInt(), ctx.readInt());
 
-        RootReader<ImageCollection> collectionReader = RootReader.withVars("V", "L", "R")
+        ObjectReader<ImageCollection> collectionReader = HCReader.withVars("V", "L", "R")
                                                                  .of(ImageCollection::new, "V")
                                                                  .array((coll, arr) -> coll.locations = arr,
                                                                          Location[]::new, "L", locationsReader)
                                                                  .array((coll, arr) -> coll.ranges = arr, int[][]::new,
                                                                          "R", rangeReader);
-        return RootReader.of(Simulation::new)
-                         .var("S")
-                         .array((p, arr) -> p.satellites = arr, Satellite[]::new, "S", satelliteReader)
-                         .fieldsAndVarsLine("@C")
-                         .array((p, arr) -> p.collections = arr, ImageCollection[]::new, "C", collectionReader);
+        return HCReader.of(Simulation::new)
+                       .var("S")
+                       .array((p, arr) -> p.satellites = arr, Satellite[]::new, "S", satelliteReader)
+                       .fieldsAndVarsLine("@C")
+                       .array((p, arr) -> p.collections = arr, ImageCollection[]::new, "C", collectionReader);
     }
 
     @Test
     public void test_parser() {
-        RootReader<Simulation> rootReader = createReader();
+        ObjectReader<Simulation> rootReader = createReader();
         HCParser<Simulation> parser = new HCParser<>(rootReader);
         Simulation problem = parser.parse(input);
 
