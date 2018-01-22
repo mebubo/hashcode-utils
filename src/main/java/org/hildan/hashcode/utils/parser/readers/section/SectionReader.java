@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.ObjIntConsumer;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
@@ -37,6 +39,55 @@ public interface SectionReader<T> {
      *         if something went wrong while reading the input
      */
     void readAndSet(@NotNull Context context, @Nullable T object) throws InputParsingException;
+
+    /**
+     * Returns a {@link SectionReader} that reads a string and sets it on the target object, consuming as much input
+     * as necessary.
+     *
+     * @param setter
+     *         the setter to use to set the value on the target object
+     * @param <T>
+     *         the type of object that the returned {@code SectionReader} updates
+     *
+     * @return a {@link SectionReader} that reads a value and sets it on the target object
+     */
+    static <T> SectionReader<T> ofString(BiConsumer<T, ? super String> setter) {
+        return (ctx, obj) -> setter.accept(obj, ctx.readString());
+    }
+
+    /**
+     * Returns a {@link SectionReader} that reads an int and sets it on the target object, consuming as much input
+     * as necessary.
+     *
+     * @param setter
+     *         the setter to use to set the value on the target object
+     * @param <T>
+     *         the type of object that the returned {@code SectionReader} updates
+     *
+     * @return a {@link SectionReader} that reads a value and sets it on the target object
+     */
+    static <T> SectionReader<T> ofInt(ObjIntConsumer<T> setter) {
+        return (ctx, obj) -> setter.accept(obj, ctx.readInt());
+    }
+
+    /**
+     * Returns a {@link SectionReader} that reads a value and sets it on the target object, consuming as much input
+     * as necessary.
+     *
+     * @param setter
+     *         the setter to use to set the value on the target object
+     * @param valueConverter
+     *         a function to convert the string token read from the input into the value to set
+     * @param <V>
+     *         the type of value that the given converter yields
+     * @param <T>
+     *         the type of object that the returned {@code SectionReader} updates
+     *
+     * @return a {@link SectionReader} that reads a value and sets it on the target object
+     */
+    static <V, T> SectionReader<T> ofObj(BiConsumer<T, ? super V> setter, Function<String, V> valueConverter) {
+        return (ctx, obj) -> setter.accept(obj, valueConverter.apply(ctx.readString()));
+    }
 
     /**
      * Returns a {@link SectionReader} that reads a value and sets it on the target object, consuming as much input

@@ -36,7 +36,7 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
 
     /**
      * Creates a new {@code ContainerReader} that may read the expected number of items from the parent object or a
-     * context variable.
+     * context variable using the provided size getter function.
      *
      * @param constructor
      *         a constructor to create a new container, given the size as input
@@ -48,7 +48,8 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
      * @param itemReader
      *         a child reader used to read each item
      */
-    private ContainerReader(IntFunction<? extends C> constructor, BiFunction<? super P, Context, Integer> getSize,
+    @SuppressWarnings("WeakerAccess")
+    protected ContainerReader(IntFunction<? extends C> constructor, BiFunction<? super P, Context, Integer> getSize,
             AddFunction<? super E, ? super C> addFunction, ChildReader<? extends E, ? super P> itemReader) {
         this.constructor = constructor;
         this.itemReader = itemReader;

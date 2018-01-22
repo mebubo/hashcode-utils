@@ -51,13 +51,13 @@ public class HCParserTest {
     @Test
     public void test() {
 
-        ObjectReader<Point> pointReader = HCReader.of(Point::new).fieldsAndVarsLine("x", "y");
+        ObjectReader<Point> pointReader = HCReader.create(Point::new).fieldsAndVarsLine("x", "y");
 
-        ObjectReader<Shape> shapeReader = HCReader.of(Shape::new)
+        ObjectReader<Shape> shapeReader = HCReader.create(Shape::new)
                                                   .fieldsAndVarsLine("name", "nPoints")
                                                   .list((o, l) -> o.points = l, o -> o.nPoints, pointReader);
 
-        ObjectReader<Problem> problemReader = HCReader.of(Problem::new)
+        ObjectReader<Problem> problemReader = HCReader.create(Problem::new)
                                                       .fieldsAndVarsLine("param1", "param2", "nShapes@N")
                                                       .array((p, l) -> p.shapes = l, Shape[]::new, "N", shapeReader);
 

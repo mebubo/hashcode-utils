@@ -1,7 +1,7 @@
 package org.hildan.hashcode.utils.parser.readers.constructors;
 
 /**
- * Stands for a constructor with multiple int arguments.
+ * The type of a constructor with an int array as single argument.
  *
  * @param <T>
  *         the type of objects that this constructor creates
@@ -16,5 +16,5 @@ public interface IntArrayConstructor<T> {
      *
      * @return the created object
      */
-    T create(int... args);
+    T create(int[] args);
 }

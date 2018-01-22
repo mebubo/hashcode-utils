@@ -34,23 +34,23 @@ public class Satellites {
 
     private static ObjectReader<Simulation> createReader() {
 
-        ObjectReader<Satellite> satelliteReader = HCReader.of(Satellite::new);
+        ObjectReader<Satellite> satelliteReader = HCReader.createFrom5Ints(Satellite::new);
 
-        ObjectReader<int[]> rangeReader = HCReader.of((lat, lgt) -> new int[]{lat, lgt});
+        ObjectReader<int[]> rangeReader = HCReader.createFrom2Ints((lat, lgt) -> new int[]{lat, lgt});
 
         ChildReader<Location, ImageCollection> locationsReader =
                 (ctx, parent) -> new Location(parent, ctx.readInt(), ctx.readInt());
 
         ObjectReader<ImageCollection> collectionReader = HCReader.withVars("V", "L", "R")
-                                                                 .of(ImageCollection::new, "V")
+                                                                 .createFromVar(ImageCollection::new, "V")
                                                                  .array((coll, arr) -> coll.locations = arr,
                                                                          Location[]::new, "L", locationsReader)
                                                                  .array((coll, arr) -> coll.ranges = arr, int[][]::new,
                                                                          "R", rangeReader);
-        return HCReader.of(Simulation::new)
-                       .var("S")
+        return HCReader.createFromInt(Simulation::new)
+                       .vars("S")
                        .array((p, arr) -> p.satellites = arr, Satellite[]::new, "S", satelliteReader)
-                       .fieldsAndVarsLine("@C")
+                       .vars("C")
                        .array((p, arr) -> p.collections = arr, ImageCollection[]::new, "C", collectionReader);
     }
 

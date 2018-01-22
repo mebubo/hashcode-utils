@@ -76,6 +76,26 @@ public class Context {
     }
 
     /**
+     * Scans the next token of the input as a string and stores the value into the given variable.
+     *
+     * @param variableName
+     *         the name of the variable to write
+     *
+     * @return the string scanned from the input
+     *
+     * @throws NoMoreLinesToReadException
+     *         if there is no more lines to read
+     * @throws InputParsingException
+     *         if an error occurs while reading the input
+     */
+    @NotNull
+    public String readIntoVariable(String variableName) throws NoMoreLinesToReadException {
+        String value = scanner.nextString();
+        setVariable(variableName, value);
+        return value;
+    }
+
+    /**
      * Releases potential resources used by the reader. Should be called when parsing is over.
      *
      * @throws IncompleteInputReadException

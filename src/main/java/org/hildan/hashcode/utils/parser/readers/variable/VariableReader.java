@@ -1,5 +1,6 @@
 package org.hildan.hashcode.utils.parser.readers.variable;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
@@ -27,8 +28,6 @@ public class VariableReader implements Consumer<Context> {
      */
     @Override
     public void accept(Context context) throws InputParsingException {
-        for (String var : variableNames) {
-            context.setVariable(var, context.readString());
-        }
+        Arrays.stream(variableNames).forEach(context::readIntoVariable);
     }
 }

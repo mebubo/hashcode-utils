@@ -1,5 +1,13 @@
 package org.hildan.hashcode.utils.parser.readers.container;
 
+/**
+ * A function that adds elements to a container.
+ *
+ * @param <E>
+ *         the type of the elements in the container
+ * @param <C>
+ *         the type of the container
+ */
 @FunctionalInterface
 public interface AddFunction<E, C> {
 

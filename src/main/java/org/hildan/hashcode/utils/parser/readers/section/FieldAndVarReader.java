@@ -4,6 +4,7 @@ import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.reflect.ReflectUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A {@link SectionReader} that reads a value and injects it in a field of the parent object, and/or a context variable.
@@ -46,7 +47,7 @@ public class FieldAndVarReader<P> implements SectionReader<P> {
     }
 
     @Override
-    public void readAndSet(@NotNull Context context, @NotNull P object) throws InputParsingException {
+    public void readAndSet(@NotNull Context context, @Nullable P object) throws InputParsingException {
         String value = context.readString();
         if (variableName != null) {
             context.setVariable(variableName, value);

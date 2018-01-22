@@ -45,7 +45,7 @@ public class HCSolverTest {
 
     @Before
     public void setUp() throws IOException {
-        ObjectReader<Input> inputReader = HCReader.of(Input::new) //
+        ObjectReader<Input> inputReader = HCReader.create(Input::new) //
                                                   .fieldsAndVarsLine("num") //
                                                   .stringArrayLine((i, s) -> i.items = s);
         HCParser<Input> parser = new HCParser<>(inputReader);

@@ -28,18 +28,18 @@ public class StreamingExample {
                     + "1 0 1000";  // 1000 requests for video 1 coming from endpoint 0.
 
     private static ObjectReader<StreamingProblem> createReader() {
-        ObjectReader<Latency> latencyReader = HCReader.of(Latency::new).fieldsAndVarsLine("cacheId", "latency");
+        ObjectReader<Latency> latencyReader = HCReader.create(Latency::new).fieldsAndVarsLine("cacheId", "latency");
 
-        ObjectReader<RequestDesc> requestReader = HCReader.of(RequestDesc::new)
+        ObjectReader<RequestDesc> requestReader = HCReader.create(RequestDesc::new)
                                                           .fieldsAndVarsLine("videoId", "endpointId", "count");
 
-        ObjectReader<Endpoint> endpointReader = HCReader.of(Endpoint::new)
+        ObjectReader<Endpoint> endpointReader = HCReader.create(Endpoint::new)
                                                         .field("dcLatency")
-                                                        .var("K")
+                                                        .vars("K")
                                                         .array(Endpoint::setLatencies, Latency[]::new, "K",
                                                                         latencyReader);
 
-        return HCReader.of(StreamingProblem::new)
+        return HCReader.create(StreamingProblem::new)
                        .fieldsAndVarsLine("nVideos", "nEndpoints@E", "nRequestDescriptions@R", "nCaches",
                                        "cacheSize")
                        .intArrayLine((sp, arr) -> sp.videoSizes = arr)

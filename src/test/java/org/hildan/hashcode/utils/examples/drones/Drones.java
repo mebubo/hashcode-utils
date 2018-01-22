@@ -35,21 +35,21 @@ public class Drones {
 
     private static ObjectReader<Simulation> createReader() {
 
-        ObjectReader<Warehouse> warehouseReader = HCReader.of(Warehouse::new) // implicitly parses the row and col
+        ObjectReader<Warehouse> warehouseReader = HCReader.createFrom2Ints(Warehouse::new)
                                                           .intArrayLine((w, arr) -> w.stocks = arr);
 
+        // Here we re-use the variable P that is read by the root reader below
         ObjectReader<Order> orderReader = HCReader.withVars("x", "y")
-                                                  // P is already available since the first line of input, we re-use it
-                                                  .of(Order::new, "x", "y", "P")
+                                                  .createFrom3Vars(Order::new, "x", "y", "P")
                                                   .skip() // skip the item count as we take the whole next line anyway
                                                   .intArrayLine(Order::setItems);
 
         return HCReader.withVars("nRows", "nCols", "D", "nTurns", "maxLoad", "P")
-                       .of(Simulation::new, "nRows", "nCols", "D", "nTurns", "maxLoad", "P")
+                       .createFrom6Vars(Simulation::new, "nRows", "nCols", "D", "nTurns", "maxLoad", "P")
                        .intArrayLine((p, arr) -> p.productTypeWeights = arr)
-                       .var("W")
+                       .vars("W")
                        .array((p, arr) -> p.warehouses = arr, Warehouse[]::new, "W", warehouseReader)
-                       .var("C")
+                       .vars("C")
                        .array(Simulation::setOrders, Order[]::new, "C", orderReader);
     }
 
