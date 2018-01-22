@@ -95,7 +95,26 @@ public class LineNumberScanner implements Closeable, AutoCloseable {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new InputParsingException(getLineNumber(), "expected integer, got '" + value + "'", e);
+            throw new InputParsingException(getLineNumber(), "expected int, got '" + value + "'", e);
+        }
+    }
+
+    /**
+     * Scans the next token of the input as a double.
+     *
+     * @return the double scanned from the input
+     *
+     * @throws NoMoreLinesToReadException
+     *         if there is no more lines to read
+     * @throws InputParsingException
+     *         if the input could not be parsed as an int
+     */
+    public double nextDouble() throws InputParsingException {
+        String value = nextString();
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            throw new InputParsingException(getLineNumber(), "expected double, got '" + value + "'", e);
         }
     }
 
