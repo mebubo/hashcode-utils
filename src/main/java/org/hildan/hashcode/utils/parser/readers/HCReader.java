@@ -182,7 +182,7 @@ public class HCReader {
 
         private final Consumer<Context> variableReader;
 
-        public WithVars(String... variableNames) {
+        WithVars(String... variableNames) {
             this.variableReader = new VariableReader(variableNames);
         }
 

@@ -34,6 +34,9 @@ public class Context {
     /**
      * Skips the next n tokens of input.
      *
+     * @param n
+     *         the number of tokens to skip (0 makes this method a noop)
+     *
      * @throws NoMoreLinesToReadException
      *         if there is no more lines to read
      * @throws InputParsingException

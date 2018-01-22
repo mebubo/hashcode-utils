@@ -11,4 +11,12 @@ public class ImageCollection {
     public ImageCollection(int value) {
         this.value = value;
     }
+
+    public void setLocations(Location[] locations) {
+        this.locations = locations;
+    }
+
+    public void setRanges(int[][] ranges) {
+        this.ranges = ranges;
+    }
 }

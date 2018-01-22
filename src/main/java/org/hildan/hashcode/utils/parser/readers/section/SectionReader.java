@@ -6,6 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.ObjDoubleConsumer;
 import java.util.function.ObjIntConsumer;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
@@ -17,9 +18,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * A reader that consumes as much input as necessary (a possibly multi-line "section") to update a previously created
- * object.
- * <p>
- * For instance, this may be used to read an object from the input and set it as a field/property of a parent object.
+ * object. <p> For instance, this may be used to read an object from the input and set it as a field/property of a
+ * parent object.
  *
  * @param <T>
  *         the type of object that this {@code SectionReader} can update
@@ -41,8 +41,8 @@ public interface SectionReader<T> {
     void readAndSet(@NotNull Context context, @Nullable T object) throws InputParsingException;
 
     /**
-     * Returns a {@link SectionReader} that reads a string and sets it on the target object, consuming as much input
-     * as necessary.
+     * Returns a {@link SectionReader} that reads a string and sets it on the target object, consuming as much input as
+     * necessary.
      *
      * @param setter
      *         the setter to use to set the value on the target object
@@ -51,13 +51,13 @@ public interface SectionReader<T> {
      *
      * @return a {@link SectionReader} that reads a value and sets it on the target object
      */
-    static <T> SectionReader<T> ofString(BiConsumer<T, ? super String> setter) {
+    static <T> SectionReader<T> settingString(BiConsumer<T, ? super String> setter) {
         return (ctx, obj) -> setter.accept(obj, ctx.readString());
     }
 
     /**
-     * Returns a {@link SectionReader} that reads an int and sets it on the target object, consuming as much input
-     * as necessary.
+     * Returns a {@link SectionReader} that reads an int and sets it on the target object, consuming as much input as
+     * necessary.
      *
      * @param setter
      *         the setter to use to set the value on the target object
@@ -66,13 +66,28 @@ public interface SectionReader<T> {
      *
      * @return a {@link SectionReader} that reads a value and sets it on the target object
      */
-    static <T> SectionReader<T> ofInt(ObjIntConsumer<T> setter) {
+    static <T> SectionReader<T> settingInt(ObjIntConsumer<T> setter) {
         return (ctx, obj) -> setter.accept(obj, ctx.readInt());
     }
 
     /**
-     * Returns a {@link SectionReader} that reads a value and sets it on the target object, consuming as much input
-     * as necessary.
+     * Returns a {@link SectionReader} that reads a double and sets it on the target object, consuming as much input as
+     * necessary.
+     *
+     * @param setter
+     *         the setter to use to set the value on the target object
+     * @param <T>
+     *         the type of object that the returned {@code SectionReader} updates
+     *
+     * @return a {@link SectionReader} that reads a value and sets it on the target object
+     */
+    static <T> SectionReader<T> settingDouble(ObjDoubleConsumer<T> setter) {
+        return (ctx, obj) -> setter.accept(obj, ctx.readDouble());
+    }
+
+    /**
+     * Returns a {@link SectionReader} that reads a value and sets it on the target object, consuming as much input as
+     * necessary.
      *
      * @param setter
      *         the setter to use to set the value on the target object
@@ -85,44 +100,46 @@ public interface SectionReader<T> {
      *
      * @return a {@link SectionReader} that reads a value and sets it on the target object
      */
-    static <V, T> SectionReader<T> ofObj(BiConsumer<T, ? super V> setter, Function<String, V> valueConverter) {
+    static <V, T> SectionReader<T> settingObject(BiConsumer<T, ? super V> setter,
+            Function<? super String, V> valueConverter) {
         return (ctx, obj) -> setter.accept(obj, valueConverter.apply(ctx.readString()));
     }
 
     /**
-     * Returns a {@link SectionReader} that reads a value and sets it on the target object, consuming as much input
-     * as necessary.
+     * Returns a {@link SectionReader} that reads a child object and sets it on the target object, consuming as much
+     * input as necessary.
      *
      * @param setter
      *         the setter to use to set the value on the target object
      * @param valueReader
-     *         the reader to use to read the value to set
+     *         the reader to use to read the child object to set
      * @param <V>
-     *         the type of the value to set, which the given {@link ChildReader} creates
+     *         the type of the child object to set, which the given {@link ChildReader} creates
      * @param <T>
      *         the type of object that the returned {@code SectionReader} updates
      *
      * @return a {@link SectionReader} that reads a value and sets it on the target object
      */
-    static <V, T> SectionReader<T> of(BiConsumer<? super T, ? super V> setter,
+    static <V, T> SectionReader<T> settingChild(BiConsumer<? super T, ? super V> setter,
             ChildReader<? extends V, ? super T> valueReader) {
         return (ctx, obj) -> setter.accept(obj, valueReader.read(ctx, obj));
     }
 
-    static <E, P> SectionReader<P> ofArray(BiConsumer<? super P, ? super E[]> setter, IntFunction<E[]> arrayCreator,
-            BiFunction<? super P, Context, Integer> getSize, ChildReader<? extends E, ? super P> itemReader) {
-        return of(setter, ContainerReader.ofArray(arrayCreator, getSize, itemReader));
+    static <E, P> SectionReader<P> settingArray(BiConsumer<? super P, ? super E[]> setter,
+            IntFunction<E[]> arrayCreator, BiFunction<? super P, Context, Integer> getSize,
+            ChildReader<? extends E, ? super P> itemReader) {
+        return settingChild(setter, ContainerReader.ofArray(getSize, itemReader, arrayCreator));
     }
 
-    static <E, P> SectionReader<P> ofList(BiConsumer<? super P, ? super List<E>> setter,
+    static <E, P> SectionReader<P> settingList(BiConsumer<? super P, ? super List<E>> setter,
             BiFunction<? super P, Context, Integer> getSize, ChildReader<? extends E, ? super P> itemReader) {
         ChildReader<List<E>, P> listReader = ContainerReader.ofList(getSize, itemReader);
-        return of(setter, listReader);
+        return settingChild(setter, listReader);
     }
 
-    static <E, C extends Collection<E>, P> SectionReader<P> ofCollection(BiConsumer<? super P, ? super C> setter,
+    static <E, C extends Collection<E>, P> SectionReader<P> settingCollection(BiConsumer<? super P, ? super C> setter,
             IntFunction<C> constructor, BiFunction<? super P, Context, Integer> getSize,
             ChildReader<? extends E, ? super P> itemReader) {
-        return of(setter, ContainerReader.ofCollection(constructor, getSize, itemReader));
+        return settingChild(setter, ContainerReader.ofCollection(getSize, itemReader, constructor));
     }
 }

@@ -27,29 +27,32 @@ public class StreamingExample {
                     + "4 0 500\n"  // 500 requests for video 4 coming from endpoint 0.
                     + "1 0 1000";  // 1000 requests for video 1 coming from endpoint 0.
 
-    private static ObjectReader<StreamingProblem> createReader() {
-        ObjectReader<Latency> latencyReader = HCReader.create(Latency::new).fieldsAndVarsLine("cacheId", "latency");
-
-        ObjectReader<RequestDesc> requestReader = HCReader.create(RequestDesc::new)
-                                                          .fieldsAndVarsLine("videoId", "endpointId", "count");
-
-        ObjectReader<Endpoint> endpointReader = HCReader.create(Endpoint::new)
-                                                        .field("dcLatency")
-                                                        .vars("K")
-                                                        .array(Endpoint::setLatencies, Latency[]::new, "K",
-                                                                        latencyReader);
-
+    private static ObjectReader<StreamingProblem> streamingProblemReader() {
         return HCReader.create(StreamingProblem::new)
-                       .fieldsAndVarsLine("nVideos", "nEndpoints@E", "nRequestDescriptions@R", "nCaches",
-                                       "cacheSize")
-                       .intArrayLine((sp, arr) -> sp.videoSizes = arr)
-                       .array((sp, arr) -> sp.endpoints = arr, Endpoint[]::new, "E", endpointReader)
-                       .array((sp, arr) -> sp.requestDescs = arr, RequestDesc[]::new, "R", requestReader);
+                       .thenFieldsAndVars("nVideos", "nEndpoints@E", "nRequestDescriptions@R", "nCaches", "cacheSize")
+                       .thenIntArrayLine((sp, arr) -> sp.videoSizes = arr)
+                       .thenArray((sp, arr) -> sp.endpoints = arr, Endpoint[]::new, "E", endpointReader())
+                       .thenArray((sp, arr) -> sp.requestDescs = arr, RequestDesc[]::new, "R", requestReader());
+    }
+
+    private static ObjectReader<Endpoint> endpointReader() {
+        return HCReader.create(Endpoint::new)
+                       .thenField("dcLatency")
+                       .thenVar("K")
+                       .thenArray(Endpoint::setLatencies, Latency[]::new, "K", latencyReader());
+    }
+
+    private static ObjectReader<Latency> latencyReader() {
+        return HCReader.create(Latency::new).thenFields("cacheId", "latency");
+    }
+
+    private static ObjectReader<RequestDesc> requestReader() {
+        return HCReader.create(RequestDesc::new).thenFields("videoId", "endpointId", "count");
     }
 
     @Test
     public void test_parser() {
-        ObjectReader<StreamingProblem> rootReader = createReader();
+        ObjectReader<StreamingProblem> rootReader = streamingProblemReader();
         HCParser<StreamingProblem> parser = new HCParser<>(rootReader);
         StreamingProblem problem = parser.parse(input);
 

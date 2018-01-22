@@ -34,23 +34,24 @@ public class Drones {
                     + "2\n";     // Items of product types: 2
 
     private static ObjectReader<Simulation> createReader() {
-
-        ObjectReader<Warehouse> warehouseReader = HCReader.createFrom2Ints(Warehouse::new)
-                                                          .intArrayLine((w, arr) -> w.stocks = arr);
-
-        // Here we re-use the variable P that is read by the root reader below
-        ObjectReader<Order> orderReader = HCReader.withVars("x", "y")
-                                                  .createFrom3Vars(Order::new, "x", "y", "P")
-                                                  .skip() // skip the item count as we take the whole next line anyway
-                                                  .intArrayLine(Order::setItems);
-
         return HCReader.withVars("nRows", "nCols", "D", "nTurns", "maxLoad", "P")
                        .createFrom6Vars(Simulation::new, "nRows", "nCols", "D", "nTurns", "maxLoad", "P")
-                       .intArrayLine((p, arr) -> p.productTypeWeights = arr)
-                       .vars("W")
-                       .array((p, arr) -> p.warehouses = arr, Warehouse[]::new, "W", warehouseReader)
-                       .vars("C")
-                       .array(Simulation::setOrders, Order[]::new, "C", orderReader);
+                       .thenIntArrayLine((p, arr) -> p.productTypeWeights = arr)
+                       .thenVar("W")
+                       .thenArray((p, arr) -> p.warehouses = arr, Warehouse[]::new, "W", warehouseReader())
+                       .thenVar("C")
+                       .thenArray(Simulation::setOrders, Order[]::new, "C", orderReader("P"));
+    }
+
+    private static ObjectReader<Warehouse> warehouseReader() {
+        return HCReader.createFrom2Ints(Warehouse::new).thenIntArrayLine((w, arr) -> w.stocks = arr);
+    }
+
+    private static ObjectReader<Order> orderReader(String nProductTypesVarName) {
+        return HCReader.withVars("x", "y")
+                       .createFrom3Vars(Order::new, "x", "y", nProductTypesVarName)
+                       .thenSkip(1) // skip the item count as we take the whole next line
+                       .thenIntArrayLine(Order::setItems);
     }
 
     @Test

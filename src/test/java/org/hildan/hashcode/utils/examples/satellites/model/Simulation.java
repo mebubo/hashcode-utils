@@ -30,4 +30,12 @@ public class Simulation {
     public Simulation(int nTurns) {
         this.nTurns = nTurns;
     }
+
+    public void setCollections(ImageCollection[] collections) {
+        this.collections = collections;
+    }
+
+    public void setSatellites(Satellite[] satellites) {
+        this.satellites = satellites;
+    }
 }

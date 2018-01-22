@@ -32,31 +32,40 @@ public class Satellites {
             + "175889 8260\n" // The Eiffel Tower.
             + "3300 3599\n";  // The images need to be taken in the last 5 minutes.
 
-    private static ObjectReader<Simulation> createReader() {
-
-        ObjectReader<Satellite> satelliteReader = HCReader.createFrom5Ints(Satellite::new);
-
-        ObjectReader<int[]> rangeReader = HCReader.createFrom2Ints((lat, lgt) -> new int[]{lat, lgt});
-
-        ChildReader<Location, ImageCollection> locationsReader =
-                (ctx, parent) -> new Location(parent, ctx.readInt(), ctx.readInt());
-
-        ObjectReader<ImageCollection> collectionReader = HCReader.withVars("V", "L", "R")
-                                                                 .createFromVar(ImageCollection::new, "V")
-                                                                 .array((coll, arr) -> coll.locations = arr,
-                                                                         Location[]::new, "L", locationsReader)
-                                                                 .array((coll, arr) -> coll.ranges = arr, int[][]::new,
-                                                                         "R", rangeReader);
+    private static ObjectReader<Simulation> simulationReader() {
         return HCReader.createFromInt(Simulation::new)
-                       .vars("S")
-                       .array((p, arr) -> p.satellites = arr, Satellite[]::new, "S", satelliteReader)
-                       .vars("C")
-                       .array((p, arr) -> p.collections = arr, ImageCollection[]::new, "C", collectionReader);
+                       .thenVar("S")
+                       .thenArray(Simulation::setSatellites, Satellite[]::new, "S", satelliteReader())
+                       .thenVar("C")
+                       .thenArray(Simulation::setCollections, ImageCollection[]::new, "C", imgCollectionReader());
+    }
+
+    private static ObjectReader<Satellite> satelliteReader() {
+        return HCReader.createFrom5Ints(Satellite::new);
+    }
+
+    private static ObjectReader<ImageCollection> imgCollectionReader() {
+        return HCReader.withVars("V", "L", "R")
+                       .createFromVar(ImageCollection::new, "V")
+                       .thenArray(ImageCollection::setLocations, Location[]::new, "L", locationReader())
+                       .thenArray(ImageCollection::setRanges, int[][]::new, "R", rangeReader());
+    }
+
+    private static ChildReader<Location, ImageCollection> locationReader() {
+        return (ctx, parentCollection) -> {
+            int latitude = ctx.readInt();
+            int longitude = ctx.readInt();
+            return new Location(parentCollection, latitude, longitude);
+        };
+    }
+
+    private static ObjectReader<int[]> rangeReader() {
+        return HCReader.createFrom2Ints((lat, lgt) -> new int[] {lat, lgt});
     }
 
     @Test
     public void test_parser() {
-        ObjectReader<Simulation> rootReader = createReader();
+        ObjectReader<Simulation> rootReader = simulationReader();
         HCParser<Simulation> parser = new HCParser<>(rootReader);
         Simulation problem = parser.parse(input);
 
@@ -64,13 +73,13 @@ public class Satellites {
         assertEquals(2, problem.satellites.length);
 
         Satellite sat0 = problem.satellites[0];
-        assertArrayEquals(new int[]{170000, 8300}, sat0.position);
+        assertArrayEquals(new int[] {170000, 8300}, sat0.position);
         assertEquals(300, sat0.latitudeVelocity);
         assertEquals(50, sat0.maxOrientationChangePerTurn);
         assertEquals(500, sat0.maxOrientationValue);
 
         Satellite sat1 = problem.satellites[1];
-        assertArrayEquals(new int[]{180000, 8300}, sat1.position);
+        assertArrayEquals(new int[] {180000, 8300}, sat1.position);
         assertEquals(-300, sat1.latitudeVelocity);
         assertEquals(50, sat1.maxOrientationChangePerTurn);
         assertEquals(500, sat1.maxOrientationValue);
@@ -84,9 +93,9 @@ public class Satellites {
 
         Location loc00 = coll0.locations[0];
         assertEquals(coll0, loc00.parentCollection);
-        assertArrayEquals(new int[]{175958, 8387}, loc00.coords);
+        assertArrayEquals(new int[] {175958, 8387}, loc00.coords);
 
-        assertArrayEquals(new int[]{0, 3599}, coll0.ranges[0]);
+        assertArrayEquals(new int[] {0, 3599}, coll0.ranges[0]);
 
         ImageCollection coll1 = problem.collections[1];
         assertEquals(100, coll1.value);
@@ -95,10 +104,10 @@ public class Satellites {
 
         Location loc10 = coll1.locations[0];
         assertEquals(coll1, loc10.parentCollection);
-        assertArrayEquals(new int[]{175889, 8260}, loc10.coords);
+        assertArrayEquals(new int[] {175889, 8260}, loc10.coords);
 
-        assertArrayEquals(new int[]{0, 900}, coll1.ranges[0]);
-        assertArrayEquals(new int[]{2700, 3599}, coll1.ranges[1]);
+        assertArrayEquals(new int[] {0, 900}, coll1.ranges[0]);
+        assertArrayEquals(new int[] {2700, 3599}, coll1.ranges[1]);
 
         ImageCollection coll2 = problem.collections[2];
         assertEquals(300, coll2.value);
@@ -107,12 +116,12 @@ public class Satellites {
 
         Location loc20 = coll2.locations[0];
         assertEquals(coll2, loc20.parentCollection);
-        assertArrayEquals(new int[]{175958, 8387}, loc20.coords);
+        assertArrayEquals(new int[] {175958, 8387}, loc20.coords);
 
         Location loc21 = coll2.locations[1];
         assertEquals(coll2, loc21.parentCollection);
-        assertArrayEquals(new int[]{175889, 8260}, loc21.coords);
+        assertArrayEquals(new int[] {175889, 8260}, loc21.coords);
 
-        assertArrayEquals(new int[]{3300, 3599}, coll2.ranges[0]);
+        assertArrayEquals(new int[] {3300, 3599}, coll2.ranges[0]);
     }
 }

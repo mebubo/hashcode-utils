@@ -1,18 +1,20 @@
 package org.hildan.hashcode.utils.parser.readers;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.ObjDoubleConsumer;
 import java.util.function.ObjIntConsumer;
 
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
 import org.hildan.hashcode.utils.parser.readers.line.LineReader;
 import org.hildan.hashcode.utils.parser.readers.section.FieldAndVarReader;
-import org.hildan.hashcode.utils.parser.readers.section.FieldsAndVarsLineReader;
+import org.hildan.hashcode.utils.parser.readers.section.FieldsAndVarsReader;
 import org.hildan.hashcode.utils.parser.readers.section.SectionReader;
 import org.hildan.hashcode.utils.parser.readers.variable.VariableReader;
 import org.jetbrains.annotations.NotNull;
@@ -21,10 +23,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Reads an object from the current {@link Context}, consuming as much input as necessary. An {@code ObjectReader}
  * creates an object that is either the root of the object tree, or is independent from the parent object within which
- * it's being constructed.
- * <p>
- * This is anyway an extension of {@link ChildReader}, because it can be constructed in the context of a parent object,
- * but simply doesn't care about its parent.
+ * it's being constructed. <p> This is anyway an extension of {@link ChildReader}, because it can be constructed in the
+ * context of a parent object, but simply doesn't care about its parent.
  *
  * @param <T>
  *         the type of object this {@code ObjectReader} creates
@@ -43,7 +43,8 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      * @throws InputParsingException
      *         if something went wrong when reading the input
      */
-    @Nullable T read(@NotNull Context context) throws InputParsingException;
+    @Nullable
+    T read(@NotNull Context context) throws InputParsingException;
 
     @Override
     @Nullable
@@ -93,13 +94,16 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
     }
 
     /**
-     * Returns a new {@link ObjectReader} that creates the same object as this reader, and then consumes one token of
-     * the input without setting anything.
+     * Returns a new {@link ObjectReader} that creates the same object as this reader, and then consumes n tokens of the
+     * input without setting anything.
+     *
+     * @param n
+     *         the number of tokens to skip
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> skip() {
-        return then((ctx, parent) -> ctx.readString());
+    default ObjectReader<T> thenSkip(int n) {
+        return then(ctx -> ctx.skip(n));
     }
 
     /**
@@ -111,8 +115,8 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> var(String variableName) {
-        return then(new VariableReader(variableName));
+    default ObjectReader<T> thenVar(String variableName) {
+        return thenVars(variableName);
     }
 
     /**
@@ -125,7 +129,7 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> vars(String... variableNames) {
+    default ObjectReader<T> thenVars(String... variableNames) {
         return then(new VariableReader(variableNames));
     }
 
@@ -135,16 +139,37 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      * field.
      * <p>
      * WARNING: This method is here to allow brevity but it is sensitive to refactoring as it uses a simple string for
-     * the name of the field. You should prefer using setter-based methods like {@link #prop(BiConsumer, Function)},
-     * {@link #integer(ObjIntConsumer)} or {@link #string(BiConsumer)}, which are checked at compile time.
+     * the name of the field. Please prefer using setter-based methods like {@link #thenObject(BiConsumer, Function)},
+     * {@link #thenInt(ObjIntConsumer)} or {@link #thenString(BiConsumer)}, which are checked at compile time.
      *
      * @param fieldName
      *         the name of the field to set
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> field(String fieldName) {
+    default ObjectReader<T> thenField(String fieldName) {
         return then(new FieldAndVarReader<>(fieldName, null));
+    }
+
+    /**
+     * Returns a new {@link ObjectReader} that creates the same object as this reader, and then reads tokens from the
+     * input to set the given fields on the created object. The proper type conversion is done based on the type of the
+     * fields. The number of field names determines the number of tokens read from the input.
+     * <p>
+     * WARNING: This method is here to allow brevity but it is sensitive to refactoring as it uses simple strings for
+     * the name of the fields. Please prefer using setter-based methods like {@link #thenObject(BiConsumer, Function)},
+     * {@link #thenInt(ObjIntConsumer)} or {@link #thenString(BiConsumer)}, which are checked at compile time.
+     *
+     * @param fieldNames
+     *         the names of the fields to set
+     *
+     * @return the resulting new {@link ObjectReader}
+     */
+    default ObjectReader<T> thenFields(String... fieldNames) {
+        if (Arrays.stream(fieldNames).anyMatch(s -> s.contains("@"))) {
+            throw new IllegalArgumentException("Some field names contain the illegal character '@'");
+        }
+        return thenFieldsAndVars(fieldNames);
     }
 
     /**
@@ -153,8 +178,8 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      * conversion is done based on the type of the field.
      * <p>
      * WARNING: This method is here to allow brevity but it is sensitive to refactoring as it uses a simple string for
-     * the name of the field. You should prefer using setter-based methods like {@link #prop(BiConsumer, Function)},
-     * {@link #integer(ObjIntConsumer)} or {@link #string(BiConsumer)}, which are checked at compile time.
+     * the name of the field. Please prefer using setter-based methods like {@link #thenObject(BiConsumer, Function)},
+     * {@link #thenInt(ObjIntConsumer)} or {@link #thenString(BiConsumer)}, which are checked at compile time.
      *
      * @param fieldName
      *         the name of the field to set
@@ -163,8 +188,28 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> fieldAndVar(String fieldName, String variableName) {
+    default ObjectReader<T> thenFieldAndVar(String fieldName, String variableName) {
         return then(new FieldAndVarReader<>(fieldName, variableName));
+    }
+
+    /**
+     * Returns a new {@link ObjectReader} that creates the same object as this reader, and then maps each element of the
+     * next line to a field of the created object or to a context variable, or both.
+     * <p>
+     * The field/variable names are given as strings that can each be one of:
+     * <ul> <li>a field name (e.g. "myField1")</li> <li>a '@' symbol followed
+     * by a variable name (e.g. "@N", "@myVar", "@123"...)</li> <li>both a field name and a variable name separated by a
+     * '@' (e.g. "nItems@N", "size@nbOfSatellites"...)</li> </ul> <p> Note that "" describe neither a field nor a
+     * variable, and thus the corresponding entry in the line will be ignored during parsing. Null descriptions and
+     * descriptions ending in '@' are forbidden.
+     *
+     * @param fieldAndVarNames
+     *         an array of field/variable names, as described above
+     *
+     * @return the resulting new {@link ObjectReader}
+     */
+    default ObjectReader<T> thenFieldsAndVars(String... fieldAndVarNames) {
+        return then(new FieldsAndVarsReader<>(fieldAndVarNames));
     }
 
     /**
@@ -180,8 +225,9 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default <V> ObjectReader<T> prop(BiConsumer<? super T, ? super V> setter, Function<String, V> converter) {
-        return then(SectionReader.ofObj(setter, converter));
+    default <V> ObjectReader<T> thenObject(BiConsumer<? super T, ? super V> setter,
+            Function<? super String, V> converter) {
+        return then(SectionReader.settingObject(setter, converter));
     }
 
     /**
@@ -193,8 +239,21 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> integer(ObjIntConsumer<? super T> setter) {
-        return then(SectionReader.ofInt(setter));
+    default ObjectReader<T> thenInt(ObjIntConsumer<? super T> setter) {
+        return then(SectionReader.settingInt(setter));
+    }
+
+    /**
+     * Returns a new {@link ObjectReader} that creates the same object as this reader, and then reads one double from
+     * the input to set a property of the created object.
+     *
+     * @param setter
+     *         the setter to use to set the value on the target object
+     *
+     * @return the resulting new {@link ObjectReader}
+     */
+    default ObjectReader<T> thenDouble(ObjDoubleConsumer<? super T> setter) {
+        return then(SectionReader.settingDouble(setter));
     }
 
     /**
@@ -206,28 +265,8 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> string(BiConsumer<? super T, ? super String> setter) {
-        return then(SectionReader.ofString(setter));
-    }
-
-    /**
-     * Returns a new {@link ObjectReader} that creates the same object as this reader, and then maps each element of the
-     * next line to a field of the created object or to a context variable, or both.
-     * <p>
-     * The field/variable names are given as strings that can each be one of: <ul> <li>a field name (e.g.
-     * "myField1")</li> <li>a '@' symbol followed by a variable name (e.g. "@N", "@myVar", "@123"...)</li> <li>both a
-     * field name and a variable name separated by a '@' (e.g. "nItems@N", "size@nbOfSatellites"...)</li> </ul>
-     * <p>
-     * Note that "" describe neither a field nor a variable, and thus the corresponding entry in the line will be
-     * ignored during parsing. Null descriptions and descriptions ending in '@' are forbidden.
-     *
-     * @param fieldAndVarNames
-     *         an array of field/variable names, as described above
-     *
-     * @return the resulting new {@link ObjectReader}
-     */
-    default ObjectReader<T> fieldsAndVarsLine(String... fieldAndVarNames) {
-        return then(new FieldsAndVarsLineReader<>(fieldAndVarNames));
+    default ObjectReader<T> thenString(BiConsumer<? super T, ? super String> setter) {
+        return then(SectionReader.settingString(setter));
     }
 
     /**
@@ -239,8 +278,8 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> intArrayLine(BiConsumer<? super T, int[]> setter) {
-        return then(SectionReader.of(setter, LineReader.ofIntArray()));
+    default ObjectReader<T> thenIntArrayLine(BiConsumer<? super T, int[]> setter) {
+        return then(SectionReader.settingChild(setter, LineReader.ofIntArray()));
     }
 
     /**
@@ -252,8 +291,8 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> longArrayLine(BiConsumer<? super T, long[]> setter) {
-        return then(SectionReader.of(setter, LineReader.ofLongArray()));
+    default ObjectReader<T> thenLongArrayLine(BiConsumer<? super T, long[]> setter) {
+        return then(SectionReader.settingChild(setter, LineReader.ofLongArray()));
     }
 
     /**
@@ -265,8 +304,8 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> doubleArrayLine(BiConsumer<? super T, double[]> setter) {
-        return then(SectionReader.of(setter, LineReader.ofDoubleArray()));
+    default ObjectReader<T> thenDoubleArrayLine(BiConsumer<? super T, double[]> setter) {
+        return then(SectionReader.settingChild(setter, LineReader.ofDoubleArray()));
     }
 
     /**
@@ -278,8 +317,8 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default ObjectReader<T> stringArrayLine(BiConsumer<? super T, String[]> setter) {
-        return then(SectionReader.of(setter, LineReader.ofStringArray()));
+    default ObjectReader<T> thenStringArrayLine(BiConsumer<? super T, String[]> setter) {
+        return then(SectionReader.settingChild(setter, LineReader.ofStringArray()));
     }
 
     /**
@@ -297,9 +336,9 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default <E> ObjectReader<T> arrayLine(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
+    default <E> ObjectReader<T> thenArrayLine(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
             Function<? super String, ? extends E> itemConverter) {
-        return then(SectionReader.of(setter, LineReader.ofArray(arrayCreator, itemConverter)));
+        return then(SectionReader.settingChild(setter, LineReader.ofArray(arrayCreator, itemConverter)));
     }
 
     /**
@@ -315,17 +354,16 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default <E> ObjectReader<T> listLine(BiConsumer<? super T, ? super List<E>> setter,
+    default <E> ObjectReader<T> thenListLine(BiConsumer<? super T, ? super List<E>> setter,
             Function<String, ? extends E> itemConverter) {
-        LineReader<List<E>> lineReader = LineReader.ofList(itemConverter);
-        return then(SectionReader.of(setter, lineReader));
+        return then(SectionReader.settingChild(setter, LineReader.ofList(itemConverter)));
     }
 
     /**
      * Returns a new {@link ObjectReader} that creates the same object as this reader, and then creates an array of
      * objects from the next N lines, and sets it on the created object using the provided setter. N will be read at
      * parsing time from the current value of the given context variable, which needs to be previously set. A variable
-     * can be set, for instance, using {@link #var(String)} or {@link #vars(String...)}.
+     * can be set, for instance, using {@link #thenVar(String)} or {@link #thenVars(String...)}.
      *
      * @param setter
      *         the setter to call on the created object, with the created array
@@ -340,10 +378,10 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default <E> ObjectReader<T> array(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
+    default <E> ObjectReader<T> thenArray(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
             String sizeVariable, ChildReader<? extends E, ? super T> itemReader) {
-        return then(
-                SectionReader.ofArray(setter, arrayCreator, (p, c) -> c.getVariableAsInt(sizeVariable), itemReader));
+        return then(SectionReader.settingArray(setter, arrayCreator, (p, c) -> c.getVariableAsInt(sizeVariable),
+                itemReader));
     }
 
     /**
@@ -364,9 +402,9 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default <E> ObjectReader<T> array(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
+    default <E> ObjectReader<T> thenArray(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
             Function<? super T, Integer> getSize, ChildReader<? extends E, ? super T> itemReader) {
-        return then(SectionReader.ofArray(setter, arrayCreator, (p, c) -> getSize.apply(p), itemReader));
+        return then(SectionReader.settingArray(setter, arrayCreator, (p, c) -> getSize.apply(p), itemReader));
     }
 
     /**
@@ -388,16 +426,16 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default <E> ObjectReader<T> array(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
+    default <E> ObjectReader<T> thenArray(BiConsumer<? super T, ? super E[]> setter, IntFunction<E[]> arrayCreator,
             BiFunction<? super T, Context, Integer> getSize, ChildReader<? extends E, ? super T> itemReader) {
-        return then(SectionReader.ofArray(setter, arrayCreator, getSize, itemReader));
+        return then(SectionReader.settingArray(setter, arrayCreator, getSize, itemReader));
     }
 
     /**
      * Returns a new {@link ObjectReader} that creates the same object as this reader, and then creates a list of
      * objects from the next N lines, and sets it on the created object using the provided setter. N will be read at
      * parsing time from the current value of the given context variable, which needs to be previously set. A variable
-     * can be set, for instance, using {@link #fieldsAndVarsLine(String...)}.
+     * can be set, for instance, using {@link #thenFieldsAndVars(String...)}.
      *
      * @param setter
      *         the setter to call on the created object, with the created list
@@ -410,9 +448,9 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default <E> ObjectReader<T> list(BiConsumer<? super T, ? super List<E>> setter, String sizeVariable,
+    default <E> ObjectReader<T> thenList(BiConsumer<? super T, ? super List<E>> setter, String sizeVariable,
             ChildReader<? extends E, ? super T> itemReader) {
-        return then(SectionReader.ofList(setter, (p, c) -> c.getVariableAsInt(sizeVariable), itemReader));
+        return then(SectionReader.settingList(setter, (p, c) -> c.getVariableAsInt(sizeVariable), itemReader));
     }
 
     /**
@@ -431,9 +469,9 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default <E> ObjectReader<T> list(BiConsumer<? super T, ? super List<E>> setter,
+    default <E> ObjectReader<T> thenList(BiConsumer<? super T, ? super List<E>> setter,
             Function<? super T, Integer> getSize, ChildReader<? extends E, ? super T> itemReader) {
-        return then(SectionReader.ofList(setter, (p, c) -> getSize.apply(p), itemReader));
+        return then(SectionReader.settingList(setter, (p, c) -> getSize.apply(p), itemReader));
     }
 
     /**
@@ -453,9 +491,9 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default <E> ObjectReader<T> list(BiConsumer<? super T, ? super List<E>> setter,
+    default <E> ObjectReader<T> thenList(BiConsumer<? super T, ? super List<E>> setter,
             BiFunction<? super T, Context, Integer> getSize, ChildReader<? extends E, ? super T> itemReader) {
-        return then(SectionReader.ofList(setter, getSize, itemReader));
+        return then(SectionReader.settingList(setter, getSize, itemReader));
     }
 
     /**
@@ -472,9 +510,9 @@ public interface ObjectReader<T> extends ChildReader<T, Object>, Function<Contex
      *
      * @return the resulting new {@link ObjectReader}
      */
-    default <C> ObjectReader<T> child(BiConsumer<? super T, ? super C> setter,
+    default <C> ObjectReader<T> thenChild(BiConsumer<? super T, ? super C> setter,
             ChildReader<C, ? super T> childReader) {
-        return then(SectionReader.of(setter, childReader));
+        return then(SectionReader.settingChild(setter, childReader));
     }
 
 }

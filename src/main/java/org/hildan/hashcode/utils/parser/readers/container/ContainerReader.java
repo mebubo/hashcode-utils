@@ -38,19 +38,20 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
      * Creates a new {@code ContainerReader} that may read the expected number of items from the parent object or a
      * context variable using the provided size getter function.
      *
-     * @param constructor
-     *         a constructor to create a new container, given the size as input
      * @param getSize
      *         a function to get the number of items to read, which is given the parent object and context as parameter.
      *         Note that the given parent parameter may be null if this reader is called to create a root object.
-     * @param addFunction
-     *         a function to add elements to the created container
      * @param itemReader
      *         a child reader used to read each item
+     * @param constructor
+     *         a constructor to create a new container, given the size as input
+     * @param addFunction
+     *         a function to add elements to the created container
      */
     @SuppressWarnings("WeakerAccess")
-    protected ContainerReader(IntFunction<? extends C> constructor, BiFunction<? super P, Context, Integer> getSize,
-            AddFunction<? super E, ? super C> addFunction, ChildReader<? extends E, ? super P> itemReader) {
+    protected ContainerReader(BiFunction<? super P, Context, Integer> getSize,
+            ChildReader<? extends E, ? super P> itemReader, IntFunction<? extends C> constructor,
+            AddFunction<? super E, ? super C> addFunction) {
         this.constructor = constructor;
         this.itemReader = itemReader;
         this.getSize = getSize;
@@ -71,15 +72,15 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
      * Creates a new {@code ContainerReader} that may read the expected number of items from the parent object or a
      * context variable.
      *
-     * @param constructor
-     *         a constructor to create a new container, given the size as input
      * @param getSize
      *         a function to get the number of items to read, which is given the parent object and context as parameter.
      *         Note that the given parent parameter may be null if this reader is called to create a root object.
-     * @param addFunction
-     *         a function to add elements to the created container
      * @param itemReader
      *         a child reader used to read each item
+     * @param constructor
+     *         a constructor to create a new container, given the size as input
+     * @param addFunction
+     *         a function to add elements to the created container
      * @param <E>
      *         the type of the elements in the container
      * @param <C>
@@ -89,23 +90,23 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
      *
      * @return the created {@code ContainerReader}
      */
-    public static <E, C, P> ChildReader<C, P> of(IntFunction<? extends C> constructor,
-            BiFunction<? super P, Context, Integer> getSize, AddFunction<? super E, ? super C> addFunction,
-            ChildReader<? extends E, ? super P> itemReader) {
-        return new ContainerReader<>(constructor, getSize, addFunction, itemReader);
+    public static <E, C, P> ChildReader<C, P> of(BiFunction<? super P, Context, Integer> getSize,
+            ChildReader<? extends E, ? super P> itemReader, IntFunction<? extends C> constructor,
+            AddFunction<? super E, ? super C> addFunction) {
+        return new ContainerReader<>(getSize, itemReader, constructor, addFunction);
     }
 
     /**
      * Creates a {@code ContainerReader} that reads an array of items.
      *
-     * @param arrayCreator
-     *         a function to create a new array, given its size
      * @param getSize
      *         a function to get the number of items to read, which is given the parent object and context as parameter.
      *         Note that the given parent parameter may be null if this reader is called to create a root object.
      * @param itemReader
      *         a reader to call as many times as the size returned by {@code getSize}. This is what actually consumes
      *         input in the created reader.
+     * @param arrayCreator
+     *         a function to create a new array, given its size
      * @param <E>
      *         the type of elements in the array
      * @param <P>
@@ -113,9 +114,9 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
      *
      * @return the created {@code ContainerReader}
      */
-    public static <E, P> ChildReader<E[], P> ofArray(IntFunction<E[]> arrayCreator,
-            BiFunction<? super P, Context, Integer> getSize, ChildReader<? extends E, ? super P> itemReader) {
-        return new ContainerReader<>(arrayCreator, getSize, Array::set, itemReader);
+    public static <E, P> ChildReader<E[], P> ofArray(BiFunction<? super P, Context, Integer> getSize,
+            ChildReader<? extends E, ? super P> itemReader, IntFunction<E[]> arrayCreator) {
+        return new ContainerReader<>(getSize, itemReader, arrayCreator, Array::set);
     }
 
     /**
@@ -136,20 +137,20 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
      */
     public static <E, P> ChildReader<List<E>, P> ofList(BiFunction<? super P, Context, Integer> getSize,
             ChildReader<? extends E, ? super P> itemReader) {
-        return ofCollection(ArrayList::new, getSize, itemReader);
+        return ofCollection(getSize, itemReader, ArrayList::new);
     }
 
     /**
      * Creates a {@code ContainerReader} that reads a collection of items.
      *
-     * @param constructor
-     *         a function to create a new collection, given its size
      * @param getSize
      *         a function to get the number of items to read, which is given the parent object and context as parameter.
      *         Note that the given parent parameter may be null if this reader is called to create a root object.
      * @param itemReader
      *         a reader to call as many times as the size returned by {@code getSize}. This is what actually consumes
      *         input in the created reader.
+     * @param constructor
+     *         a function to create a new collection, given its size
      * @param <E>
      *         the type of elements in the collection
      * @param <C>
@@ -159,8 +160,9 @@ public class ContainerReader<E, C, P> implements ChildReader<C, P> {
      *
      * @return the created {@code ContainerReader}
      */
-    public static <E, C extends Collection<E>, P> ChildReader<C, P> ofCollection(IntFunction<C> constructor,
-            BiFunction<? super P, Context, Integer> getSize, ChildReader<? extends E, ? super P> itemReader) {
-        return new ContainerReader<>(constructor, getSize, (c, i, e) -> c.add(e), itemReader);
+    public static <E, C extends Collection<E>, P> ChildReader<C, P> ofCollection(
+            BiFunction<? super P, Context, Integer> getSize, ChildReader<? extends E, ? super P> itemReader,
+            IntFunction<C> constructor) {
+        return new ContainerReader<>(getSize, itemReader, constructor, (c, i, e) -> c.add(e));
     }
 }

@@ -6,6 +6,7 @@ import java.util.function.IntFunction;
 
 import org.hildan.hashcode.utils.parser.config.Config;
 import org.hildan.hashcode.utils.parser.context.Context;
+import org.hildan.hashcode.utils.parser.readers.ObjectReader;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -59,7 +60,7 @@ public class LineReaderTest {
 
     @Theory
     public void test(Expectation<Object> expectation) {
-        LineReader<Object[]> reader = LineReader.ofArray(expectation.arrayCreator, expectation.converter);
+        ObjectReader<Object[]> reader = LineReader.ofArray(expectation.arrayCreator, expectation.converter);
 
         Context context = new Context(new StringReader(expectation.line + "\nignored line"), new Config());
 

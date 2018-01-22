@@ -6,19 +6,20 @@ import java.util.List;
 import org.hildan.hashcode.utils.parser.InputParsingException;
 import org.hildan.hashcode.utils.parser.context.Context;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A {@link SectionReader} that reads the values as fields of the parent object, and/or context variables.
  *
  * @param <P>
- *         the type of parent that this {@code FieldsAndVarsLineReader} can update
+ *         the type of parent that this {@code FieldsAndVarsReader} can update
  */
-public class FieldsAndVarsLineReader<P> implements SectionReader<P> {
+public class FieldsAndVarsReader<P> implements SectionReader<P> {
 
     private final List<FieldAndVarReader<P>> readers;
 
     /**
-     * Creates a new {@code FieldsAndVarsLineReader} with the given field/variable names.
+     * Creates a new {@code FieldsAndVarsReader} with the given field/variable names.
      * <p>
      * The field/variable names are given as strings that can each be one of:
      * <ul>
@@ -33,7 +34,7 @@ public class FieldsAndVarsLineReader<P> implements SectionReader<P> {
      * @param fieldAndVarNames
      *         an array of field/variable names, as described above
      */
-    public FieldsAndVarsLineReader(String... fieldAndVarNames) {
+    public FieldsAndVarsReader(String... fieldAndVarNames) {
         this.readers = new ArrayList<>(fieldAndVarNames.length);
 
         for (String name : fieldAndVarNames) {
@@ -48,10 +49,10 @@ public class FieldsAndVarsLineReader<P> implements SectionReader<P> {
             throw new IllegalArgumentException("Null field/variable descriptions are not allowed");
         }
         if (name.isEmpty()) {
-            return new String[]{null, null};
+            return new String[] {null, null};
         }
         if (!name.contains("@")) {
-            return new String[]{name, null};
+            return new String[] {name, null};
         }
         String[] fieldAndVar = name.split("@", 2);
         nullifyEmptyStrings(fieldAndVar);
@@ -67,7 +68,7 @@ public class FieldsAndVarsLineReader<P> implements SectionReader<P> {
     }
 
     @Override
-    public void readAndSet(@NotNull Context context, @NotNull P object) throws InputParsingException {
+    public void readAndSet(@NotNull Context context, @Nullable P object) throws InputParsingException {
         for (FieldAndVarReader<P> reader : readers) {
             reader.readAndSet(context, object);
         }
