@@ -12,7 +12,7 @@ on solving the problem at hand.
 
 ## Example problems
 
-You can find examples on previous HashCode editions problems in the
+You can find examples of usage of this library on previous HashCode editions problems in the
 [examples folder](src/test/java/org/hildan/hashcode/utils/examples).
 
 For the purpose of this readme, we'll just give a quick glance at what this library provides, through a very simple
@@ -196,9 +196,18 @@ public class Main {
     public static void main(String[] args) {
         Consumer<String> solver = s -> System.out.println("I solved input " + s + "!");
         HCRunner<String> runner = new HCRunner<>(solver, UncaughtExceptionsPolicy.LOG_ON_SLF4J);
-        runner.run(args);
+        runner.run(args); // args contains the names of the input files to run the solver on
     }    
 }
+```
+
+Then you would run:
+
+```
+$ java Main input1.in input2.in input3.in
+I solved input input1.in!
+I solved input input3.in!
+I solved input input2.in!
 ```
 
 ## All the pieces together
