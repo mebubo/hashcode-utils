@@ -14,14 +14,14 @@ import org.hildan.hashcode.utils.solver.HCSolver;
 public class BasicExample {
 
     public static void main(String[] args) {
-        ObjectReader<Problem> rootReader = problemReader();
+        ObjectReader<Problem> rootReader = createProblemReader();
         HCParser<Problem> parser = new HCParser<>(rootReader);
         HCSolver<Problem> solver = new HCSolver<>(parser, Problem::solve);
         HCRunner<String> runner = new HCRunner<>(solver, UncaughtExceptionsPolicy.LOG_ON_SLF4J);
         runner.run(args);
     }
 
-    private static ObjectReader<Problem> problemReader() {
+    private static ObjectReader<Problem> createProblemReader() {
         // full custom reader using Context
         ObjectReader<Point> pointReader = (Context ctx) -> {
             double x = ctx.readDouble();
@@ -37,9 +37,9 @@ public class BasicExample {
 }
 
 class Point {
-    private double x;
+    public final double x;
 
-    private double y;
+    public final double y;
 
     Point(double x, double y) {
         this.x = x;
@@ -48,12 +48,16 @@ class Point {
 }
 
 class Problem {
-    private final int nClusters;
+    public final int nClusters;
 
     private List<Point> points;
 
     Problem(int nClusters) {
         this.nClusters = nClusters;
+    }
+
+    public List<Point> getPoints() {
+        return points;
     }
 
     public void setPoints(List<Point> points) {
