@@ -213,6 +213,7 @@ public class LineNumberScanner implements Closeable, AutoCloseable {
         try {
             reader.close();
         } catch (IOException ignored) {
+            // ignored exception
         }
     }
 }

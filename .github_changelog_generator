@@ -1,0 +1,7 @@
+user=joffrey-bion
+project=hashcode-utils
+since-tag=v4.0.0
+bug-labels=bug
+enhancement-labels=enhancement
+exclude-labels=wontfix,duplicate,invalid,internal
+release-url=https://bintray.com/joffrey-bion/maven/hashcode-utils/%s

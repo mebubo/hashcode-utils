@@ -139,5 +139,5 @@ public class LineNumberScannerTest {
         public void close() throws IOException {
             throw new IOException("test exception");
         }
-    };
+    }
 }

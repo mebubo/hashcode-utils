@@ -40,6 +40,7 @@ public class LineReader<T, P> implements ChildReader<T, P> {
 
     @NotNull
     @Override
+    @SuppressWarnings("checkstyle:illegalcatch")
     public T read(@NotNull Context context, @Nullable P parent) throws InputParsingException {
         String[] line = context.readLine();
         try {

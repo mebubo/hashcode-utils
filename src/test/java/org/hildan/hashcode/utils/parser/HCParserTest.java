@@ -12,32 +12,6 @@ public class HCParserTest {
 
     private static final double DELTA = 0.0001;
 
-    public static class Problem {
-
-        private int param1;
-
-        private int param2;
-
-        private int nShapes;
-
-        public Shape[] shapes;
-    }
-
-    public static class Shape {
-
-        public String name;
-
-        private int nPoints;
-
-        public List<Point> points;
-    }
-
-    public static class Point {
-        private double x;
-
-        private double y;
-    }
-
     private static final String CONTENT = //
             "42 24 2\n" //
                     + "first 3\n" //
@@ -47,6 +21,31 @@ public class HCParserTest {
                     + "second 2\n" //
                     + "2.11 2.12\n" //
                     + "2.21 2.22\n";
+
+    private static class Problem {
+
+        private int param1;
+
+        private int param2;
+
+        private int nShapes;
+
+        private Shape[] shapes;
+    }
+
+    private static class Shape {
+
+        private String name;
+
+        private int nPoints;
+
+        private List<Point> points;
+    }
+
+    private static class Point {
+        private double x;
+        private double y;
+    }
 
     @Test
     public void test() {

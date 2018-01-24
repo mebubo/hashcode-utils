@@ -1,5 +1,5 @@
 // bintray plugin is used to upload artifacts to a bintray repo
-plugins { id "com.jfrog.bintray" version "1.6" }
+plugins { id "com.jfrog.bintray" version "1.7.3" }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
@@ -9,23 +9,70 @@ apply plugin: 'maven-publish'
 
 group = 'org.hildan.hashcode'
 version = '4.0.0'
-description = 'Utilities for programs solving Google Hash Code problems'
+description = 'Utilities for programs solving Google HashCode problems'
 ext.labels = ['hashcode', 'google', 'google-hashcode', 'utils', 'input', 'parser', 'solver', 'runner', 'framework']
+ext.licenses = ['MIT']
 
 sourceCompatibility = 1.8
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    checkstyleConfig
+}
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.24'
     compile 'org.jetbrains:annotations:15.0'
     testCompile 'junit:junit:4.+'
+    checkstyleConfig 'org.hildan.checkstyle:checkstyle-config:2.2.0'
 }
 
 checkstyle {
     maxWarnings = 0
-    toolVersion = '7.6'
+    toolVersion = '8.2'
+    config = resources.text.fromArchiveEntry(configurations.checkstyleConfig, "checkstyle.xml")
 }
+
+def getPropOrEnv = { String prop, String envVar, String defaultValue = null ->
+    if (project.hasProperty(prop)) {
+        return project.property(prop)
+    }
+    return System.getenv(envVar) ?: defaultValue
+}
+
+ext {
+    githubUser = getPropOrEnv('githubUser', 'GITHUB_USER')
+    githubRepoName = rootProject.name
+    githubSlug = "$githubUser/$githubRepoName"
+    githubRepoUrl = "https://github.com/$githubSlug"
+    ossrhUserToken = getPropOrEnv('ossrhUserToken', 'OSSRH_USER_TOKEN')
+    ossrhKey = getPropOrEnv('ossrhKey', 'OSSRH_KEY')
+}
+
+def pomConfig = {
+    scm {
+        url githubRepoUrl
+        connection 'scm:git:' + githubRepoUrl + '.git'
+        developerConnection 'scm:git:git@github.com:' + githubSlug + '.git'
+    }
+    licenses {
+        license {
+            name 'The MIT License'
+            url 'https://opensource.org/licenses/MIT'
+        }
+    }
+    developers {
+        developer {
+            name 'Joffrey Bion'
+            email 'joffrey.bion@gmail.com'
+        }
+    }
+}
+
+apply from: 'gradle/scripts/release.gradle'
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
@@ -39,39 +86,31 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
-            // additional jars
-            artifact sourcesJar { classifier "sources" }
-            artifact javadocJar { classifier "javadoc" }
+            artifact sourcesJar
+            artifact javadocJar
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name', project.name)
+                root.appendNode('description', project.description)
+                root.appendNode('url', githubRepoUrl)
+                root.children().last() + pomConfig
+            }
         }
     }
-}
-
-def getPropOrEnv = { String prop, String envVar, String defaultValue = null ->
-    if (project.hasProperty(prop)) {
-        return project.property(prop)
-    }
-    return System.getenv(envVar) ?: defaultValue
-}
-
-ext {
-    githubUser = getPropOrEnv('githubUser', 'GITHUB_USER')
-    githubRepoName = project.name
-    githubSlug = "$githubUser/$githubRepoName"
-    githubRepoUrl = "https://github.com/$githubSlug"
 }
 
 bintray {
     user = getPropOrEnv('bintrayUser', 'BINTRAY_USER')
     key = getPropOrEnv('bintrayApiKey', 'BINTRAY_KEY')
     publications = ['maven']
-    publish = true // the version should be auto published after an upload
+    publish = true
 
     pkg {
         repo = getPropOrEnv('bintrayRepoLibs', 'BINTRAY_REPO_LIBS')
         name = project.name
         desc = project.description
-        labels = project.labels
-        licenses = ['MIT']
+        labels = project.labels ?: [project.name]
+        licenses = project.licenses ?: []
 
         websiteUrl = githubRepoUrl
         issueTrackerUrl = githubRepoUrl + '/issues'
@@ -82,6 +121,13 @@ bintray {
             desc = project.description
             vcsTag = 'v' + project.version
             gpg { sign = true }
+            mavenCentralSync {
+                sync = true
+                user = ossrhUserToken
+                password = ossrhKey
+            }
         }
     }
 }
+bintrayUpload.dependsOn(build)
+rootProject.tasks.release.dependsOn(bintrayUpload)
