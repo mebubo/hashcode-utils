@@ -14,48 +14,69 @@ you. It also provides nice error handling with line numbers, which saves a lot o
 
 #### Basic usage example
 
-Input file:
+Imagine a simple input file giving you some points, and a number of clusters to find:
+
 ```
-3        // 3 points
+3 2      // 3 points, 2 clusters to find
 1.2 4.2  // point 0: x=1.2 y=4.2
 1.5 3.4  // point 1: x=1.5 y=3.4
 6.8 2.2  // point 2: x=6.8 y=2.2
 ```
 
-Here's how you would write the parser with `HCParser`:
+Now let's assume you design the following classes to represent this data:
 
 ```java
-public class Problem {
-    private List<Point> points;
-    
-    public List<Point> getPoints() {
-        return points;
+public class Point {
+    public double x;
+    public double y;
+
+    public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
     }
-    
+}
+
+public class Problem {
+    public final int nClusters;
+    private List<Point> points;
+	
+    public Problem(int nClusters) {
+        this.nClusters = nClusters;
+    }
+
     public void setPoints(List<Point> points) {
         this.points = points;
     }
 }
+```
 
-public class Point {
-    public float x;
-    public float y;
-}
-    
+Here's how you would write the parser with `HCParser`:
+
+```java
 public class Main {
     
-    public static void main(String[] args){
-        ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new)
-                                                          .fieldsAndVarsLine("x", "y");
-        
-        ObjectReader<Problem> rootReader = TreeObjectReader.of(Problem::new)
-                                                           .fieldsAndVarsLine("@N") // stores the nb of points in var N
-                                                           .listSection(Problem::setPoints, "N", pointReader);
+    public static void main(String[] args) {
+        String filename = args[0];
+        ObjectReader<Problem> rootReader = problemReader();
         HCParser<Problem> parser = new HCParser<>(rootReader);
-        Problem problem = parser.parse(args[0]);
-        
+        Problem problem = parser.parse(filename);
+
         // do something with the problem
-    }    
+    }
+
+    private static ObjectReader<Problem> problemReader() {
+        // full custom reader using Context
+        ObjectReader<Point> pointReader = (Context ctx) -> {
+            double x = ctx.readDouble();
+            double y = ctx.readDouble();
+            return new Point(x, y);
+        };
+
+        // reader using the fluent API
+        return HCReader.withVars("P", "C") // reads the 2 first tokens into variables P and C
+                       .createFromVar(Problem::new, "C") // creates a new Problem using the value of C as parameter
+                       .thenList(Problem::setPoints, "P", pointReader); // reads P elements using the pointReader
+    }   
 }
 ```
 
@@ -69,18 +90,16 @@ composed together to form more complex object readers.
 Here, we first create an `ObjectReader<Point>` to be able to read `Point`s from the input. Then we use it to configure 
 the root reader, because we need to read a list of points.
  
-- `fieldsAndVarsLine` tells the reader to map each element of the next line to a field of the created object. 
-It also allows to save any value to a context variable using the `@` syntax. The variable can be used later to know how 
-many elements we should read.
- 
-- `addList` tells the reader to read the next bunch of lines as a list of elements:
+- `withVars` allows to read some tokens from the input and store them in variables before creating the object
+- `createFromVar` creates an `ObjectReader` that instantiate a new object using variable values as constructor parameters
+- `thenList` augments the existing reader so that it then reads a list of points and sets it on the created `Problem` object
   - `Problem::setPoints` provides a way to set the created list on the `Problem` object we're creating
-  - `"N"` gives the number of `Point`s we should read (in the form of a context variable that was set earlier)
+  - `"P"` gives the number of `Point`s we should read (in the form of a context variable that was set earlier)
   - `pointReader` provides a reader to use for each element of the list
 
 It might look over-complicated for a simple example like that, but when the input gets more complex, it can be pretty 
 useful. There are plenty of other useful configurations to make the parsing easy and powerful. You may read more about 
-them directly in HCParser's Javadoc.
+them directly in HCReader's ObjectReader's Javadoc.
  
 ## HCSolver
 
@@ -90,42 +109,28 @@ HCSolver takes care of the file I/O for you, so that you just have to write the 
 
 Using the same example problem, here is how we use HCSolver:
 ```java
-public class Problem {
-    public int nPoints;
-    public List<Point> points;
-    
-    public List<String> solve() {
-        // solve the problem
-        
-        // write solution into lines (this is problem-specific)
-        List<String> lines = new ArrayList<>();
-        lines.add(outputLine0);
-        lines.add(outputLine1);
-        return lines;
-    }
-}
+public class BasicExample {
 
-public class Point {
-    public float x;
-    public float y;
-}
-    
-public class Main {
-    
-    public static void main(String[] args){
-        ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new)
-                                                          .addFieldsLine("x", "y");
-        
-        ObjectReader<Problem> rootReader = TreeObjectReader.of(Problem::new)
-                                                           .addFieldsLine("nPoints@N") // stores the nb of points in var N
-                                                           .addList((p, l) -> p.points = l, "N", pointReader);
+    public static void main(String[] args) {
+        String filename = args[0];
+        ObjectReader<Problem> rootReader = problemReader(); // omitted for brevity, see previous section for this
         HCParser<Problem> parser = new HCParser<>(rootReader);
-        HCSolver<Problem> solver = new HCSolver<>(parser, Problem::solve);
-        
+        HCSolver<Problem> solver = new HCSolver<>(parser, BasicExample::solve);
+
         // reads the given input file and writes lines to an output file
         // the name of the output file is calculated from the input file
         solver.accept(args[0]);
-    }    
+    }
+
+    private static List<String> solve(Problem problem) {
+        // solve the problem
+
+        // write solution into lines (this is problem-specific)
+        List<String> lines = new ArrayList<>();
+        lines.add("output line 0");
+        lines.add("output line 1");
+        return lines;
+    }
 }
 ```
 
@@ -135,6 +140,8 @@ Note that `HCSolver` implements `Consumer<String>` (it consumes input file names
 ## HCRunner
 
 HCRunner allows you to run your solver on all input files at the same time.
+It is really just a way of executing in parallel multiple `Consumer<String>`, each receiving one file name.
+Potential exceptions may even be logged instead of being swallowed by the execution framework.
 
 #### Basic usage example
 
@@ -154,39 +161,62 @@ public class Main {
 As you can see, the combination of all 3 components allows you to focus on problem-specific code only:
 
 ```java
+public class Point {
+    private double x;
+    private double y;
+
+    Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
 public class Problem {
-    public int nPoints;
-    public List<Point> points;
-    
+    private final int nClusters;
+    private List<Point> points;
+
+    Problem(int nClusters) {
+        this.nClusters = nClusters;
+    }
+
+    public void setPoints(List<Point> points) {
+        this.points = points;
+    }
+
     public List<String> solve() {
-        // solve the problem
-        
+	
+        // solve the problem here
+
         // write solution into lines (this is problem-specific)
         List<String> lines = new ArrayList<>();
-        lines.add(outputLine0);
-        lines.add(outputLine1);
+        lines.add("output line 0");
+        lines.add("output line 1");
         return lines;
     }
 }
     
-public class Point {
-    public float x;
-    public float y;
-}
-    
 public class Main {
-    
-    public static void main(String[] args){
-        ObjectReader<Point> pointReader = TreeObjectReader.of(Point::new)
-                                                          .addFieldsAndVarsLine("x", "y");
-        
-        ObjectReader<Problem> rootReader = TreeObjectReader.of(Problem::new)
-                                                           .addFieldsAndVarsLine("nPoints@N") // stores the nb of points in var N
-                                                           .addList((p, l) -> p.points = l, "N", pointReader);
+
+    public static void main(String[] args) {
+        ObjectReader<Problem> rootReader = problemReader();
         HCParser<Problem> parser = new HCParser<>(rootReader);
         HCSolver<Problem> solver = new HCSolver<>(parser, Problem::solve);
         HCRunner<String> runner = new HCRunner<>(solver, UncaughtExceptionsPolicy.LOG_ON_SLF4J);
         runner.run(args);
-    }    
+    }
+
+    private static ObjectReader<Problem> problemReader() {
+        // full custom reader using Context
+        ObjectReader<Point> pointReader = (Context ctx) -> {
+            double x = ctx.readDouble();
+            double y = ctx.readDouble();
+            return new Point(x, y);
+        };
+
+        // reader using the fluent API
+        return HCReader.withVars("P", "C") // reads the 2 first tokens into variables P and C
+                       .createFromVar(Problem::new, "C") // creates a new Problem using the value of C as parameter
+                       .thenList(Problem::setPoints, "P", pointReader); // reads P elements using the pointReader
+    }
 }
 ```
