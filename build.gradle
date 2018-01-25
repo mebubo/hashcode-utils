@@ -8,7 +8,7 @@ apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 
 group = 'org.hildan.hashcode'
-version = '4.0.0'
+version = '5.0.0'
 description = 'Utilities for programs solving Google HashCode problems'
 ext.labels = ['hashcode', 'google', 'google-hashcode', 'utils', 'input', 'parser', 'solver', 'runner', 'framework']
 ext.licenses = ['MIT']
@@ -86,8 +86,8 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
+            artifact sourcesJar { classifier 'sources' }
+            artifact javadocJar { classifier 'javadoc' }
             pom.withXml {
                 def root = asNode()
                 root.appendNode('name', project.name)
