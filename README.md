@@ -275,3 +275,32 @@ public class Main {
     }
 }
 ```
+
+## Add the dependency
+
+### Manual download
+ 
+You may directly download the JAR from 
+[HashCode Utils Bintray Repository](https://bintray.com/joffrey-bion/maven/hashcode-utils/_latestVersion), 
+although I recommend using a build tool such as [Gradle](https://gradle.org/).
+ 
+### Gradle
+
+```groovy
+compile 'org.hildan.hashcode:hashcode-utils:5.0.0'
+```
+
+### Maven
+
+```xml
+<dependency>
+   <groupId>org.hildan.hashcode</groupId>
+   <artifactId>hashcode-utils</artifactId>
+   <version>5.0.0</version>
+   <type>pom</type>
+</dependency>
+```    
+
+## License
+
+Code released under [the MIT license](https://github.com/joffrey-bion/hashcode-utils/blob/master/LICENSE)
