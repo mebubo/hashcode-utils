@@ -2,6 +2,7 @@
 plugins { id "com.jfrog.bintray" version "1.7.3" }
 
 apply plugin: 'java'
+apply plugin: 'scala'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'checkstyle'
@@ -26,6 +27,7 @@ configurations {
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.24'
     compile 'org.jetbrains:annotations:15.0'
+    compile 'org.scala-lang:scala-library:2.12.4'
     testCompile 'junit:junit:4.+'
     checkstyleConfig 'org.hildan.checkstyle:checkstyle-config:2.2.0'
 }

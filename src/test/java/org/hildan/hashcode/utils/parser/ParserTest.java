@@ -1,10 +1,11 @@
 package org.hildan.hashcode.utils.parser;
 
+import org.hildan.hashcode.utils.parser.test.Point;
+import org.hildan.hashcode.utils.parser.test.Problem;
+import org.hildan.hashcode.utils.parser.test.Shape;
 import org.junit.Test;
 
-import java.util.List;
-
-import static org.hildan.hashcode.utils.parser.Parser.*;
+import org.hildan.hashcode.utils.parser.test.ProblemParsers;
 import static org.junit.Assert.assertEquals;
 
 public class ParserTest {
@@ -21,57 +22,10 @@ public class ParserTest {
                     + "2.11 2.12\n" //
                     + "2.21 2.22\n";
 
-    private static class Problem {
-
-        private int param1;
-
-        private int param2;
-
-        private int nShapes;
-
-        private Shape[] shapes;
-
-        public Problem(Integer param1, Integer param2, int nShapes, List<Shape> shapes) {
-            this.param1 = param1;
-            this.param2 = param2;
-            this.nShapes = nShapes;
-            this.shapes = shapes.toArray(new Shape[]{});
-        }
-    }
-
-    private static class Shape {
-
-        private String name;
-
-        private int nPoints;
-
-        private List<Point> points;
-
-        public Shape(String name, Integer nPoints, List<Point> points) {
-            this.name = name;
-            this.nPoints = nPoints;
-            this.points = points;
-        }
-    }
-
-    private static class Point {
-        private double x;
-        private double y;
-
-        private Point(double x, double y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
     @Test
     public void test() {
 
-        Parser<Point> pointParser = doubl.flatMap(x -> doubl.map(y -> new Point(x, y)));
-
-        Parser<Shape> shapeParser = string.flatMap(name -> integer.flatMap(nPoints -> pointParser.repeat(nPoints).map(points -> new Shape(name, nPoints, points))));
-
-        Parser<Problem> problemParser = integer.flatMap(param1 -> integer.flatMap(param2 -> integer.flatMap(nShapes -> shapeParser.repeat(nShapes).map(shapes -> new Problem(param1, param2, nShapes, shapes)))));
+        Parser<Problem> problemParser = ProblemParsers.problem();
 
         HCParser<Problem> hcParser = new HCParser<>(problemParser);
         Problem problem = hcParser.parse(CONTENT);
