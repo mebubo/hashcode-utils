@@ -34,4 +34,8 @@ public interface Parser<A> extends Function<Context, A> {
     default Parser<List<A>> repeat(Integer n) {
         return ctx -> IntStream.range(0, n).mapToObj(m -> this.parse(ctx)).collect(Collectors.toList());
     }
+
+    default Parser<A[]> repeat(Integer n, A[] as) {
+        return repeat(n).map(l -> l.toArray(as));
+    }
 }

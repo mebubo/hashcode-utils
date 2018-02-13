@@ -39,18 +39,4 @@ public class Simulation {
             this.orders[i] = order;
         }
     }
-
-    public void setWarehouses(List<Warehouse> warehouses) {
-        this.warehouses = new Warehouse[warehouses.size()];
-        for (int i = 0; i < warehouses.size(); i++) {
-            this.warehouses[i] = warehouses.get(i);
-        }
-    }
-
-    public void setnProductTypeWeights(List<Integer> weights) {
-        this.productTypeWeights = new int[weights.size()];
-        for (int i = 0; i < weights.size(); i++) {
-            this.productTypeWeights[i] = weights.get(i);
-        }
-    }
 }
