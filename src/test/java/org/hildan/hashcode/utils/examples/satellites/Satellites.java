@@ -5,9 +5,7 @@ import org.hildan.hashcode.utils.examples.satellites.model.Location;
 import org.hildan.hashcode.utils.examples.satellites.model.Satellite;
 import org.hildan.hashcode.utils.examples.satellites.model.Simulation;
 import org.hildan.hashcode.utils.parser.HCParser;
-import org.hildan.hashcode.utils.parser.readers.ChildReader;
-import org.hildan.hashcode.utils.parser.readers.HCReader;
-import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.hildan.hashcode.utils.parser.Parser;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -32,40 +30,9 @@ public class Satellites {
             + "175889 8260\n" // The Eiffel Tower.
             + "3300 3599\n";  // The images need to be taken in the last 5 minutes.
 
-    private static ObjectReader<Simulation> simulationReader() {
-        return HCReader.createFromInt(Simulation::new)
-                       .thenVar("S")
-                       .thenArray(Simulation::setSatellites, Satellite[]::new, "S", satelliteReader())
-                       .thenVar("C")
-                       .thenArray(Simulation::setCollections, ImageCollection[]::new, "C", imgCollectionReader());
-    }
-
-    private static ObjectReader<Satellite> satelliteReader() {
-        return HCReader.createFrom5Ints(Satellite::new);
-    }
-
-    private static ObjectReader<ImageCollection> imgCollectionReader() {
-        return HCReader.withVars("V", "L", "R")
-                       .createFromVar(ImageCollection::new, "V")
-                       .thenArray(ImageCollection::setLocations, Location[]::new, "L", locationReader())
-                       .thenArray(ImageCollection::setRanges, int[][]::new, "R", rangeReader());
-    }
-
-    private static ChildReader<Location, ImageCollection> locationReader() {
-        return (ctx, parentCollection) -> {
-            int latitude = ctx.readInt();
-            int longitude = ctx.readInt();
-            return new Location(parentCollection, latitude, longitude);
-        };
-    }
-
-    private static ObjectReader<int[]> rangeReader() {
-        return HCReader.createFrom2Ints((lat, lgt) -> new int[] {lat, lgt});
-    }
-
     @Test
     public void test_parser() {
-        ObjectReader<Simulation> rootReader = simulationReader();
+        Parser<Simulation> rootReader = SatellitesParsers.simulation();
         HCParser<Simulation> parser = new HCParser<>(rootReader);
         Simulation problem = parser.parse(input);
 
