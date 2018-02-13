@@ -5,6 +5,8 @@ import org.hildan.hashcode.utils.parser.context.Context;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public interface Parser<A> extends Function<Context, A> {
     A parse(Context context) throws InputParsingException;
@@ -30,13 +32,6 @@ public interface Parser<A> extends Function<Context, A> {
     Parser<Double> doubl = Context::readDouble;
 
     default Parser<List<A>> repeat(Integer n) {
-        return ctx -> {
-            List<A> result = new ArrayList<A>();
-            for (int i = 0; i < n; i++) {
-                A a = this.parse(ctx);
-                result.add(a);
-            }
-            return result;
-        };
+        return ctx -> IntStream.range(0, n).mapToObj(m -> this.parse(ctx)).collect(Collectors.toList());
     }
 }
