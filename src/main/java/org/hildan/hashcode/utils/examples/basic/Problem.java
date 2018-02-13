@@ -5,19 +5,15 @@ import java.util.List;
 
 class Problem {
     public final int nClusters;
+    private final List<Point> points;
 
-    private List<Point> points;
-
-    Problem(int nClusters) {
+    Problem(int nClusters, List<Point> points) {
         this.nClusters = nClusters;
+        this.points = points;
     }
 
     public List<Point> getPoints() {
         return points;
-    }
-
-    public void setPoints(List<Point> points) {
-        this.points = points;
     }
 
     public List<String> solve() {

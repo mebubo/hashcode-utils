@@ -4,8 +4,7 @@ import org.hildan.hashcode.utils.examples.drones.model.Order;
 import org.hildan.hashcode.utils.examples.drones.model.Simulation;
 import org.hildan.hashcode.utils.examples.drones.model.Warehouse;
 import org.hildan.hashcode.utils.parser.HCParser;
-import org.hildan.hashcode.utils.parser.readers.HCReader;
-import org.hildan.hashcode.utils.parser.readers.ObjectReader;
+import org.hildan.hashcode.utils.parser.Parser;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -33,30 +32,10 @@ public class Drones {
                     + "1\n"      // Third order contains 1 item
                     + "2\n";     // Items of product types: 2
 
-    private static ObjectReader<Simulation> createReader() {
-        return HCReader.withVars("nRows", "nCols", "D", "nTurns", "maxLoad", "P")
-                       .createFrom6Vars(Simulation::new, "nRows", "nCols", "D", "nTurns", "maxLoad", "P")
-                       .thenIntArrayLine((p, arr) -> p.productTypeWeights = arr)
-                       .thenVar("W")
-                       .thenArray((p, arr) -> p.warehouses = arr, Warehouse[]::new, "W", warehouseReader())
-                       .thenVar("C")
-                       .thenArray(Simulation::setOrders, Order[]::new, "C", orderReader("P"));
-    }
-
-    private static ObjectReader<Warehouse> warehouseReader() {
-        return HCReader.createFrom2Ints(Warehouse::new).thenIntArrayLine((w, arr) -> w.stocks = arr);
-    }
-
-    private static ObjectReader<Order> orderReader(String nProductTypesVarName) {
-        return HCReader.withVars("x", "y")
-                       .createFrom3Vars(Order::new, "x", "y", nProductTypesVarName)
-                       .thenSkip(1) // skip the item count as we take the whole next line
-                       .thenIntArrayLine(Order::setItems);
-    }
 
     @Test
     public void test_parser() {
-        ObjectReader<Simulation> rootReader = createReader();
+        Parser<Simulation> rootReader = DroneParsers.simulation();
         HCParser<Simulation> parser = new HCParser<>(rootReader);
         Simulation problem = parser.parse(input);
 

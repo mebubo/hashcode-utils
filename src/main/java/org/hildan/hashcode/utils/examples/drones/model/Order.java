@@ -1,6 +1,7 @@
 package org.hildan.hashcode.utils.examples.drones.model;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class Order {
 
@@ -23,7 +24,7 @@ public class Order {
         return id;
     }
 
-    public void setItems(int[] products) {
+    public void setItems(List<Integer> products) {
         for (int p : products) {
             quantities[p]++;
         }
