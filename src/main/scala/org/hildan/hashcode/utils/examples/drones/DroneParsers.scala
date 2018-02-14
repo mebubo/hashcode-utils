@@ -29,14 +29,16 @@ object DroneParsers {
     nTurns <- integer
     maxLoad <- integer
     nProductTypes <- integer
-    productTypeWeights <- integer.repeat(nProductTypes, Array[Int]())
+    productTypeWeights <- Parser.mapToIntArray(integer.repeat(nProductTypes))
     nWarehouses <- integer
     warehouses <- warehouse(nProductTypes).repeat(nWarehouses, Array[Warehouse]())
     nOrders <- integer
     orders <- order(nProductTypes).repeat(nOrders)
     sim = new Simulation(nRows, nCols, d, nTurns, maxLoad, nProductTypes)
-    _ = sim.warehouses = warehouses
-    _ = sim.setOrders(orders)
-    _ = sim.productTypeWeights = productTypeWeights
-  } yield sim
+  } yield {
+    sim.warehouses = warehouses
+    sim.setOrders(orders)
+    sim.productTypeWeights = productTypeWeights
+    sim
+  }
 }

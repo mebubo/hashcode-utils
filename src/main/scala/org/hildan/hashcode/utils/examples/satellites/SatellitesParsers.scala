@@ -13,10 +13,10 @@ object SatellitesParsers {
     maxOrientationValue <- integer
   } yield new Satellite(lattitude, longitude, v0, maxOrientationChangePerTurn, maxOrientationValue)
 
-  def location: Parser[Location] = for {
+  def location(collection: ImageCollection): Parser[Location] = for {
     lattitude <- integer
     longitude <- integer
-  } yield new Location(null, lattitude, longitude)
+  } yield new Location(collection, lattitude, longitude)
 
   def range: Parser[Array[Int]] = for {
     start <- integer
@@ -27,26 +27,25 @@ object SatellitesParsers {
     value <- integer
     nLocations <- integer
     nRanges <- integer
-    ls <- location.repeat(nLocations)
-    locations: java.util.List[Location] = ls
-    rs <- range.repeat(nRanges)
-    ranges: java.util.List[Array[Int]] = rs
     coll = new ImageCollection(value)
-    _ = locations.forEach(l => l.parentCollection = coll)
-    _ = coll.locations = locations.toArray(Array[Location]())
-    _ = coll.ranges = ranges.toArray(Array[Array[Int]]())
-  } yield coll
+    locations <- location(coll).repeat(nLocations, Array[Location]())
+    ranges <- range.repeat(nRanges, Array[Array[Int]]())
+  } yield {
+    coll.locations = locations
+    coll.ranges = ranges
+    coll
+  }
 
   def simulation: Parser[Simulation] = for {
     nTurns <- integer
     nSatellites <- integer
-    ss <- satellite.repeat(nSatellites)
-    satellites: java.util.List[Satellite] = ss
+    satellites <- satellite.repeat(nSatellites, Array[Satellite]())
     nCollections <- integer
-    cs <- collection.repeat(nCollections)
-    collections: java.util.List[ImageCollection] = cs
+    collections <- collection.repeat(nCollections, Array[ImageCollection]())
     sim = new Simulation(nTurns)
-    _ = sim.setCollections(collections.toArray(Array[ImageCollection]()))
-    _ = sim.setSatellites(satellites.toArray(Array[Satellite]()))
-  } yield sim
+  } yield {
+    sim.setCollections(collections)
+    sim.setSatellites(satellites)
+    sim
+  }
 }

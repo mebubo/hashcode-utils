@@ -38,4 +38,8 @@ public interface Parser<A> extends Function<Context, A> {
     default Parser<A[]> repeat(Integer n, A[] as) {
         return repeat(n).map(l -> l.toArray(as));
     }
+
+    static Parser<int[]> mapToIntArray(Parser<List<Integer>> p) {
+        return p.map(l -> l.stream().mapToInt(x -> x).toArray());
+    }
 }
